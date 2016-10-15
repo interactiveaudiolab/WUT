@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+	<meta charset="utf-8">
+	<title>NISS</title>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
+          integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <!--<link rel="stylesheet" type="text/css" href="../workspace/style.css" />-->
+    <link rel="stylesheet" type="text/css" href="css/main.css" />
+    <script type="text/javascript" src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="js/vendor/wavesurfer.min.js"></script>
+    <script type="text/javascript" src="js/vendor/wavesurfer.regions.js"></script>
+    <script type="text/javascript" src="js/vendor/wavesurfer.timeline.js"></script>
+</head>
+
+<body>
+	<div id="wrapper">
+		<div id="mainContent">
+			<div id="title">
+				<h1 style="margin-bottom: 0;">New Interface for Source Separation</h1>
+				<p style="margin-top: 0;">An interactive, web-based audio sound source separation tool.</p>
+			</div>
+			<div id="controls">
+
+                <button id="upload" class="btn btn-primary" title="Open an audio file" type="button"
+                        onclick="audio.import_audio()">
+                    <span class="glyphicon glyphicon-open"></span>
+                    Upload
+                </button>
+                <input id="input_audio_file" style="display: none" accept="audio/*" type="file" />
+                <!--<button id="process" class="buttonStyle" onclick="beat_spectrum.compute()">Process</button>-->
+
+                <button id="play_button" class="btn btn-primary" title="Play audio" onclick="playPauseButton()">
+                    <span id="play_icon" class="glyphicon glyphicon-play"></span>
+                </button>
+
+                <button id="stop_button" class="btn btn-primary" title="Stop and reset audio" onclick="stopButton()">
+                    <span id="stop_icon" class="glyphicon glyphicon-stop"></span>
+                </button>
+
+                Volume:
+                <div id="volume_slider">
+                    <span class="glyphicon glyphicon-volume-down"></span>
+                    <div id="volume"></div>
+                    <span class="glyphicon glyphicon-volume-up"></span>
+                </div>
+                File name: <span id="filename"></span>
+
+			</div>
+
+            <div id="waveform-wrapper">
+                <!--<h3>Waveform</h3>-->
+                <div style="background-color:#F0F0F0 ; border-radius:2px; border: 1px solid #303030">
+                    <div id="waveform" style="width: 100%">
+                        <div class="progress progress-striped active" id="progress-bar" style="display: none;">
+                            <div class="progress-bar progress-bar-info" style="width: 100%;"></div>
+                        </div>
+                    </div>
+                    <div id = "wave-timeline2"> </div>
+                </div>
+            </div>
+			<!--<div id="plots">-->
+				<!--<div class="plot-container" id="beat-spectrum-container">-->
+					<!--<div id="beat-spectrum"></div>-->
+				<!--</div>-->
+				<!--<div class="plot-container" id="spectrogram-container">-->
+					<!--<div id="spectrogram"></div>-->
+				<!--</div>-->
+			<!--</div>-->
+		</div>
+		<div id="footer">
+			<p>Ethan Manilow, Darren Gergle<br />Northwestern University</p>
+		</div>
+	</div>
+    <script type="text/javascript" src="js/main.js"></script>
+    <script type="text/javascript" src="js/audio.js"></script>
+</body>
+</html>
