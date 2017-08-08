@@ -15,14 +15,43 @@ audio.import_audio = function() {
     // buffer_loader_load(mixture_file.url);
 };
 
+$(window).keypress(function (e) {
+    if (e.keyCode === 0 || e.keyCode === 32) {
+        e.preventDefault();
+        console.log('Space pressed');
+        audio.playPause();
+    }
+});
+
 $('#input_audio_file').change(function () {
     mixture_file.file = this.files[0];
     mixture_file.url = URL.createObjectURL(mixture_file.file);
 
-    $("#filename").text(mixture_file.file.name);
+    $("#filename").text(mixture_file.file.name + " Waveform");
     mixture_waveform.load(mixture_file.url);
-    mixture_file.upload_to_server();
+    mixture_file.upload_to_server(this);
 });
+
+mixture_file.upload_to_server = function (obj) {
+    var form_data = new FormData();
+    if($(obj).prop('files').length > 0)
+    {
+        file = $(obj).prop('files')[0];
+        form_data.append("audio_file", file);
+    }
+
+    $.ajax({
+        url: '/audio_upload',
+        type: "POST",
+        data: form_data,
+        processData: false,
+        contentType: false,
+        success: function (result) {
+            console.log('/audio_upload POST done!');
+            $('#audio_upload_status').text('Upload complete!');
+        }
+    });
+};
 
 audio.playPause = function () {
     togglePlayPauseIcon();
@@ -68,35 +97,18 @@ function setMixtureVolume(val) {
     mixture_waveform.setVolume(val);
 }
 
-// mixture_waveform.on('pause', function () {
-//     mixture_waveform.params.container.style.opacity = 0.8;
-// });
-//
-// mixture_waveform.on('play', function () {
-//     mixture_waveform.params.container.style.opacity = 1.0;
-// });
+ mixture_waveform.on('pause', function () {
+     mixture_waveform.params.container.style.opacity = 0.8;
+ });
+
+ mixture_waveform.on('play', function () {
+     mixture_waveform.params.container.style.opacity = 1.0;
+ });
 
 mixture_waveform.on('finish', function () {
     $('#play_icon').removeClass('glyphicon glyphicon-pause').addClass('glyphicon glyphicon-play');
     mixture_waveform.seekTo(0);
 });
-
-mixture_file.upload_to_server = function () {
-    var form_data = new FormData();
-    form_data.append('file', this.url);
-
-    console.log('Attemping to POST at /audio_upload');
-    $.ajax({
-        url: '/audio_upload',
-        processData: false,
-        contentType: false,
-        method: 'POST',
-        data: {id: form_data}
-    }).done(function () {
-        console.log('/audio_upload POST done!');
-        $('#audio_upload_status').text('Upload complete!');
-    });
-};
 
 function buffer_loader_load(url) {
     AUDIOFILES = [url];

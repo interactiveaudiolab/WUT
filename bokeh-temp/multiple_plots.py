@@ -8,13 +8,14 @@ from bokeh.models import ColumnDataSource, Range1d
 from bokeh.layouts import widgetbox, row, column
 from bokeh.models.widgets import Button
 from bokeh.resources import INLINE
+import traceback
 
 beat_spec_source = ColumnDataSource(data=dict(x=[], y=[]))
 spectrogram_source = ColumnDataSource(data=dict(s=[]))
 button = Button(label='Get beat spectrum data', button_type="success")
 inputs = widgetbox(button)
 
-path = '../tmp/audio/police_noisy.wav'
+path = '../tmp/toy_audio/police_noisy.wav'
 sig = nussl.AudioSignal(path)
 stft = sig.stft()
 
@@ -46,6 +47,9 @@ curdoc().add_root(column(inputs, beat_spectrum_fig, spectrogram_plot, width=2200
 
 
 def get_data():
+    # for line in traceback.format_stack():
+    #     print(line.strip())
+
     r = nussl.Repet(sig)
     bs = r.get_beat_spectrum()
     t = np.linspace(0.0, sig.signal_duration, num=len(bs))
@@ -63,7 +67,6 @@ def get_data():
     spectrogram_plot.y_range.end = np.max(sig.freq_vector)
 
 button.on_click(get_data)
-
 
 
 # if __name__ == '__main__':

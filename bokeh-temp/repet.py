@@ -40,7 +40,7 @@ curdoc().add_root(row(inputs, p, width=1100))
 
 
 def get_bs_data():
-    path = '../tmp/audio/police_noisy.wav'
+    path = '../tmp/toy_audio/police_noisy.wav'
     sig = nussl.AudioSignal(path)
     r = nussl.Repet(sig)
     bs = r.get_beat_spectrum()

@@ -41,7 +41,7 @@ hr {
 }
 
 /*
- * Remove the gap between audio, canvas, iframes,
+ * Remove the gap between toy_audio, canvas, iframes,
  * images, videos and the bottom of their containers:
  * https://github.com/h5bp/html5-boilerplate/issues/440
  */
@@ -90,26 +90,39 @@ textarea {
 
 
 #wrapper {
+    background-color: #E3F0FB;
+    border-radius: 0;
+    padding: 0;
     font-family: Century Gothic, CenturyGothic, AppleGothic, sans-serif;
     font-weight: lighter;
-    background-color: #E3F0FB;
-    border-radius: 4px;
-    padding: 10px;
+}
+
+#main-content {
+    margin: 15px;
 }
 
 h1 {
     font-weight: lighter;
 }
 
-#title {
+#title-text-wrapper-outer {
+    width: 300px;
     text-align: center;
+    float: left;
+}
+
+#title-text-wrapper-inner {
+    width: 300px;
+    text-align: center;
+    float: left;
 }
 
 #controls {
-    width: 90%;
-    margin-left: auto;
-    margin-right: auto;
+    /*width: 90%;*/
+    /*margin-left: auto;*/
+    /*margin-right: auto;*/
     /*text-align: center;*/
+    float: left;
 }
 
 #spectrogram {
@@ -246,6 +259,21 @@ audio {
     outline: none;
 }
 
+/*!*input[type="range"][orient="vertical"] {*!*/
+    /*!*writing-mode: bt-lr; !* IE *!*!*/
+    /*!*-webkit-appearance: slider-vertical; !* WebKit *!*!*/
+    /*!*width: 8px;*!*/
+    /*!*height: 175px;*!*/
+    /*!*padding: 0 5px;*!*/
+/*!*}*!*/
+
+/*input[type="range"] {*/
+    /*width: 8px;*/
+    /*height: 175px;*/
+    /*position: absolute;*/
+    /*top: 40%;*/
+    /*transform: rotate(270deg);*/
+/*}*/
 
 #beat_spectrum_container {
         position: relative;
@@ -262,12 +290,106 @@ audio {
         width: 40px;
 }
 
+.navbar-default {
+  background-color: #64d1ff;
+  border-color: #00b3ff;
+}
+.navbar-default .navbar-brand {
+  color: #005b99;
+}
+.navbar-default .navbar-brand:hover,
+.navbar-default .navbar-brand:focus {
+  color: #005fff;
+}
+.navbar-default .navbar-text {
+  color: #005b99;
+}
+.navbar-default .navbar-nav > li > a {
+  color: #005b99;
+}
+.navbar-default .navbar-nav > li > a:hover,
+.navbar-default .navbar-nav > li > a:focus {
+  color: #005fff;
+}
+.navbar-default .navbar-nav > li > .dropdown-menu {
+  background-color: #64d1ff;
+}
+.navbar-default .navbar-nav > li > .dropdown-menu > li > a {
+  color: #005b99;
+}
+.navbar-default .navbar-nav > li > .dropdown-menu > li > a:hover,
+.navbar-default .navbar-nav > li > .dropdown-menu > li > a:focus {
+  color: #005fff;
+  background-color: #00b3ff;
+}
+.navbar-default .navbar-nav > li > .dropdown-menu > li.divider {
+  background-color: #00b3ff;
+}
+.navbar-default .navbar-nav .open .dropdown-menu > .active > a,
+.navbar-default .navbar-nav .open .dropdown-menu > .active > a:hover,
+.navbar-default .navbar-nav .open .dropdown-menu > .active > a:focus {
+  color: #005fff;
+  background-color: #00b3ff;
+}
+.navbar-default .navbar-nav > .active > a,
+.navbar-default .navbar-nav > .active > a:hover,
+.navbar-default .navbar-nav > .active > a:focus {
+  color: #005fff;
+  background-color: #00b3ff;
+}
+.navbar-default .navbar-nav > .open > a,
+.navbar-default .navbar-nav > .open > a:hover,
+.navbar-default .navbar-nav > .open > a:focus {
+  color: #005fff;
+  background-color: #00b3ff;
+}
+.navbar-default .navbar-toggle {
+  border-color: #00b3ff;
+}
+.navbar-default .navbar-toggle:hover,
+.navbar-default .navbar-toggle:focus {
+  background-color: #00b3ff;
+}
+.navbar-default .navbar-toggle .icon-bar {
+  background-color: #005b99;
+}
+.navbar-default .navbar-collapse,
+.navbar-default .navbar-form {
+  border-color: #005b99;
+}
+.navbar-default .navbar-link {
+  color: #005b99;
+}
+.navbar-default .navbar-link:hover {
+  color: #005fff;
+}
 
+@media (max-width: 767px) {
+  .navbar-default .navbar-nav .open .dropdown-menu > li > a {
+    color: #005b99;
+  }
+  .navbar-default .navbar-nav .open .dropdown-menu > li > a:hover,
+  .navbar-default .navbar-nav .open .dropdown-menu > li > a:focus {
+    color: #005fff;
+  }
+  .navbar-default .navbar-nav .open .dropdown-menu > .active > a,
+  .navbar-default .navbar-nav .open .dropdown-menu > .active > a:hover,
+  .navbar-default .navbar-nav .open .dropdown-menu > .active > a:focus {
+    color: #005fff;
+    background-color: #00b3ff;
+  }
+}
 
+#title-text-wrapper {
+    width: 300px;
+    text-align: center;
+    margin: 0 auto;
 
+}
 
-
-
+#waveform-zoom-buttons {
+    padding: 15px;
+}
 
 
 /* ==========================================================================

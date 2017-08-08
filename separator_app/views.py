@@ -1,29 +1,30 @@
 import os
+import logging
+
+from flask import render_template, request, flash, redirect, url_for, session, abort, send_file
+from werkzeug.utils import secure_filename
+
 from separator_app import app
 from separator_app import separation_session
-from flask import render_template, request, flash, redirect, url_for, g, session
-from werkzeug.utils import secure_filename
-import nussl
-import json
-import numpy as np
-from config import basedir, ALLOWED_EXTENSIONS
-from audio_processing.repet import Repet
+from config import ALLOWED_EXTENSIONS
 
-TOY = True
+
+logger = logging.getLogger()
+
 
 @app.route('/')
 @app.route('/index')
 def index():
     new_sess = separation_session.SeparationSession()
     session['cur_session'] = new_sess.to_json()
-    # separation_session.make_new_session()
-    # if not hasattr(g, 'separation_session'):
-    #     g.separation_session = separation_session.SeparationSession()
+
     return render_template('index.html')
+    # return render_template('bokeh_index.html')
 
 
 @app.errorhandler(404)
 def page_not_found(*args):
+    logger.warn('404! {}'.format(request.full_path))
     return render_template('404.html')
 
 
@@ -31,27 +32,43 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 
-@app.route('/audio_upload', methods=['POST'])
+@app.route('/audio_upload', methods=['GET', 'POST'])
 def upload_file():
-    print('got upload request!')
+    logger.info('got upload request!')
+    mixture_file_key = 'audio_file'
+
     if request.method == 'POST':
         # check if the post request has the file part
-        if 'file' not in request.files:
+        if mixture_file_key not in request.files:
             flash('No file part')
+            logger.warn('No file part!')
             return redirect(request.url)
-        file = request.files['file']
+
+        this_file = request.files[mixture_file_key]
+
         # if user does not select file, browser also
         # submit a empty part without filename
-        if file.filename == '':
+        if this_file.filename == '':
             flash('No selected file')
+            logger.warn('No selected file')
             return redirect(request.url)
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(path)
+
+        if this_file and allowed_file(this_file.filename):
+            logger.info('File OKAY!')
+            filename = secure_filename(this_file.filename)
+
             sess = separation_session.SeparationSession.from_json(session['cur_session'])
+            path = os.path.join(sess.user_original_file_folder, filename)
+            logger.info('Saving at {}'.format(path))
+            this_file.save(path)
             sess.initialize(path)
-            return redirect(url_for('uploaded_file', filename=filename))
+
+            sess_json = sess.to_json()
+
+            session['cur_session'] = sess_json
+
+            return redirect(url_for('upload_file', filename=filename))
+
     return '''
         <!doctype html>
         <title>Upload new File</title>
@@ -63,55 +80,54 @@ def upload_file():
         '''
 
 
-@app.route('/get_toy_data', methods=['GET'])
-def send_toy_data():
-    print('toy data')
-    # print('nussl info: ' + nussl.__version__)
-    if request.method == 'GET':
-        sess = separation_session.SeparationSession.from_json(session['cur_session'])
-        path = os.path.join(basedir, 'tmp', 'audio', 'police_noisy.wav')
-        if not sess.initialized:
-            sess.initialize(path)
+# @app.route('/get_toy_data', methods=['GET'])
+# def send_toy_data():
+#     print('toy data')
+#     # print('nussl info: ' + nussl.__version__)
+#     if request.method == 'GET':
+#         # sess = separation_session.SeparationSession.from_json(session['cur_session'])
+#         path = os.path.join(basedir, 'tmp', 'toy_audio', 'police_noisy.wav')
+#         # if not sess.initialized:
+#         #     sess.initialize(path)
+#
+#         start = int(request.args.get('start'))
+#         end = int(request.args.get('end'))
+#         # police_json = sess.repet.get_beat_spectrum_json(start, end)
+#         # session['cur_session'] = sess.to_json()
+#         # return police_json
 
-        start = int(request.args.get('start'))
-        end = int(request.args.get('end'))
-        police_json = sess.repet.get_beat_spectrum_json(start, end)
-        # session['cur_session'] = sess.to_json()
-        return police_json
+def _update_session():
+    pass
 
 
 @app.route('/get_spectrogram', methods=['GET'])
 def send_spectrogram():
-    print('spectrogram')
+    logger.info('in /get_spectrogram')
 
     if request.method == 'GET':
         sess = separation_session.SeparationSession.from_json(session['cur_session'])
+        logger.info('session awake {}'.format(sess.session_id))
 
-        if TOY:
-            path = os.path.join(basedir, 'tmp', 'audio', 'police_noisy.wav')
-            if not sess.initialized:
-                sess.initialize(path)
+        if not sess.initialized:
+            abort(404)
 
-        channel = 1 if 'channel' not in request.args else int(request.args.get('channel'))
-        return sess.general.get_power_spectrogram_html(channel)
+        args = {'channel': None, 'start': None, 'stop': None}
 
+        for k in args.keys():
+            if k in request.args and request.args.get(k):
+                args[k] = float(request.args.get(k))
 
-@app.route('/get_beat_spectrum', methods=['GET'])
-def send_beat_spectrum():
-    print('beat_spectrum')
+        csv_file_path = sess.user_general_audio.get_spectrogram_csv_file(**args)
 
-    if request.method == 'GET':
-        sess = separation_session.SeparationSession.from_json(session['cur_session'])
-        start = 0.0 if 'start' not in request.args else int(request.args.get('start'))
-        end = sess.general.stft_end if 'end' not in request.args else int(request.args.get('end'))
+        return send_file(csv_file_path, 'text/csv')
 
-        if TOY:
-            path = os.path.join(basedir, 'tmp', 'audio', 'police_noisy.wav')
-            if not sess.initialized:
-                sess.initialize(path)
-
-            start = 0.0
-            end = sess.general.stft_end
-        return sess.repet.get_beat_spectrum_html(start, end)
+    return abort(405)
 
 
+# @app.route('/get_beat_spectrum', methods=['GET'])
+# def send_beat_spectrum():
+#     print('beat_spectrum')
+#
+#     if request.method == 'GET':
+#         # sess = separation_session.SeparationSession.from_json(session['cur_session'])
+#         pass

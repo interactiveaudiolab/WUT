@@ -102,6 +102,3 @@ function compute_beat_spectrum(stft, sample_rate, start, end) {
 
 }
 
-function plotBeatSpectrum() {
-    
-}

@@ -192,3 +192,71 @@ function ClearBeatSpectrum() {
         });
     }
 }
+
+function bokeh_beat_spectrum(beat_spec_array, start_time, end_time) {
+    var xdr = new Bokeh.Range1d({ start: start_time, end: end_time });
+    var ydr = new Bokeh.Range1d({ start: 0.0, end: beat_spec_array.max() });
+    var x_vals = Bokeh.LinAlg.linspace( start_time, end_time, beat_spec_array.length);
+    var beat_source = new Bokeh.ColumnDataSource({data: {x: x_vals, y: beat_spec_array}});
+
+    var fig = plt.figure({
+        width: 900,
+        height: 500,
+        tools: "pan,box_select",
+        x_range: xdr,
+        y_range: ydr,
+        title: "Beat Spectrum"
+        // background_fill_color: "#F2F2F7"
+    });
+    fig.xaxis.axis_label = "Time (s)";
+    fig.yaxis.axis_label = "Beat Strength";
+
+    var line = new Bokeh.Line({
+         x: { field: "x" },
+         y: { field: "y" },
+         line_color: "#666699",
+         line_width: 2
+    });
+    fig.add_glyph(line, beat_source);
+
+    var doc = new Bokeh.Document();
+    doc.add_root(fig);
+    window.beat_spec_plot = fig;
+    var div = document.getElementById("beat_spectrum_container_bokeh");
+    Bokeh.embed.add_document_standalone(doc, div);
+}
+
+function bokeh_spectrogram(spectrogram_data, start_time, end_time, max_freq) {
+    var spectrogram_source = new Bokeh.ColumnDataSource({data: {spec: [spectrogram_data]}});
+
+    var xdr = new Bokeh.Range1d({ start: start_time, end: end_time });
+    var ydr = new Bokeh.Range1d({ start: 0.0, end: max_freq });
+
+    var fig = plt.figure({
+        width: 900,
+        height: 500,
+        tools: "pan,box_select",
+        x_range: xdr,
+        y_range: ydr,
+        title: "Power Spectrogram"
+    });
+    fig.xaxis.axis_label = "Time (s)";
+    fig.yaxis.axis_label = "Freq (Hz)";
+
+    // var cmap = Bokeh.ColorMapper({palette: "Magma10"});
+
+    var img = new Bokeh.Image({
+        image: { field: "spec"},
+        x: 0,
+        y: 0,
+        dw: xdr.end,
+        dh: ydr.end
+        // color_mapper: cmap
+    });
+    fig.add_glyph(img, spectrogram_source);
+
+    var doc = new Bokeh.Document();
+    doc.add_root(fig);
+    var div = document.getElementById("spectrogram_bokeh");
+    Bokeh.embed.add_document_standalone(doc, div);
+}

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+	<meta charset="utf-8">
+	<title>NISS</title>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
+          integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/vendor/rickshaw.min.css') }}" />
+    <link href="http://cdn.pydata.org/bokeh/release/bokeh-0.12.2.min.css" rel="stylesheet" type="text/css">
+    <link href="http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.2.min.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+    <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/bokeh/bokeh.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/bokeh/bokeh-api.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/wavesurfer.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/wavesurfer.regions.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/wavesurfer.timeline.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/rickshaw.min.js') }}"></script>
+</head>
+
+<body>
+	<div id="wrapper">
+		<div id="mainContent">
+			<div id="title">
+				<h1 style="margin-bottom: 0;">WUT? The Web Unmixing Toolbox</h1>
+				<p style="margin-top: 0;">An interactive, web-based audio sound source separation tool.</p>
+			</div>
+			<div id="controls">
+
+                <button id="upload" class="btn btn-primary" title="Open an audio file" type="button"
+                        onclick="audio.import_audio()">
+                    <span class="glyphicon glyphicon-open"></span>
+                    Upload
+                </button>
+                <form action="audio_upload" style="display: none;" method="post" role="form"
+                      enctype="multipart/form-data">
+                    <input id="input_audio_file" style="display: none" accept="audio/*" type="file" name="file" />
+                </form>
+                <!--<button id="process" class="buttonStyle" onclick="beat_spectrum.compute()">Process</button>-->
+
+                <button id="play_button" class="btn btn-primary" title="Play audio" onclick="playPauseButton()">
+                    <span id="play_icon" class="glyphicon glyphicon-play"></span>
+                </button>
+
+                <button id="stop_button" class="btn btn-primary" title="Stop and reset audio" onclick="stopButton()">
+                    <span id="stop_icon" class="glyphicon glyphicon-stop"></span>
+                </button>
+
+                Volume:
+                <div id="volume_slider">
+                    <span class="glyphicon glyphicon-volume-down"></span>
+                    <div id="volume"></div>
+                    <span class="glyphicon glyphicon-volume-up"></span>
+                </div>
+                File name: <span id="filename"></span>
+
+			</div>
+            <div id="waveform-wrapper">
+                <!--<h3>Waveform</h3>-->
+                <div style="background-color:#F0F0F0 ; border-radius:2px; border: 1px solid #303030">
+                    <div id="waveform" style="width: 100%">
+                        <div class="progress progress-striped active" id="progress-bar" style="display: none;">
+                            <div class="progress-bar progress-bar-info" style="width: 100%;"></div>
+                        </div>
+                    </div>
+                    <div id = "wave-timeline2"> </div>
+                </div>
+            </div>
+
+            <p id="audio_upload_status">No status</p>
+			<!--<div id="plots">-->
+				<!--<div class="plot-container" id="beat-spectrum-container">-->
+					<!--<div id="beat-spectrum"></div>-->
+				<!--</div>-->
+				<!--<div class="plot-container" id="spectrogram-container">-->
+					<!--<div id="spectrogram"></div>-->
+				<!--</div>-->
+			<!--</div>-->
+		</div>
+        <div id="representation">
+            <button id="send_data" class="btn btn-primary" title="Get Toy Data back" onclick="sendDataBack()">
+                Get Toy Data From Server
+            </button>
+            <input id="selection_start" type="number" />
+            <input id="selection_end" type="number" />
+{#            <svg id="beat_spectrum_svg" width="1000" height="500"></svg>#}
+{#            <br />#}
+{#            <br />#}
+{#            <h3>Beat Spectrum</h3>#}
+{#            <div id="beat_spectrum_container">#}
+{#                <div id="beat_spectrum_y_axis"></div>#}
+{#                <div id="beat_spectrum_graph"></div>#}
+{#            </div>#}
+{#            <div id="beat_spectrum_statistics">#}
+{#                <p id="beat_spectrum_entropy">Entropy: </p> <br />#}
+{#                <p id="beat_spectrum_log_mean">log(mean): </p>#}
+{#            </div>#}
+            <h2>BOKEH</h2>
+            <button id="spectrogram_button" class="btn btn-primary"
+                    title="Spectrogram" onclick="getSpectrogramJson()">
+                Get Power Spectrogram
+            </button>
+            <h3>Power Spectrogram</h3>
+            <p>Channel #<input id="channel" type="number" /> </p>
+            <div id="spectrogram_bokeh" style="width: 1000px; height: 600px; position: relative;">
+
+            </div>
+            <br />
+            <br />
+            <button id="beat_spectrum_button" class="btn btn-primary"
+                    title="beat_spectrum" onclick="sendDataBack()">
+                Get Beat Spectrum
+            </button>
+             <div id="beat_spectrum_container_bokeh" style="width: 1000px; height: 600px; position: relative;">
+{#                {{ beat_spectrum_bokeh }}#}
+            </div>
+        </div>
+
+		<div id="footer">
+			<p>Ethan Manilow, Darren Gergle<br />Northwestern University</p>
+		</div>
+	</div>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/bokeh_main.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/audio.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/plot.js') }}"></script>
+</body>
+</html>

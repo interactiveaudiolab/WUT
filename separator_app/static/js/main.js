@@ -1,7 +1,8 @@
-var repet_worker;
 var mixture_waveform = Object.create(WaveSurfer);
 var all_waveforms = [mixture_waveform];
-var beat_spectrum_loaded = false;
+var defaultZoomStart;
+var zoomStepSize = 5;
+var mixture_spectrogram = null;
 
 //Colors
 var red = 'rgba(255, 0, 0, 0.5)';
@@ -23,23 +24,14 @@ $(document).ready(function() {
 	online = new AudioContext();
 
 	context = online;
-
-    // if (typeof(Worker) !== "undefined") {
-    //     if (typeof(repet_worker) === "undefined") {
-    //         repet_worker = new Worker('repet.js');
-    //     }
-    // } else {
-    //     // browser too old
-    //     // handle no worker case
-    // }
-
+//	make_spectrogram('heatmap');
 
 });
 
 document.addEventListener('DOMContentLoaded', function () {
 
     var options = {
-        container: document.querySelector('#waveform'),
+        container: document.querySelector('#mixture-waveform'),
         waveColor: 'blue',
         progressColor: 'navy',
         cursorColor: 'black',
@@ -48,17 +40,30 @@ document.addEventListener('DOMContentLoaded', function () {
         normalize: true,
         //backend: 'MediaElement'
         audioRate: 1.0
-
+//        splitChannels: true
     };
 
     // Init mixture_waveform
     mixture_waveform.init(options);
     mixture_waveform.enableDragSelection({
-        color: green
+        color: green,
+        resize: true
     });
+    defaulZoomStart = mixture_waveform.params.minPxPerSec;
 });
 
-$("#volume").slider({
+mixture_waveform.on('ready', function () {
+  var timeline = Object.create(WaveSurfer.Timeline);
+
+  timeline.init({
+    wavesurfer: mixture_waveform,
+    container: '#waveform-timeline'
+  });
+});
+
+$("#volume-slider").slider({
+//$("#ex4").slider({
+    reversed: true,
     min: 0,
     max: 100,
     value: 50,
@@ -68,48 +73,92 @@ $("#volume").slider({
     }
 });
 
-function sendDataBack() {
-    var toy_start = $('#selection_start').val();
-    var toy_end = $('#selection_end').val();
-    $.ajax({
-        url: '/get_toy_data?start=' + toy_start + '&end=' + toy_end,
-        dataType: 'json',
-        method: 'GET'
-    }).done(function (posts) {
-        var beat_spectrum_data = posts.beat_spectrum_data;
-        var entropy = posts.entropy;
-        var log_mean = posts.log_mean;
-        $('#beat_spectrum_entropy').append(entropy);
-        $('#beat_spcetrum_log_mean').append(log_mean);
-        ClearBeatSpectrum();
-        PlotBeatSpectrum(beat_spectrum_data);
-    });
+
+$("#title-text")
+.mouseenter(function() {
+    var el = $(this);
+    el.data("text-original", el.text());
+    el.text(el.data("text-swap"));
+})
+.mouseleave(function() {
+    var el = $(this);
+    el.text(el.data("text-original"));
+});
+
+
+$('#mixture-zoom-in').click(function(){
+    mixture_waveform.zoom(mixture_waveform.params.minPxPerSec + zoomStepSize);
+});
+
+$('#mixture-zoom-out').click(function(){
+    mixture_waveform.zoom(mixture_waveform.params.minPxPerSec - zoomStepSize);
+});
+
+function getLastObject(obj) {
+    // Fancy little one liner to get the LAST object in a JS obj
+    // from https://stackoverflow.com/a/16590272/5768001
+    return obj[Object.keys(obj)[Object.keys(obj).length - 1]];
+}
+
+function getLastItemInArray(arr) {
+    return arr[arr.length - 1];
+}
+
+function getFirstObject(obj) {
+    // Fancy little one liner to get the FIRST object in a JS obj
+    return obj[Object.keys(obj)[0]];
+}
+
+function numberOfRegions() {
+    return objectLength(mixture_waveform.regions.list);
+}
+
+function objectLength(obj) {
+    return Object.keys(obj).length;
+}
+
+mixture_waveform.on('region-created', function() {
+    if (numberOfRegions() > 0) {
+        prevRegion = getFirstObject(mixture_waveform.regions.list);
+        prevRegion.remove();
+    }
+
+});
+
+$("#get-spectrogram").click(function() {
+    getSpectrogram();
+
+});
+
+function truncateFloat(val) {
+    return Number(val.toFixed(3));
 }
 
 function getSpectrogram() {
-    var channel = $('#channel').val();
-    var url = window.location.origin + '/get_spectrogram?channel=' + channel;
-    $('#spectrogram_bokeh').html('<iframe src="' + url + '" width="1000px" height="600px" ' +
-        'style="overflow:auto;"/>');
+    /*
+    Gets spectrogram data from server using an ajax request.
+    First has to check to see if there are any regions, if so only gets spectrogram in that region.
+    */
+
+    if (numberOfRegions() > 1) {
+        console.log('Uh oh!!! More than one region!!!');
+    }
+
+    var url = "/get_spectrogram";
+    var specLength = mixture_waveform.backend.getDuration();
+    var selectedRange = [0.0, specLength];
+
+
+    if (numberOfRegions() === 1) {
+        selectedRegion = getFirstObject(mixture_waveform.regions.list);
+        selectedRange = [selectedRegion.start, selectedRegion.end];
+        // var start = truncateFloat(selectedRegion.start);
+        // var stop =  truncateFloat(selectedRegion.end);
+        // url += '?start=' + start + '&stop=' + stop;
+        // specLength = stop - start;
+        // audioOffset = start;
+    }
+
+    make_spectrogram("spectrogram-heatmap", url, mixture_file.file.name, specLength, selectedRange);
+
 }
-
-function getBeatSpectrum() {
-    var toy_start = $('#selection_start').val();
-    var toy_end = $('#selection_end').val();
-    var url = window.location.origin + '/get_beat_spectrum?start=' + toy_start + '&end=' + toy_end;
-    $('#beat_spectrum_container_bokeh').html('<iframe src="' + url + '" width="1000px" height="600px" ' +
-        'style="overflow:auto;"/>');
-    
-}
-
-function run_repet() {
-    repet_worker.postMessage({'cmd': 'start', 'file' : '' });
-
-}
-
-function terminate_repet() {
-    repet_worker.terminate();
-}
-
-
-

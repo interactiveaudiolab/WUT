@@ -30,7 +30,6 @@ def main():
         f.write('\n\n\n')
         f.write(div)
 
-    np.convolve([],[])
 
     # output_file('bokeh_spectrogram_test.html')
     # show(p)
