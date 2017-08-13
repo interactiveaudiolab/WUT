@@ -1,12 +1,14 @@
 import os
 import logging
+import inspect
 
-from flask import render_template, request, flash, redirect, url_for, session, abort, send_file
+from flask import render_template, request, flash, redirect, url_for, session, abort, send_file, make_response
 from werkzeug.utils import secure_filename
 
 from separator_app import app
 from separator_app import separation_session
 from config import ALLOWED_EXTENSIONS
+DEBUG = True
 
 
 logger = logging.getLogger()
@@ -19,7 +21,6 @@ def index():
     session['cur_session'] = new_sess.to_json()
 
     return render_template('index.html')
-    # return render_template('bokeh_index.html')
 
 
 @app.errorhandler(404)
@@ -80,24 +81,21 @@ def upload_file():
         '''
 
 
-# @app.route('/get_toy_data', methods=['GET'])
-# def send_toy_data():
-#     print('toy data')
-#     # print('nussl info: ' + nussl.__version__)
-#     if request.method == 'GET':
-#         # sess = separation_session.SeparationSession.from_json(session['cur_session'])
-#         path = os.path.join(basedir, 'tmp', 'toy_audio', 'police_noisy.wav')
-#         # if not sess.initialized:
-#         #     sess.initialize(path)
-#
-#         start = int(request.args.get('start'))
-#         end = int(request.args.get('end'))
-#         # police_json = sess.repet.get_beat_spectrum_json(start, end)
-#         # session['cur_session'] = sess.to_json()
-#         # return police_json
+def _get_args_float(args_dict):
+    for k in args_dict.keys():
+        if k in request.args and request.args.get(k):
+            args_dict[k] = float(request.args.get(k))
+    return args_dict
 
-def _update_session():
-    pass
+
+def _exception(error_msg):
+    frm = inspect.stack()[1][3]
+    logger.error('{} -- {}'.format(frm, error_msg))
+
+    if DEBUG:
+        raise Exception(error_msg)
+    else:
+        abort(404)
 
 
 @app.route('/get_spectrogram', methods=['GET'])
@@ -109,25 +107,51 @@ def send_spectrogram():
         logger.info('session awake {}'.format(sess.session_id))
 
         if not sess.initialized:
-            abort(404)
+            _exception('sess not initialized!')
 
-        args = {'channel': None, 'start': None, 'stop': None}
+        # args = {'channel': None, 'start': None, 'stop': None, 'csv': None}
+        args = {'channel': None, 'start': None, 'stop': None, 'csv': True}
+        args = _get_args_float(args)
 
-        for k in args.keys():
-            if k in request.args and request.args.get(k):
-                args[k] = float(request.args.get(k))
+        # spec_mime_type = 'text/csv' if args['csv'] in (None, 0.0, 0, '') else 'text/json'
+        spec_mime_type = 'text/csv'
+        spec_file_path, freq_max = sess.user_general_audio.make_spectrogram_file(**args)
+        sess_json = sess.to_json()
 
-        csv_file_path = sess.user_general_audio.get_spectrogram_csv_file(**args)
+        session['cur_session'] = sess_json
 
-        return send_file(csv_file_path, 'text/csv')
+        response = make_response(send_file(spec_file_path, spec_mime_type))
+        # response.headers.add('freqMax', int(freq_max))
+
+        return response
 
     return abort(405)
 
 
-# @app.route('/get_beat_spectrum', methods=['GET'])
-# def send_beat_spectrum():
-#     print('beat_spectrum')
-#
-#     if request.method == 'GET':
-#         # sess = separation_session.SeparationSession.from_json(session['cur_session'])
-#         pass
+@app.route('/remove_all_but_selection', methods=['GET'])
+def remove_all_but_selection():
+    logger.info('in /remove_all_but_selection')
+
+    if request.method == 'GET':
+        sess = separation_session.SeparationSession.from_json(session['cur_session'])
+        logger.info('session awake {}'.format(sess.session_id))
+
+        if not sess.initialized or not sess.stft_done:
+            _exception('sess not initialized or STFT not done!')
+
+        args = {'xStart': None, 'xEnd': None, 'yStart': None, 'yEnd': None}
+        args = _get_args_float(args)
+
+        if not all(args.values()):
+            _exception('Not all values set correctly! {}'.format(args))
+
+        file_mime_type = 'audio/wav'
+        file_path = sess.user_general_audio.make_wav_file_with_everything_but_selection(args['xStart'], args['xEnd'],
+                                                                                        args['yStart'], args['yEnd'])
+        sess_json = sess.to_json()
+
+        session['cur_session'] = sess_json
+
+        response = make_response(send_file(file_path, file_mime_type))
+
+        return response

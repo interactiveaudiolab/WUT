@@ -14,6 +14,7 @@ import os
 
 import numpy as np
 import librosa
+import msgpack
 from .. import nussl
 
 logger = logging.getLogger()
@@ -25,7 +26,11 @@ class GeneralAudio(object):
 
         self.audio_signal = None
         self.storage_path = None
+
         self.spec_csv_path = None
+        self.spec_json_path = None
+        self.freq_max = None
+        self.stft_done = False
 
         if audio_signal_object is not None:
             if not isinstance(audio_signal_object, nussl.AudioSignal):
@@ -37,7 +42,11 @@ class GeneralAudio(object):
             self.audio_signal = audio_signal_object
             self.storage_path = storage_path
 
-    def get_spectrogram_csv_string(self, ch=None, start=None, stop=None):
+    @staticmethod
+    def _prep_spectrogram(spectrogram):
+        return np.add(librosa.logamplitude(spectrogram, ref_power=np.max).astype('int8'), 80)
+
+    def _get_spectrogram_csv_string(self, ch=None, start=None, stop=None):
         signal_copy = copy.copy(self.audio_signal)
 
         # Set active region
@@ -56,14 +65,14 @@ class GeneralAudio(object):
 
     @staticmethod
     def _csv_string_maker(spectrogram):
-        spec = np.add(librosa.logamplitude(spectrogram, ref_power=np.max).astype('int8'), 80)
+        spec = GeneralAudio._prep_spectrogram(spectrogram)
         output = StringIO()
         np.savetxt(output, spec, delimiter=',', fmt='%i',
                    header=','.join(['t{}'.format(i) for i in range(spec.shape[1])]))
         return output.getvalue()
 
-    def get_spectrogram_csv_file(self, channel=None, start=None, stop=None):
-        logger.debug('Making spectrogram file: ch={}, start={}, stop={}'.format(channel, start, stop))
+    def _get_spectrogram_csv_file(self, channel=None, start=None, stop=None):
+        logger.debug('Making spectrogram csv file: ch={}, start={}, stop={}'.format(channel, start, stop))
         signal_copy = copy.copy(self.audio_signal)
 
         # Set active region
@@ -73,13 +82,14 @@ class GeneralAudio(object):
         chan = 0 if channel is None else channel
 
         # create a file name
-        csv_file_name = '{}_s{}_e{}_c{}.csv'.format(self.audio_signal.file_name, start_sample, end_sample, chan)
+        file_name = self.audio_signal.file_name.replace('.', '-')
+        csv_file_name = '{}_s{}_e{}_c{}.csv'.format(file_name, start_sample, end_sample, chan)
         csv_file_path = os.path.join(self.storage_path, csv_file_name)
 
         # Check if we've already made this file before. If so, we serve up that'un
         if os.path.exists(csv_file_path):
             self.spec_csv_path = csv_file_path
-            return csv_file_path
+            return csv_file_path, self.freq_max
 
         # Channel logic and actually making the file
         if channel is None:
@@ -95,16 +105,110 @@ class GeneralAudio(object):
             logger.error('Could not find spectrogram csv file at {}!'.format(csv_file_path))
             raise Exception('Could not find spectrogram csv file at {}!'.format(csv_file_path))
 
+        self.freq_max = signal_copy.freq_vector[-1]
         self.spec_csv_path = csv_file_path
-        return csv_file_path
+        return csv_file_path, self.freq_max
 
     @staticmethod
     def _csv_file_maker(spectrogram, file_path):
         # Make a temporary csv file
-        spec = np.add(librosa.logamplitude(spectrogram, ref_power=np.max).astype('int8'), 80)
-
+        spec = GeneralAudio._prep_spectrogram(spectrogram)
         np.savetxt(file_path, spec, delimiter=',', fmt='%i',
                    header=','.join(['t{}'.format(i) for i in range(spec.shape[1])]))
+
+    def _get_spectrogram_json_file(self, channel=None, start=None, stop=None):
+        logger.debug('Making spectrogram json file: ch={}, start={}, stop={}'.format(channel, start, stop))
+        signal_copy = copy.copy(self.audio_signal)
+
+        # Set active region
+        start_sample = 0 if start is None else signal_copy.sample_rate * start
+        end_sample = signal_copy.signal_length if start is None else signal_copy.sample_rate * stop
+        signal_copy.set_active_region(start_sample, end_sample)
+        chan = 0 if channel is None else channel
+
+        # create a file name
+        json_file_name = '{}_s{}_e{}_c{}.json'.format(self.audio_signal.file_name, start_sample, end_sample, chan)
+        json_file_path = os.path.join(self.storage_path, json_file_name)
+
+        # Check if we've already made this file before. If so, we serve up that'un
+        if os.path.exists(json_file_path):
+            self.spec_json_path = json_file_path
+            return json_file_path
+
+        # Channel logic and actually making the file
+        if channel is None:
+            signal_copy.to_mono(overwrite=True)
+            signal_copy.stft()
+            self._json_file_maker(signal_copy.get_power_spectrogram_channel(0), json_file_path)
+
+        else:
+            signal_copy.stft()
+            self._json_file_maker(signal_copy.get_power_spectrogram_channel(channel), json_file_path)
+
+        if not os.path.exists(json_file_path):
+            logger.error('Could not find spectrogram json file at {}!'.format(json_file_path))
+            raise Exception('Could not find spectrogram json file at {}!'.format(json_file_path))
+
+        freq_max = signal_copy.freq_vector[-1]
+        self.spec_json_path = json_file_path
+        return json_file_path, freq_max
+
+    @staticmethod
+    def _json_file_maker(spectrogram, file_path):
+        spectrogram = GeneralAudio._prep_spectrogram(spectrogram)
+        spec_json_dict = nussl.utils.json_ready_numpy_array(spectrogram)
+        # spec_json_dict['freq_max'] = freq_max
+        with open(file_path, 'w') as f:
+            json.dump(spec_json_dict, f)
+
+    def make_spectrogram_file(self, channel=None, start=None, stop=None, csv=None):
+        csv = csv not in (None, 0.0, 0, '')
+
+        if csv:
+            result = self._get_spectrogram_csv_file(channel, start, stop)
+        else:
+            result = self._get_spectrogram_json_file(channel, start, stop)
+
+        self.stft_done = True
+        return result
+
+    def make_wav_file_with_everything_but_selection(self, t_start, t_end, f_start, f_end):
+        signal_copy = copy.copy(self.audio_signal)
+        signal_copy.stft()
+
+        # find the indices that we need to delete
+        f_start_idx = signal_copy.get_closest_frequency_bin(f_start)
+        f_end_idx = signal_copy.get_closest_frequency_bin(f_end)
+        t_start_idx = (np.abs(signal_copy.time_bins_vector - t_start)).argmin()
+        t_end_idx = (np.abs(signal_copy.time_bins_vector - t_end)).argmin()
+
+        # signal_copy.stft_data[f_start_idx:f_end_idx, t_start_idx:t_end_idx] = 0.0j # delete the area in the selection
+
+        # delete everything BUT the selected area
+        signal_copy.stft_data[:f_start_idx, :] = 0.0j
+        signal_copy.stft_data[f_end_idx:, :] = 0.0j
+        signal_copy.stft_data[:, :t_start_idx] = 0.0j
+        signal_copy.stft_data[:, t_end_idx:] = 0.0j
+
+        signal_copy.istft(overwrite=True)
+
+        file_name_stem = self.audio_signal.file_name.replace('.', '-')
+
+        # create a new file name
+        i = 0
+        new_audio_file_name = '{}_{}.wav'.format(file_name_stem, i)
+        while os.path.isfile(new_audio_file_name):
+            new_audio_file_name = '{}_{}.wav'.format(file_name_stem, i)
+
+        # write the metadata
+        # new_metadata_path = os.path.join(self.storage_path, '{}_{}.json'.format(file_name_stem, i))
+        # with open(new_metadata_path, 'w') as f:
+        #     pass
+
+        new_audio_file_path = os.path.join(self.storage_path, new_audio_file_name)
+        signal_copy.write_audio_to_file(new_audio_file_path)
+
+        return new_audio_file_path
 
     def to_json(self):
         return json.dumps(self, default=self._to_json_helper)

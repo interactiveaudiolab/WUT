@@ -2,6 +2,7 @@ import logging
 
 from flask import Flask
 from flask_session import Session
+# from flask_compress import Compress
 
 # set up app
 app = Flask(__name__)
@@ -9,6 +10,7 @@ app = Flask(__name__)
 SESSION_TYPE = 'filesystem'
 app.config.from_object(__name__)
 Session(app)
+# Compress(app)
 
 from separator_app import views
 
@@ -28,7 +30,7 @@ logger_name = 'WUT - Backend'
 # logger = logging.getLogger(logger_name)
 logger = logging.getLogger()
 handler = logging.StreamHandler()
-formatter = logging.Formatter('%(asctime)s %(name)-12s %(levelname)-8s %(filename)s-8s %(funcName)s-8s %(message)s')
+formatter = logging.Formatter('%(asctime)s %(name)-10s %(levelname)-8s %(filename)-12s %(funcName)-12s %(message)s')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.setLevel(logging.DEBUG)

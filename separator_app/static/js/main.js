@@ -1,8 +1,9 @@
 var mixture_waveform = Object.create(WaveSurfer);
-var all_waveforms = [mixture_waveform];
+var result_waveform = Object.create(WaveSurfer);
+var all_waveforms = [mixture_waveform, result_waveform];
 var defaultZoomStart;
 var zoomStepSize = 5;
-var mixture_spectrogram = null;
+var mixture_spectrogram = {rawData: null, plot: null, xTicks: null, yTicks: null};
 
 //Colors
 var red = 'rgba(255, 0, 0, 0.5)';
@@ -30,12 +31,12 @@ $(document).ready(function() {
 
 document.addEventListener('DOMContentLoaded', function () {
 
-    var options = {
+    var mixtureOptions = {
         container: document.querySelector('#mixture-waveform'),
         waveColor: 'blue',
         progressColor: 'navy',
         cursorColor: 'black',
-        scrollParent: true,
+        scrollParent: false,
         height: 120,
         normalize: true,
         //backend: 'MediaElement'
@@ -44,12 +45,26 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     // Init mixture_waveform
-    mixture_waveform.init(options);
+    mixture_waveform.init(mixtureOptions);
     mixture_waveform.enableDragSelection({
         color: green,
         resize: true
     });
     defaulZoomStart = mixture_waveform.params.minPxPerSec;
+
+    // Init result_waveform
+    var resultOptions = {
+        container: document.querySelector('#result-waveform'),
+        waveColor: 'blue',
+        progressColor: 'navy',
+        cursorColor: 'black',
+        scrollParent: false,
+        height: 120,
+        normalize: true,
+        audioRate: 1.0
+    };
+
+    result_waveform.init(resultOptions);
 });
 
 mixture_waveform.on('ready', function () {
@@ -58,6 +73,15 @@ mixture_waveform.on('ready', function () {
   timeline.init({
     wavesurfer: mixture_waveform,
     container: '#waveform-timeline'
+  });
+});
+
+result_waveform.on('ready', function () {
+  var timeline = Object.create(WaveSurfer.Timeline);
+
+  timeline.init({
+    wavesurfer: result_waveform,
+    container: '#result-waveform-timeline'
   });
 });
 
@@ -94,29 +118,6 @@ $('#mixture-zoom-out').click(function(){
     mixture_waveform.zoom(mixture_waveform.params.minPxPerSec - zoomStepSize);
 });
 
-function getLastObject(obj) {
-    // Fancy little one liner to get the LAST object in a JS obj
-    // from https://stackoverflow.com/a/16590272/5768001
-    return obj[Object.keys(obj)[Object.keys(obj).length - 1]];
-}
-
-function getLastItemInArray(arr) {
-    return arr[arr.length - 1];
-}
-
-function getFirstObject(obj) {
-    // Fancy little one liner to get the FIRST object in a JS obj
-    return obj[Object.keys(obj)[0]];
-}
-
-function numberOfRegions() {
-    return objectLength(mixture_waveform.regions.list);
-}
-
-function objectLength(obj) {
-    return Object.keys(obj).length;
-}
-
 mixture_waveform.on('region-created', function() {
     if (numberOfRegions() > 0) {
         prevRegion = getFirstObject(mixture_waveform.regions.list);
@@ -130,9 +131,6 @@ $("#get-spectrogram").click(function() {
 
 });
 
-function truncateFloat(val) {
-    return Number(val.toFixed(3));
-}
 
 function getSpectrogram() {
     /*
@@ -159,6 +157,16 @@ function getSpectrogram() {
         // audioOffset = start;
     }
 
-    make_spectrogram("spectrogram-heatmap", url, mixture_file.file.name, specLength, selectedRange);
+    make_spectrogram("spectrogram-heatmap", url, mixture_audio_file.file.name, specLength, selectedRange);
 
 }
+
+$('#json-test').click( function() {
+    $.get('/get_spectrogram?csv=0', function( data ) {
+        rawSpecData = data['py/numpy.ndarray']['__ndarray__'];
+        rawSpecShape = data['py/numpy.ndarray']['shape'];
+        freqMax = data['freq_max'];
+
+    });
+
+});

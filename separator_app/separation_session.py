@@ -21,6 +21,7 @@ import utils
 # logger = logging.getLogger(__name__)
 logger = logging.getLogger()
 
+
 class SeparationSession(object):
     """
     Object for a single session, handles
@@ -55,7 +56,7 @@ class SeparationSession(object):
             logger.info('New session ready! - {}'.format(self.url_safe_id))
 
         self.user_original_file_location = None
-        self.user_general_audio = None  #: nussl.AudioSignal object
+        self.user_general_audio = None
 
         self.undo_list = []
         self.initialized = False
@@ -64,6 +65,13 @@ class SeparationSession(object):
     def url_safe_id(self):
         # 22 chars long (last two chars are '==')
         return base64.urlsafe_b64encode(self.session_id.bytes)[:22]
+
+    @property
+    def stft_done(self):
+        if self.user_general_audio is None:
+            return False
+
+        return self.user_general_audio.stft_done
 
     def initialize(self, path_to_file):
         try:

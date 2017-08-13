@@ -1,5 +1,5 @@
 var audio = {waveforms: all_waveforms, progress: 0, start_time: -1};
-var mixture_file = {file:null, url:null};
+var mixture_audio_file = {file:null, url:null};
 var AUDIOFILES;
 var BUFFERS;
 var context;
@@ -12,7 +12,7 @@ audio.import_audio = function() {
         this.playPause();
     }
     $('input[type=file]').click();
-    // buffer_loader_load(mixture_file.url);
+    // buffer_loader_load(mixture_audio_file.url);
 };
 
 $(window).keypress(function (e) {
@@ -24,15 +24,15 @@ $(window).keypress(function (e) {
 });
 
 $('#input_audio_file').change(function () {
-    mixture_file.file = this.files[0];
-    mixture_file.url = URL.createObjectURL(mixture_file.file);
+    mixture_audio_file.file = this.files[0];
+    mixture_audio_file.url = URL.createObjectURL(mixture_audio_file.file);
 
-    $("#filename").text(mixture_file.file.name + " Waveform");
-    mixture_waveform.load(mixture_file.url);
-    mixture_file.upload_to_server(this);
+    $("#filename").text(mixture_audio_file.file.name + " Waveform");
+    mixture_waveform.load(mixture_audio_file.url);
+    mixture_audio_file.upload_to_server(this);
 });
 
-mixture_file.upload_to_server = function (obj) {
+mixture_audio_file.upload_to_server = function (obj) {
     var form_data = new FormData();
     if($(obj).prop('files').length > 0)
     {
@@ -79,7 +79,7 @@ function togglePlayPauseIcon() {
 }
 
 function playPauseButton() {
-    if (mixture_file.file != null) {
+    if (mixture_audio_file.file !== null) {
         audio.playPause();
     }
 }
@@ -126,8 +126,8 @@ function buffer_loader_load(url) {
 }
 
 function get_audio_data () {
-    if (bufferLoader == null || bufferLoader.bufferList == null
-        || bufferLoader.bufferList[0] == null) {
+    if (bufferLoader === null || bufferLoader.bufferList === null
+        || bufferLoader.bufferList[0] === null) {
         return -1;
     }
 
