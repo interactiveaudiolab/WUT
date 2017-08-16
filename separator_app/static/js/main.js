@@ -1,3 +1,7 @@
+var InteractiveAudioLab = namespace('InteractiveAudioLab');
+var WebUnmixingToolbox = namespace('InteractiveAudioLab.WebUnmixingToolbox');
+var Main = namespace('InteractiveAudioLab.WebUnmixingToolbox.Main');
+
 var mixture_waveform = Object.create(WaveSurfer);
 var result_waveform = Object.create(WaveSurfer);
 var all_waveforms = [mixture_waveform, result_waveform];
@@ -160,13 +164,3 @@ function getSpectrogram() {
     make_spectrogram("spectrogram-heatmap", url, mixture_audio_file.file.name, specLength, selectedRange);
 
 }
-
-$('#json-test').click( function() {
-    $.get('/get_spectrogram?csv=0', function( data ) {
-        rawSpecData = data['py/numpy.ndarray']['__ndarray__'];
-        rawSpecShape = data['py/numpy.ndarray']['shape'];
-        freqMax = data['freq_max'];
-
-    });
-
-});

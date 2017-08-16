@@ -121,21 +121,34 @@
 {#                <button id="json-test" class="btn btn-primary">Test JSON</button>#}
                 <div id="spectrogram-container">
                     <div class="row" id="spectrogram-controls">
+                        <div class="col-md-1"></div>
+{#                        <div class="col-md-3">#}
+{#                            <button id="get-spectrogram" class="btn btn-primary" title="Get Spectrogram">#}
+{#                                Get Spectrogram#}
+{#                            </button>#}
+{#                        </div>#}
                         <div class="col-md-3">
-                            <button id="get-spectrogram" class="btn btn-primary" title="Get Spectrogram">
-                                Get Spectrogram
+                            <button id="remove-all-but-selection" class="btn btn-primary" title="Remove Everything but Selections">
+                                Remove Everything but Selections
                             </button>
                         </div>
-                        <div class="col-md-3">
-                            <button id="remove-all-but-selection" class="btn btn-primary" title="Remove Everything but Selection">
-                                Remove Everything but Selection
-                            </button>
-                        </div>
+{#                        <div class="col-md-3">#}
+{#                            <button id="delete-selection" class="btn btn-primary" title="Delete Selections">#}
+{#                                Delete Selections#}
+{#                            </button>#}
+{#                        </div>#}
+{#                        <div class="col-md-3">#}
+{#                            <button id="clear-selection" class="btn btn-primary" title="Remove Everything but Selections">#}
+{#                                Remove Everything but Selections#}
+{#                            </button>#}
+{#                        </div>#}
                         <p id="spectrogram-selection-status">No Spectrogram Selection</p>
                     </div>
 
 
-                    <div id="spectrogram-heatmap"></div>
+                    <div id="spectrogram-heatmap">
+                        <!-- Spectrogram will be drawn in this div -->
+                    </div>
 
                 </div>
                 <div id="result-waveform-wrapper">
@@ -201,10 +214,11 @@
 			<p>Ethan Manilow, Bryan Pardo, Darren Gergle<br />Northwestern University</p>
 		</div>
 	</div>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/utils.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/csv_parse.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/audio.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/selection.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/plotly_plots.js') }}"></script>
 
         <!--<div>-->

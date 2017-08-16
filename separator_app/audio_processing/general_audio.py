@@ -14,23 +14,27 @@ import os
 
 import numpy as np
 import librosa
-import msgpack
 from .. import nussl
 
 logger = logging.getLogger()
 
+
 class GeneralAudio(object):
-    _needs_special_encoding = ['audio_signal']
+    _needs_special_encoding = ['audio_signal', 'audio_signal_copy']
+    PREVIEW = 'preview'
+    MASTER = 'master'
 
     def __init__(self, audio_signal_object, storage_path):
 
         self.audio_signal = None
+        self.audio_signal_copy = None
         self.storage_path = None
 
         self.spec_csv_path = None
         self.spec_json_path = None
         self.freq_max = None
-        self.stft_done = False
+
+        self.mode = self.PREVIEW
 
         if audio_signal_object is not None:
             if not isinstance(audio_signal_object, nussl.AudioSignal):
@@ -39,37 +43,55 @@ class GeneralAudio(object):
             if not audio_signal_object.has_audio_data:
                 raise GeneralAudioException('audio_signal_object is expected to have audio_data already!')
 
-            self.audio_signal = audio_signal_object
+            self.audio_signal = audio_signal_object  # Original audio data. Don't edit this.
+            self.audio_signal_copy = copy.copy(self.audio_signal)
             self.storage_path = storage_path
+
+            self.master_params = nussl.StftParams(self.audio_signal_copy.sample_rate)
+            self.preview_params = nussl.StftParams(self.audio_signal_copy.sample_rate)
+            self.preview_params.window_length = 8192
+            self.preview_params.n_fft_bins = 1024
+
+    @property
+    def stft_done(self):
+        return self.audio_signal_copy.has_stft_data
 
     @staticmethod
     def _prep_spectrogram(spectrogram):
         return np.add(librosa.logamplitude(spectrogram, ref_power=np.max).astype('int8'), 80)
 
-    def _get_spectrogram_csv_string(self, ch=None, start=None, stop=None):
-        signal_copy = copy.copy(self.audio_signal)
-
+    def get_spectrogram_csv_string(self, channel=None, start=None, stop=None):
         # Set active region
-        start_sample = 0 if start is None else signal_copy.sample_rate * start
-        stop_sample = signal_copy.signal_length if start is None else signal_copy.sample_rate * stop
-        signal_copy.set_active_region(start_sample, stop_sample)
+        start_sample = 0 if start is None else self.audio_signal_copy.sample_rate * start
+        stop_sample = self.audio_signal_copy.signal_length \
+            if start is None \
+            else self.audio_signal_copy.sample_rate * stop
+        # self.audio_signal_copy.set_active_region(start_sample, stop_sample)
 
-        if ch is None:
-            signal_copy.to_mono(overwrite=True)
-            signal_copy.stft()
-            return self._csv_string_maker(signal_copy.get_power_spectrogram_channel(0))
+        csv_file_name = '{}_s{}_e{}_c{}.csv'.format(self.audio_signal_copy.file_name,
+                                                    start_sample, stop_sample, channel)
+
+        if self.mode == self.PREVIEW:
+            self.audio_signal_copy.stft_params = self.preview_params
+
+        if channel is None:
+            self.audio_signal_copy.to_mono(overwrite=True)
+            self.audio_signal_copy.stft()
+            return self._csv_string_maker(self.audio_signal_copy.get_power_spectrogram_channel(0)), csv_file_name
 
         else:
-            signal_copy.stft()
-            return self._csv_string_maker(signal_copy.get_power_spectrogram_channel(ch))
+            self.audio_signal_copy.stft()
+            return self._csv_string_maker(self.audio_signal_copy.get_power_spectrogram_channel(channel)), csv_file_name
 
     @staticmethod
     def _csv_string_maker(spectrogram):
+        # http://flask.pocoo.org/snippets/32/
         spec = GeneralAudio._prep_spectrogram(spectrogram)
         output = StringIO()
         np.savetxt(output, spec, delimiter=',', fmt='%i',
                    header=','.join(['t{}'.format(i) for i in range(spec.shape[1])]))
-        return output.getvalue()
+        output.seek(0)
+        return output
 
     def _get_spectrogram_csv_file(self, channel=None, start=None, stop=None):
         logger.debug('Making spectrogram csv file: ch={}, start={}, stop={}'.format(channel, start, stop))
@@ -169,30 +191,25 @@ class GeneralAudio(object):
         else:
             result = self._get_spectrogram_json_file(channel, start, stop)
 
-        self.stft_done = True
         return result
 
-    def make_wav_file_with_everything_but_selection(self, t_start, t_end, f_start, f_end):
-        signal_copy = copy.copy(self.audio_signal)
-        signal_copy.stft()
+    def zero_outside_box_selection(self, xStart, xEnd, yStart, yEnd):
+        if not self.audio_signal_copy.has_stft_data:
+            self.audio_signal_copy.stft()
 
-        # find the indices that we need to delete
-        f_start_idx = signal_copy.get_closest_frequency_bin(f_start)
-        f_end_idx = signal_copy.get_closest_frequency_bin(f_end)
-        t_start_idx = (np.abs(signal_copy.time_bins_vector - t_start)).argmin()
-        t_end_idx = (np.abs(signal_copy.time_bins_vector - t_end)).argmin()
+        f_start_idx = self.audio_signal_copy.get_closest_frequency_bin(yStart)
+        f_end_idx = self.audio_signal_copy.get_closest_frequency_bin(yEnd)
+        t_start_idx = (np.abs(self.audio_signal_copy.time_bins_vector - xStart)).argmin()
+        t_end_idx = (np.abs(self.audio_signal_copy.time_bins_vector - xEnd)).argmin()
 
-        # signal_copy.stft_data[f_start_idx:f_end_idx, t_start_idx:t_end_idx] = 0.0j # delete the area in the selection
+        self.audio_signal_copy.stft_data[:f_start_idx, :] = 0.0j
+        self.audio_signal_copy.stft_data[f_end_idx:, :] = 0.0j
+        self.audio_signal_copy.stft_data[:, :t_start_idx] = 0.0j
+        self.audio_signal_copy.stft_data[:, t_end_idx:] = 0.0j
 
-        # delete everything BUT the selected area
-        signal_copy.stft_data[:f_start_idx, :] = 0.0j
-        signal_copy.stft_data[f_end_idx:, :] = 0.0j
-        signal_copy.stft_data[:, :t_start_idx] = 0.0j
-        signal_copy.stft_data[:, t_end_idx:] = 0.0j
-
-        signal_copy.istft(overwrite=True)
-
-        file_name_stem = self.audio_signal.file_name.replace('.', '-')
+    def make_wav_file(self):
+        self.audio_signal_copy.istft(overwrite=True)
+        file_name_stem = self.audio_signal_copy.file_name.replace('.', '-')
 
         # create a new file name
         i = 0
@@ -206,9 +223,14 @@ class GeneralAudio(object):
         #     pass
 
         new_audio_file_path = os.path.join(self.storage_path, new_audio_file_name)
-        signal_copy.write_audio_to_file(new_audio_file_path)
+        self.audio_signal_copy.write_audio_to_file(new_audio_file_path)
 
         return new_audio_file_path
+
+    def make_wav_file_with_everything_but_selection(self, t_start, t_end, f_start, f_end):
+        self.zero_outside_box_selection(t_start, t_end, f_start, f_end)
+
+        return self.make_wav_file()
 
     def to_json(self):
         return json.dumps(self, default=self._to_json_helper)

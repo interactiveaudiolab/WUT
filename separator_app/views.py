@@ -8,7 +8,9 @@ from werkzeug.utils import secure_filename
 from separator_app import app
 from separator_app import separation_session
 from config import ALLOWED_EXTENSIONS
+
 DEBUG = True
+WRITE_TMP_CSV = False
 
 
 logger = logging.getLogger()
@@ -110,17 +112,24 @@ def send_spectrogram():
             _exception('sess not initialized!')
 
         # args = {'channel': None, 'start': None, 'stop': None, 'csv': None}
-        args = {'channel': None, 'start': None, 'stop': None, 'csv': True}
-        args = _get_args_float(args)
 
         # spec_mime_type = 'text/csv' if args['csv'] in (None, 0.0, 0, '') else 'text/json'
         spec_mime_type = 'text/csv'
-        spec_file_path, freq_max = sess.user_general_audio.make_spectrogram_file(**args)
+        if WRITE_TMP_CSV:
+            args = {'channel': None, 'start': None, 'stop': None, 'csv': True}
+            args = _get_args_float(args)
+            spec_file_path, freq_max = sess.user_general_audio.make_spectrogram_file(**args)
+
+            response = make_response(send_file(spec_file_path, spec_mime_type))
+        else:
+            args = {'channel': None, 'start': None, 'stop': None}
+            args = _get_args_float(args)
+            strIO, file_name = sess.user_general_audio.get_spectrogram_csv_string(**args)
+            response = make_response(send_file(strIO, spec_mime_type,
+                                               attachment_filename=file_name, as_attachment=True))
+
         sess_json = sess.to_json()
-
         session['cur_session'] = sess_json
-
-        response = make_response(send_file(spec_file_path, spec_mime_type))
         # response.headers.add('freqMax', int(freq_max))
 
         return response
@@ -155,3 +164,41 @@ def remove_all_but_selection():
         response = make_response(send_file(file_path, file_mime_type))
 
         return response
+
+
+@app.route('/action', methods=['POST'])
+def action():
+    logger.info('receiving action')
+
+    if request.method == 'POST':
+        action_dict = request.json['actionData']
+        sess = separation_session.SeparationSession.from_json(session['cur_session'])
+        logger.info('session awake {}'.format(sess.session_id))
+
+        if not sess.initialized or not sess.stft_done:
+            _exception('sess not initialized or STFT not done!')
+
+        sess.push_action(action_dict)
+        session['cur_session'] = sess.to_json()
+
+        return make_response(200)
+
+
+@app.route('/process', methods=['GET'])
+def process():
+    logger.info('got process request!')
+
+    if request.method == 'GET':
+        sess = separation_session.SeparationSession.from_json(session['cur_session'])
+        logger.info('session awake {}'.format(sess.session_id))
+
+        if not sess.initialized or not sess.stft_done:
+            _exception('sess not initialized or STFT not done!')
+
+        file_mime_type = 'audio/wav'
+        file_path = sess.user_general_audio.make_wav_file()
+
+        response = make_response(send_file(file_path, file_mime_type))
+
+        return response
+

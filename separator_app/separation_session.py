@@ -2,19 +2,20 @@
 """
 
 """
-import json
-import copy
-import uuid
 import base64
-import os
+import copy
+import json
 import logging
+import os
 import time
+import uuid
 
 import numpy as np
 
-import nussl
 import audio_processing
 import config
+import nussl
+import actions
 import utils
 
 # Set up logging
@@ -42,6 +43,7 @@ class SeparationSession(object):
         self.time_of_init = None
         self.to_json_times = []
         self.from_json_times = []
+        self._action_queue = []
 
         if not from_json:
             # Set up a session ID and store it
@@ -93,6 +95,14 @@ class SeparationSession(object):
         except Exception as e:
             logger.error('Got exception! - {}'.format(e.message))
             raise e
+
+    def push_action(self, action_dict):
+        self._action_queue.append(actions.Action.new_action(action_dict))
+
+    def apply_actions_in_queue(self):
+
+        for action in self._action_queue:
+            action
 
     def to_json(self):
         self.to_json_times.append(time.asctime(time.localtime(time.time())))

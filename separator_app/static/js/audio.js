@@ -48,7 +48,8 @@ mixture_audio_file.upload_to_server = function (obj) {
         contentType: false,
         success: function (result) {
             console.log('/audio_upload POST done!');
-            $('#audio_upload_status').text('Upload complete!');
+            $('#audio_upload_status').text('Upload complete! Waiting for spectrogram...');
+            getSpectrogram();
         }
     });
 };
