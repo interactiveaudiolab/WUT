@@ -69,6 +69,8 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     result_waveform.init(resultOptions);
+
+    emptyHeatmap('spectrogram-heatmap');
 });
 
 mixture_waveform.on('ready', function () {

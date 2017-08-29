@@ -1,6 +1,7 @@
 import os
 import logging
 import inspect
+import json
 
 from flask import render_template, request, flash, redirect, url_for, session, abort, send_file, make_response
 from werkzeug.utils import secure_filename
@@ -181,7 +182,7 @@ def action():
         sess.push_action(action_dict)
         session['cur_session'] = sess.to_json()
 
-        return make_response(200)
+        return json.dumps(True)
 
 
 @app.route('/process', methods=['GET'])
@@ -194,6 +195,8 @@ def process():
 
         if not sess.initialized or not sess.stft_done:
             _exception('sess not initialized or STFT not done!')
+
+        sess.apply_actions_in_queue()
 
         file_mime_type = 'audio/wav'
         file_path = sess.user_general_audio.make_wav_file()

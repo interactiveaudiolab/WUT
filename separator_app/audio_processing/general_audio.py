@@ -20,7 +20,7 @@ logger = logging.getLogger()
 
 
 class GeneralAudio(object):
-    _needs_special_encoding = ['audio_signal', 'audio_signal_copy']
+    _needs_special_encoding = ['audio_signal', 'audio_signal_copy', 'preview_params', 'master_params']
     PREVIEW = 'preview'
     MASTER = 'master'
 
@@ -34,7 +34,9 @@ class GeneralAudio(object):
         self.spec_json_path = None
         self.freq_max = None
 
-        self.mode = self.PREVIEW
+        self.mode = self.MASTER
+        self.master_params = None
+        self.preview_params = None
 
         if audio_signal_object is not None:
             if not isinstance(audio_signal_object, nussl.AudioSignal):
@@ -48,9 +50,8 @@ class GeneralAudio(object):
             self.storage_path = storage_path
 
             self.master_params = nussl.StftParams(self.audio_signal_copy.sample_rate)
-            self.preview_params = nussl.StftParams(self.audio_signal_copy.sample_rate)
-            self.preview_params.window_length = 8192
-            self.preview_params.n_fft_bins = 1024
+            self.preview_params = nussl.StftParams(self.audio_signal_copy.sample_rate,
+                                                   window_length=8192, n_fft_bins=1024)
 
     @property
     def stft_done(self):
@@ -232,6 +233,15 @@ class GeneralAudio(object):
 
         return self.make_wav_file()
 
+    # def find_top_freq_naive(self):
+    #     if not self.stft_done:
+    #         raise Exception('Need stft data!')
+    #
+    #     if self.audio_signal_copy.
+    #
+    #     # self.audio_signal_copy.to_mono()
+    #     for i in self.audio_signal_copy
+
     def to_json(self):
         return json.dumps(self, default=self._to_json_helper)
 
@@ -281,6 +291,9 @@ class GeneralAudio(object):
 
                     elif isinstance(v, dict) and nussl.constants.NUMPY_JSON_KEY in v:
                         s.__dict__[k] = nussl.json_numpy_obj_hook(v[nussl.constants.NUMPY_JSON_KEY])
+
+                    elif nussl.StftParams.__name__ in v:
+                        s.__dict__[k] = nussl.StftParams.from_json(v)
 
                     else:
                         s.__dict__[k] = v if not isinstance(v, unicode) else v.encode('ascii')

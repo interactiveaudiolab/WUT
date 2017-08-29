@@ -61,3 +61,49 @@ function transpose(a)
 {
   return a[0].map(function (_, c) { return a.map(function (r) { return r[c]; }); });
 }
+
+
+function minMax2D(a) {
+    var min, max;
+    a.forEach(function(itm) {
+        itm.forEach(function(itmInner) {
+            min = (min === undefined || itmInner < min) ? itmInner : min;
+            max = (max === undefined || itmInner > max) ? itmInner : max;
+        });
+    });
+
+    return {min: min, max: max};
+}
+
+function squareTypedArray(array) {
+    array.forEach(function (elt, idx, arr) {
+        arr[idx] = elt * elt;
+    });
+    return array;
+}
+
+function add_arrays(arr1, arr2) {
+    return arr1.map(function(a, i) {
+        return a + arr2[i];
+    });
+}
+
+function mvg_avg_derivative(array, n) {
+    var mvg_avg = [];
+    for (var i = 0; i < array.length - n; ++i) {
+        var sum = 0;
+        for (var j = 0; j < n; ++ j) {
+            sum += array[i + j];
+        }
+        mvg_avg.push(sum)
+    }
+
+    var result = [];
+    for (i = 1; i < array.length; ++i) {
+        result.push(mvg_avg[i] - mvg_avg[i - 1]);
+    }
+
+    return result.filter(function (value) {
+        return !Number.isNaN(value);
+    });
+}

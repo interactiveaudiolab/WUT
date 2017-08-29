@@ -1,5 +1,6 @@
 
 import numbers
+import json
 
 import numpy as np
 from .. import nussl
@@ -9,6 +10,7 @@ class Selection(object):
     DATA_TYPE = 'dataType'
     DATA = 'data'
     KEYS_SET = {DATA_TYPE, DATA}
+    KNOWN_SELECTION_TYPES = ['BoxSelection']
 
     def __init__(self):
         pass
@@ -22,18 +24,18 @@ class Selection(object):
         return self.subclasses
 
     def __str__(self):
-        return self.__name__
+        return self.__class__.__name__
 
     @staticmethod
     def new_selection_instance(selection_dict):
         if Selection.DATA_TYPE not in selection_dict or \
-                        selection_dict[Selection.DATA_TYPE] not in Selection.subclasses:
+                        selection_dict[Selection.DATA_TYPE] not in Selection.KNOWN_SELECTION_TYPES:
             raise ValueError('No {} in selection_dict or {} is wrong type!'.format(Selection.DATA_TYPE,
                                                                                    Selection.DATA_TYPE))
 
         selection_type = selection_dict[Selection.DATA_TYPE]
 
-        return vars()[selection_type](selection_dict)
+        return globals()[selection_type](selection_dict)
 
     def make_mask(self, time_vector, freq_vector, mask_type=nussl.separation.BinaryMask):
         raise NotImplemented
@@ -69,7 +71,7 @@ class BoxSelection(Selection):
             raise ValueError('BoxSelection initialized wrong!')
 
     def __str__(self):
-        return self.__name__
+        return self.__class__.__name__
 
     @property
     def is_initialized(self):
@@ -101,10 +103,8 @@ class BoxSelection(Selection):
         self.freq_end = selection_dict[self.DATA][self.FREQ_END]
 
     def make_mask(self, time_vector, freq_vector, mask_type=nussl.separation.BinaryMask):
-        if mask_type == nussl.separation.BinaryMask:
-            new_mask = nussl.separation.BinaryMask(np.zeros((len(freq_vector), len(time_vector))))
-        else:
-            new_mask = nussl.separation.SoftMask(np.zeros((len(freq_vector), len(time_vector))))
+
+        new_mask = np.zeros((len(freq_vector), len(time_vector)))
 
         time_start_idx = (np.abs(time_vector - self.time_start)).argmin()
         time_end_idx = (np.abs(time_vector - self.time_end)).argmin()
@@ -112,3 +112,10 @@ class BoxSelection(Selection):
         freq_end_idx = (np.abs(freq_vector - self.freq_end)).argmin()
 
         new_mask[freq_start_idx:freq_end_idx, time_start_idx:time_end_idx] = 1
+
+        # if mask_type == nussl.separation.BinaryMask:
+        #     new_mask = nussl.separation.BinaryMask(new_mask)
+        # else:
+        #     new_mask = nussl.separation.SoftMask(new_mask)
+
+        return new_mask

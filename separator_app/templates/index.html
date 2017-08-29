@@ -1,242 +1,247 @@
 <!doctype html>
 <html class="no-js" lang="en-us">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>WUT | Web Unmixing Toolbox | Interactive Audio Lab</title>
-        <meta name="description" content="Web Unmixing Toolbox from the Interactive Audio Lab at Northwestern University">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>WUT | Web Unmixing Toolbox | Interactive Audio Lab</title>
+    <meta name="description" content="Web Unmixing Toolbox from the Interactive Audio Lab at Northwestern University">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <link rel="apple-touch-icon" href="apple-touch-icon.png">
-        <!-- Place favicon.ico in the root directory -->
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <!-- Place favicon.ico in the root directory -->
 
-        <!--<link rel="stylesheet" href="css/normalize.css">-->
-        <link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
+    <!--<link rel="stylesheet" href="css/normalize.css">-->
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
           integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.8.1/css/bootstrap-slider.min.css">
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.8.1/css/bootstrap-slider.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 
 
-        <script type="text/javascript" src="js/vendor/modernizr-2.8.3.min.js"></script>
-        <script type="text/javascript" src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
-        <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.8.1/bootstrap-slider.min.js"></script>
-        <!--<script src="js/vendor/plotly.js-master/src/plotly.js"></script>-->
-        <script type="text/javascript" src="https://cdn.plot.ly/plotly-latest.js"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/wavesurfer.min.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/wavesurfer.regions.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/wavesurfer.timeline.js') }}"></script>
-        <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/papaparse.js') }}"></script>
-    </head>
-    <body>
-        <!--[if lt IE 8]>
+    <script type="text/javascript" src="js/vendor/modernizr-2.8.3.min.js"></script>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.8.1/bootstrap-slider.min.js"></script>
+    <!--<script src="js/vendor/plotly.js-master/src/plotly.js"></script>-->
+    <script type="text/javascript" src="https://cdn.plot.ly/plotly-latest.js"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/wavesurfer.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/wavesurfer.regions.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/wavesurfer.timeline.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/papaparse.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/buffer-loader.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/dsp.js') }}"></script>
+</head>
+<body>
+<!--[if lt IE 8]>
             <p class="browserupgrade">You are using an <strong>outdated</strong> browser.
                 Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
 
-        <script src="js/vendor/jquery-3.2.0.js"></script>
-        <script>window.jQuery || document.write('<script src="js/vendor/jquery-{{JQUERY_VERSION}}.min.js"><\/script>')</script>
-        <script src="js/plugins.js"></script>
+<script src="js/vendor/jquery-3.2.0.js"></script>
+<script>window.jQuery || document.write('<script src="js/vendor/jquery-{{JQUERY_VERSION}}.min.js"><\/script>')</script>
+<script src="js/plugins.js"></script>
 {#        <script src="js/main.js"></script>#}
 
-        <div id="wrapper">
-            <nav class="navbar navbar-default navbar-static-top" role="navigation">
-                <div class="container-fluid" id="title-text-wrapper-outer">
-                    <div class="navbar-header" id="title-text-inner">
-                        <a class="navbar-brand" href="#" id="title-text"
-                           data-text-swap="Web Unmixing Toolbox" title="What's WUT?">WUT</a>
+<div id="wrapper">
+    <nav class="navbar navbar-default navbar-static-top" role="navigation">
+        <div class="container-fluid" id="title-text-wrapper-outer">
+            <div class="navbar-header" id="title-text-inner">
+                <a class="navbar-brand" href="#" id="title-text"
+                   data-text-swap="Web Unmixing Toolbox" title="What's WUT?">WUT</a>
+            </div>
+        </div>
+        <div class="collapse navbar-collapse" id="controls">
+            <ul class="nav navbar-nav">
+                <li class="divider-vertical"></li>
+                <li onclick="audio.import_audio()">
+                    <a href="#"><i class="glyphicon glyphicon-open"> <p>Open</p> </i> </a>
+                </li>
+
+                <li class="divider-vertical"></li>
+                <li onclick="playPauseButton()">
+                    <a href="#"><i class="glyphicon glyphicon-play" id="play_icon" title="Play Audio"></i></a>
+                </li>
+
+                <li class="divider-vertical"></li>
+                <li onclick="stopButton()">
+                    <a href="#"><i class="glyphicon glyphicon-stop"></i></a>
+                </li>
+                <li class="divider-vertical"></li>
+
+                <li class="dropdown" id="volume-slider-dropdown-li">
+                    {# <input id="volume-slider" type="range" data-slider-min="0" data-slider-max="100"#}
+                    {#       data-slider-step="5" data-slider-value="75" data-slider-orientation="vertical" />#}
+                    {# <input id="ex4" type="text" data-slider-min="-5" data-slider-max="20" data-slider-step="1" data-slider-value="-3" data-slider-orientation="vertical"/>#}
+                    {# <input class="vert" id="volume-slider" type="range" orientation="vertical" />#}
+                    <div class="range-slider">
+                        <input class="input-range" orient="vertical" type="range" step="5" value="75" min="0" max="100">
+                        <span class="range-value"></span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <form action="audio_upload" style="display: none;" method="post" role="form"
+          enctype="multipart/form-data">
+        <input id="input_audio_file" style="display: none" accept="audio/*" type="file" name="audio_file" />
+    </form>
+    <div id="mainContent">
+        {#  <div id="controls">#}
+        {##}
+        {##}
+        {#                    Volume:#}
+        {#                    <div id="volume_slider">#}
+        {#                        <span class="glyphicon glyphicon-volume-down"></span>#}
+        {#                        <div id="volume"></div>#}
+        {#                        <span class="glyphicon glyphicon-volume-up"></span>#}
+        {#                    </div>#}
+        {#                    File name: <span id="filename"></span>#}
+        {##}
+        {#                </div>#}
+        <div class="row" id="spectrogram-controls">
+            <div class="col-md-1"></div>
+            <div class="col-md-1" id="waveform-zoom-buttons">
+                <button id="mixture-zoom-in" class="btn btn-primary" title="Zoom in">
+                    <i class="glyphicon glyphicon-zoom-in" id="waveform"></i>
+                </button>
+
+                <button id="mixture-zoom-out" class="btn btn-primary" title="Zoom out">
+                    <i class="glyphicon glyphicon-zoom-out"></i>
+                </button>
+{#                <p id="general-status">Ready...</p>#}
+            </div>
+
+            {# <div class="col-md-3">#}
+            {# <button id="get-spectrogram" class="btn btn-primary" title="Get Spectrogram">#}
+            {#        Get Spectrogram#}
+            {# </button>#}
+            {# </div>#}
+            <div class="col-md-3">
+                <button id="remove-all-but-selection" class="btn btn-primary" title="Remove Everything but Selections">
+                    Remove Everything but Selections
+                </button>
+            </div>
+            {# <div class="col-md-3">#}
+            {# <button id="delete-selection" class="btn btn-primary" title="Delete Selections">#}
+            {#         Delete Selections#}
+            {# </button>#}
+            {# </div>#}
+            {# <div class="col-md-3">#}
+            {# <button id="clear-selection" class="btn btn-primary" title="Remove Everything but Selections">#}
+            {#        Remove Everything but Selections#}
+            {# </button>#}
+            {# </div>#}
+            <p id="general-status">Ready...</p>
+        </div>
+        <div class="row" id="mixture-container"></div>
+        <div id="mixture-waveform-wrapper" style="margin-left: 50px; margin-right: 105px;">
+            <h5 id="filename">Input Mixture Waveform</h5>
+            <div style="background-color:#F0F0F0 ; border-radius:2px; border: 1px solid #303030;">
+                <div id="mixture-waveform" style="width: 100%">
+                    <div class="progress progress-striped active" id="progress-bar" style="display: none;">
+                        <div class="progress-bar progress-bar-info" style="width: 100%;"></div>
                     </div>
                 </div>
-                <div class="collapse navbar-collapse" id="controls">
-                    <ul class="nav navbar-nav">
-                        <li class="divider-vertical"></li>
-                        <li onclick="audio.import_audio()">
-                            <a href="#"><i class="glyphicon glyphicon-open"> <p>Open</p> </i> </a>
-                        </li>
+                <div id="waveform-timeline"></div>
+            </div>
+        </div>
+        <div id="spectrogram-container">
 
-                        <li class="divider-vertical"></li>
-                        <li onclick="playPauseButton()">
-                            <a href="#"><i class="glyphicon glyphicon-play" id="play_icon" title="Play Audio"></i></a>
-                        </li>
+            <div id="spectrogram-heatmap">
+                <!-- Spectrogram will be drawn in this div -->
+            </div>
 
-                        <li class="divider-vertical"></li>
-                        <li onclick="stopButton()">
-                            <a href="#"><i class="glyphicon glyphicon-stop"></i></a>
-                        </li>
-                        <li class="divider-vertical"></li>
+        </div>
 
-                        <li class="dropdown" id="volume-slider-dropdown-li">
-{#                            <input id="volume-slider" type="range" data-slider-min="0" data-slider-max="100"#}
-{#                                   data-slider-step="5" data-slider-value="75" data-slider-orientation="vertical" />#}
-{#                            <input id="ex4" type="text" data-slider-min="-5" data-slider-max="20" data-slider-step="1" data-slider-value="-3" data-slider-orientation="vertical"/>#}
-{#                            <input class="vert" id="volume-slider" type="range" orientation="vertical" />#}
-                            <div class="range-slider">
-                                <input class="input-range" orient="vertical" type="range" step="5" value="75" min="0" max="100">
-                                <span class="range-value"></span>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
-            <form action="audio_upload" style="display: none;" method="post" role="form"
-                  enctype="multipart/form-data">
-                <input id="input_audio_file" style="display: none" accept="audio/*" type="file" name="audio_file" />
-            </form>
-            <div id="mainContent">
-{#                <div id="controls">#}
-{##}
-{##}
-{#                    Volume:#}
-{#                    <div id="volume_slider">#}
-{#                        <span class="glyphicon glyphicon-volume-down"></span>#}
-{#                        <div id="volume"></div>#}
-{#                        <span class="glyphicon glyphicon-volume-up"></span>#}
-{#                    </div>#}
-{#                    File name: <span id="filename"></span>#}
-{##}
-{#                </div>#}
-                <div id="mixture-waveform-wrapper">
-                    <h5 id="filename">Input Mixture Waveform</h5>
-                    <div style="background-color:#F0F0F0 ; border-radius:2px; border: 1px solid #303030">
-                        <div id="mixture-waveform" style="width: 100%">
-                            <div class="progress progress-striped active" id="progress-bar" style="display: none;">
-                                <div class="progress-bar progress-bar-info" style="width: 100%;"></div>
-                            </div>
-                        </div>
-                        <div id="waveform-timeline"></div>
-                    </div>
-                </div>
-                <div id="waveform-zoom-buttons">
-                    <button id="mixture-zoom-in" class="btn btn-primary" title="Zoom in">
-                        <i class="glyphicon glyphicon-zoom-in" id="waveform"></i>
+{#        TODO: put this (and mixture) in a css class and add the style to main.css #}
+        <div id="result-waveform-wrapper" style="margin-left: 50px; margin-right: 105px;">
+            <h5 id="result-file">Resultant Waveform</h5>
+            <div class="row" id="result-controls">
+                <div class="col-md-3">
+                    <button id="result-play" class="btn btn-primary" title="Play/Pause">
+                        <i class="glyphicon glyphicon-play" title="Play Audio"></i>
                     </button>
-
-                    <button id="mixture-zoom-out" class="btn btn-primary" title="Zoom out">
-                        <i class="glyphicon glyphicon-zoom-out"></i>
-                    </button>
-                    <p id="audio_upload_status" style="padding: 15px">No status</p>
-                </div>
-
-{#                <button id="json-test" class="btn btn-primary">Test JSON</button>#}
-                <div id="spectrogram-container">
-                    <div class="row" id="spectrogram-controls">
-                        <div class="col-md-1"></div>
-{#                        <div class="col-md-3">#}
-{#                            <button id="get-spectrogram" class="btn btn-primary" title="Get Spectrogram">#}
-{#                                Get Spectrogram#}
-{#                            </button>#}
-{#                        </div>#}
-                        <div class="col-md-3">
-                            <button id="remove-all-but-selection" class="btn btn-primary" title="Remove Everything but Selections">
-                                Remove Everything but Selections
-                            </button>
-                        </div>
-{#                        <div class="col-md-3">#}
-{#                            <button id="delete-selection" class="btn btn-primary" title="Delete Selections">#}
-{#                                Delete Selections#}
-{#                            </button>#}
-{#                        </div>#}
-{#                        <div class="col-md-3">#}
-{#                            <button id="clear-selection" class="btn btn-primary" title="Remove Everything but Selections">#}
-{#                                Remove Everything but Selections#}
-{#                            </button>#}
-{#                        </div>#}
-                        <p id="spectrogram-selection-status">No Spectrogram Selection</p>
-                    </div>
-
-
-                    <div id="spectrogram-heatmap">
-                        <!-- Spectrogram will be drawn in this div -->
-                    </div>
-
-                </div>
-                <div id="result-waveform-wrapper">
-                    <h5 id="result-file">Resultant Waveform</h5>
-                    <div class="row" id="result-controls">
-                        <div class="col-md-3">
-                            <button id="result-play" class="btn btn-primary" title="Play/Pause">
-                                <i class="glyphicon glyphicon-play" title="Play Audio"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div style="background-color:#F0F0F0 ; border-radius:2px; border: 1px solid #303030">
-                        <div id="result-waveform" style="width: 100%">
-{#                            <div class="progress progress-striped active" id="progress-bar" style="display: none;">#}
-{#                                <div class="progress-bar progress-bar-info" style="width: 100%;"></div>#}
-{#                            </div>#}
-                        </div>
-                        <div id="result-waveform-timeline"></div>
-                    </div>
                 </div>
             </div>
-{#        <div id="representation">#}
-{#            <button id="send_data" class="btn btn-primary" title="Get Toy Data back" onclick="sendDataBack()">#}
-{#                Get Toy Data From Server#}
-{#            </button>#}
-{#            <input id="selection_start" type="number" />#}
-{#            <input id="selection_end" type="number" />#}
-{#            <svg id="beat_spectrum_svg" width="1000" height="500"></svg>#}
-{#            <br />#}
-{#            <br />#}
-{#            <h3>Beat Spectrum</h3>#}
-{#            <div id="beat_spectrum_container">#}
-{#                <div id="beat_spectrum_y_axis"></div>#}
-{#                <div id="beat_spectrum_graph"></div>#}
-{#            </div>#}
-{#            <div id="beat_spectrum_statistics">#}
-{#                <p id="beat_spectrum_entropy">Entropy: </p> <br />#}
-{#                <p id="beat_spectrum_log_mean">log(mean): </p>#}
-{#            </div>#}
-{#            <h2>BOKEH</h2>#}
-{#            <button id="spectrogram_button" class="btn btn-primary"#}
-{#                    title="Spectrogram" onclick="getSpectrogramJson()">#}
-{#                Get Power Spectrogram#}
-{#            </button>#}
-{#            <h3>Power Spectrogram</h3>#}
-{#            <p>Channel #<input id="channel" type="number" /> </p>#}
-{#            <div id="spectrogram_bokeh" style="width: 1000px; height: 600px; position: relative;">#}
-{##}
-{#            </div>#}
-{#            <br />#}
-{#            <br />#}
-{#            <button id="beat_spectrum_button" class="btn btn-primary"#}
-{#                    title="beat_spectrum" onclick="sendDataBack()">#}
-{#                Get Beat Spectrum#}
-{#            </button>#}
-{#             <div id="beat_spectrum_container_bokeh" style="width: 1000px; height: 600px; position: relative;">#}
-{#                {{ beat_spectrum_bokeh }}#}
-{#            </div>#}
-{#        </div>#}
 
-		<div id="footer">
-			<p>Ethan Manilow, Bryan Pardo, Darren Gergle<br />Northwestern University</p>
-		</div>
-	</div>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/utils.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/csv_parse.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/audio.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/selection.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/plotly_plots.js') }}"></script>
+            <div style="background-color:#F0F0F0 ; border-radius:2px; border: 1px solid #303030">
+                <div id="result-waveform" style="width: 100%">
+                    {# <div class="progress progress-striped active" id="progress-bar" style="display: none;">#}
+                    {# <div class="progress-bar progress-bar-info" style="width: 100%;"></div>#}
+                    {# </div>#}
+                </div>
+                <div id="result-waveform-timeline"></div>
+            </div>
+        </div>
+    </div>
+    {#        <div id="representation">#}
+    {#            <button id="send_data" class="btn btn-primary" title="Get Toy Data back" onclick="sendDataBack()">#}
+    {#                Get Toy Data From Server#}
+    {#            </button>#}
+    {#            <input id="selection_start" type="number" />#}
+    {#            <input id="selection_end" type="number" />#}
+    {#            <svg id="beat_spectrum_svg" width="1000" height="500"></svg>#}
+    {#            <br />#}
+    {#            <br />#}
+    {#            <h3>Beat Spectrum</h3>#}
+    {#            <div id="beat_spectrum_container">#}
+    {#                <div id="beat_spectrum_y_axis"></div>#}
+    {#                <div id="beat_spectrum_graph"></div>#}
+    {#            </div>#}
+    {#            <div id="beat_spectrum_statistics">#}
+    {#                <p id="beat_spectrum_entropy">Entropy: </p> <br />#}
+    {#                <p id="beat_spectrum_log_mean">log(mean): </p>#}
+    {#            </div>#}
+    {#            <h2>BOKEH</h2>#}
+    {#            <button id="spectrogram_button" class="btn btn-primary"#}
+    {#                    title="Spectrogram" onclick="getSpectrogramJson()">#}
+    {#                Get Power Spectrogram#}
+    {#            </button>#}
+    {#            <h3>Power Spectrogram</h3>#}
+    {#            <p>Channel #<input id="channel" type="number" /> </p>#}
+    {#            <div id="spectrogram_bokeh" style="width: 1000px; height: 600px; position: relative;">#}
+    {##}
+    {#            </div>#}
+    {#            <br />#}
+    {#            <br />#}
+    {#            <button id="beat_spectrum_button" class="btn btn-primary"#}
+    {#                    title="beat_spectrum" onclick="sendDataBack()">#}
+    {#                Get Beat Spectrum#}
+    {#            </button>#}
+    {#             <div id="beat_spectrum_container_bokeh" style="width: 1000px; height: 600px; position: relative;">#}
+    {#                {{ beat_spectrum_bokeh }}#}
+    {#            </div>#}
+    {#        </div>#}
 
-        <!--<div>-->
-            <!--<input type="checkbox" id="yLogCheckbox">-->
-            <!--<label for="yLogCheckbox">Log on Y-Axis?</label>-->
-        <!--</div>-->
-        <!--<div>-->
-            <!--<button onclick="make_spectrogram('heatmap')">Redraw</button>-->
-        <!--</div>-->
+    <div id="footer">
+        <p>Ethan Manilow, Bryan Pardo, Darren Gergle<br />Northwestern University</p>
+    </div>
+</div>
+<script type="text/javascript" src="{{ url_for('static', filename='js/utils.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/array.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/stft.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/csv_parse.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/audio.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/selection.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/plotly_plots.js') }}"></script>
 
-        <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
-        <!--<script>-->
-            <!--(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=-->
-            <!--function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;-->
-            <!--e=o.createElement(i);r=o.getElementsByTagName(i)[0];-->
-            <!--e.src='https://www.google-analytics.com/analytics.js';-->
-            <!--r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));-->
-            <!--ga('create','UA-XXXXX-X','auto');ga('send','pageview');-->
-        <!--</script>-->
-    </body>
+<!--<div>-->
+<!--<input type="checkbox" id="yLogCheckbox">-->
+<!--<label for="yLogCheckbox">Log on Y-Axis?</label>-->
+<!--</div>-->
+<!--<div>-->
+<!--<button onclick="make_spectrogram('heatmap')">Redraw</button>-->
+<!--</div>-->
+
+<!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+<!--<script>-->
+<!--(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=-->
+<!--function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;-->
+<!--e=o.createElement(i);r=o.getElementsByTagName(i)[0];-->
+<!--e.src='https://www.google-analytics.com/analytics.js';-->
+<!--r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));-->
+<!--ga('create','UA-XXXXX-X','auto');ga('send','pageview');-->
+<!--</script>-->
+</body>
 </html>

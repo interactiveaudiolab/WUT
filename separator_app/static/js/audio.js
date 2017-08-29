@@ -6,6 +6,9 @@ var context;
 
 var bufferLoader;
 var bufferList;
+var spec_data;
+
+var DO_STFT_ON_CLIENT = false;
 
 audio.import_audio = function() {
     if (this.isPlaying()) {
@@ -26,6 +29,9 @@ $(window).keypress(function (e) {
 $('#input_audio_file').change(function () {
     mixture_audio_file.file = this.files[0];
     mixture_audio_file.url = URL.createObjectURL(mixture_audio_file.file);
+    if (DO_STFT_ON_CLIENT) {
+        buffer_loader_load(mixture_audio_file.url);
+    }
 
     $("#filename").text(mixture_audio_file.file.name + " Waveform");
     mixture_waveform.load(mixture_audio_file.url);
@@ -48,8 +54,10 @@ mixture_audio_file.upload_to_server = function (obj) {
         contentType: false,
         success: function (result) {
             console.log('/audio_upload POST done!');
-            $('#audio_upload_status').text('Upload complete! Waiting for spectrogram...');
-            getSpectrogram();
+            $('#general-status').text('Upload complete! Waiting for spectrogram...');
+            if (!DO_STFT_ON_CLIENT) {
+                getSpectrogram();
+            }
         }
     });
 };
@@ -116,7 +124,15 @@ function buffer_loader_load(url) {
     bufferLoader = new BufferLoader (
         context,
         AUDIOFILES,
-        finishedLoading
+        function (bufferList) {
+            let windowSize = 16384;
+            let hopSize = windowSize / 2;
+            let sampleRate = bufferList[0].sampleRate;
+            var specLength = bufferList[0].length / bufferList[0].sampleRate;
+            var selectedRange = [0.0, specLength];
+            spec_data = display_ready_spectrogram(bufferList[0].getChannelData(0), windowSize, hopSize, 'hamm', sampleRate);
+            drawSpectrogramPlotly("spectrogram-heatmap", spec_data.spectrogram, '', spec_data.freqMax, specLength, selectedRange, false);
+        }
     );
     bufferLoader.load();
     function finishedLoading(bufferList) {

@@ -10,6 +10,7 @@ function make_spectrogram(divID, url, filename, audioLength, selectedRange) {
         if (results) {
             mixture_spectrogram.rawData = parseSpecCsv(results.data);
             console.log('got csv file!!!');
+            $('#general-status').text('Drawing Spectrogram...');
             drawSpectrogramPlotly(divID, mixture_spectrogram.rawData, filename,
                 freqMax, audioLength, selectedRange, logY);
         }
@@ -38,7 +39,9 @@ function drawSpectrogramPlotly(divID, spectrogramData, filename, freqMax, audioL
     let data = [ { x: xTicks, y: yTicks, z: spectrogramData, type: 'heatmap'}];
 
     let layout = {
-        title: "Spectrogram of " + filename,
+        // title: "Spectrogram of " + filename,
+
+        // Data
         xaxis : {title: "Time (s)",
             // autorange: true,
             type: "linear",
@@ -50,10 +53,23 @@ function drawSpectrogramPlotly(divID, spectrogramData, filename, freqMax, audioL
             autorange: true
             // ticks: yTicks
         },
+
+        // Interaction
         dragmode: 'select',
         selectable: true,
-        paper_bgcolor: "rbga(0, 0, 0, 0)",
-        plot_bgcolo: "rgba(0, 0, 0, 0)"
+
+        // Cosmetics
+        paper_bgcolor: '#E3F0FB', // 'rgb(0,0,0,0); doesn't work :(
+        plot_bgcolor: '#E3F0FB',
+        // width: 500,
+        // height: 500,
+        margin: {
+            l: 50,
+            r: 50,
+            b: 50,
+            t: 10,
+            pad: 4
+        },
 
     };
 
@@ -65,12 +81,67 @@ function drawSpectrogramPlotly(divID, spectrogramData, filename, freqMax, audioL
              'toggleSpikelines'],
         // modeBarButtonsToAdd: ['lasso2d', 'select2d'],
         displaylogo: false,
-        displayModeBar: true
+        displayModeBar: false
     };
 
     mixture_spectrogram.plot = Plotly.newPlot(divID, data, layout, options);
+    $('#general-status').text('Ready...');
 }
 
+function emptyHeatmap(divID) {
+
+    let data = [ { x: [0.0, 1.0], y: [0.0, 20000.0], z: [[0.0, 0.0], [0.0, 0.0]], type: 'heatmap'}];
+
+    let layout = {
+        // title: "Spectrogram of " + filename,
+
+        // Data
+        xaxis : {title: "Time (s)",
+            // autorange: true,
+            type: "linear",
+            range: [0.0, 1.0],
+            rangeslider: [0.0, 1.0]
+        },
+        yaxis : {title: "Frequency (Hz)",
+            type: "linear",
+            // autorange: true,
+            // ticks: yTicks
+            range: [0.0, 20000.0]
+        },
+
+        // Interaction
+        dragmode: 'select',
+        selectable: true,
+
+        // Cosmetics
+        paper_bgcolor: '#E3F0FB', // 'rgb(0,0,0,0); doesn't work :(
+        // plot_bgcolor: '#E3F0FB',
+        // width: 500,
+        // height: 500,
+        margin: {
+            l: 50,
+            r: 50,
+            b: 50,
+            t: 10,
+            pad: 4
+        },
+
+    };
+
+    let options = {
+        scrollZoom: false,
+        showLink: false,
+        modeBarButtonsToRemove: ['sendDataToCloud', 'toImage',
+            'hoverClosestCartesian', 'hoverCompareCartesian',
+             'toggleSpikelines'],
+        // modeBarButtonsToAdd: ['lasso2d', 'select2d'],
+        displaylogo: false,
+        displayModeBar: false
+    };
+
+    mixture_spectrogram.plot = Plotly.newPlot(divID, data, layout, options);
+
+}
 
 
 // var boxSelection = {
@@ -121,7 +192,7 @@ function updateSelectionStatus(selection) {
         message = selections.length + ' selections';
     }
 
-    $('#spectrogram-selection-status').text(message);
+    $('#general-status').text(message);
 }
 
 function updatePlotWithSelection(divID, val) {
@@ -168,7 +239,7 @@ $('#remove-all-but-selection').click(function () {
 
         let actionData = {
             actionType: 'RemoveAllButSelections',
-            selectionData: selectionData
+            data: { selectionData: selectionData }
         };
 
         let postUrl = '/action';

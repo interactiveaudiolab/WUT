@@ -6,7 +6,7 @@ function STFT(audio_array_data, window_size,
               hop_size, window_type, sample_rate) {
     var length_to_cover_with_hops = audio_array_data.length - window_size;
 
-    if (length_to_cover_with_hops >= 0) {
+    if (length_to_cover_with_hops < 0) {
         Error("window_size cannot be longer than the signal to be windowed");
     }
 
@@ -24,52 +24,72 @@ function STFT(audio_array_data, window_size,
         var windowed_sound = window_func.process(unwindowed_sound);
 
         fft.forward(windowed_sound);
-        stft.push(Array.prototype.slice.call(fft.spectrum));
+        let real = squareTypedArray(fft.real.subarray(0, window_size / 2));
+        let imag = squareTypedArray(fft.imag.subarray(0, window_size / 2));
+        let pow = add_arrays(real, imag);
+        stft.push(Array.prototype.slice.call(pow));
     }
 
-    return transpose(stft); // stft[freq][time]
+    return {spec: transpose(stft), fft: fft}; // stft[freq][time]
 }
 
-function do_spectrogram(audio_array_data, window_size, hop_size, window_type, sample_rate, do_power_spec) {
-    var stft = STFT(audio_array_data, window_size, hop_size, window_type, sample_rate);
+function display_ready_spectrogram(audio_array_data, window_size, hop_size, window_type, sample_rate) {
+    var spec = STFT(audio_array_data, window_size, hop_size, window_type, sample_rate);
+    var fft = spec.fft;
+    spec = spec.spec;
 
     // do_power_spec defaults to true
-    do_power_spec = typeof do_power_spec !== 'undefined' ? do_power_spec : true;
+    // do_power_spec = typeof do_power_spec !== 'undefined' ? do_power_spec : true;
 
-    if (stft.length === 0) {
+    if (spec.length === 0) {
         throw Exception;
     }
 
-    if (stft[0].length === 0) {
+    if (spec[0].length === 0) {
         throw Exception;
     }
 
-    var spectrogram = zeros_like(stft);
-    for (var i = 0; i < stft.length; i++) {
-        for (var j = 0; j < stft[0].length; j++) {
-            if (do_power_spec) {
-                spectrogram.push(Math.pow(stft[i][j], 2));
-            }
-            else {
-                spectrogram.push(Math.abs(stft[i][j]));
-            }
-        }
-    }
+    var reference_value = minMax2D(spec).max;
+    var min_val = 1e-10;
+    var ref = 10 * Math.log10(Math.max(min_val, reference_value));
 
-    return spectrogram;
-}
+    // var sums = [];
+    var spectrogram = zeros_like(spec);
+    for (var i = 0; i < spec.length; i++) {
+        for (var j = 0; j < spec[0].length; j++) {
 
-function display_ready_spectrogram(audio_array_data) {
-    var power_spectrogram = do_spectrogram(audio_array_data, 2048, 1024, '', 44100, true);
+            let val = spec[i][j] > min_val ? spec[i][j] : min_val;
+            val = 10 * Math.log10(val) - ref;
 
-    var db_spec = zeros_like(power_spectrogram);
-    for (var i = 0; i < power_spectrogram.length; i++) {
-        for (var j = 0; j < power_spectrogram[0].length; j++) {
-
-            db_spec.push(Math.pow(stft[i][j], 2));
+            spectrogram[i][j] = val;
 
         }
+        // sums.push(spectrogram[i].reduce(function(a, b) { return a + b + 280; }, 0));
     }
+    // var der = mvg_avg_derivative(sums, 5);
+    // var idx = der.indexOf(Math.min(...der)) + 5;
+    // var top_band = fft.getBandFrequency(idx);
+    //
+    // spectrogram = transpose(spectrogram);
+    // for (i = 0; i < spec.length; i++) {
+    //     spectrogram[i] = spectrogram[i].slice(0, idx);
+    // }
+    // spectrogram = transpose(spectrogram);
 
-    return db_spec;
+    return {spectrogram: spectrogram, freqMax: fft.peak * sample_rate};
 }
+
+// function display_ready_spectrogram(audio_array_data) {
+//     var power_spectrogram = do_spectrogram(audio_array_data, 2048, 1024, '', 44100, true);
+//
+//     var db_spec = zeros_like(power_spectrogram);
+//     for (var i = 0; i < power_spectrogram.length; i++) {
+//         for (var j = 0; j < power_spectrogram[0].length; j++) {
+//
+//             db_spec.push(Math.pow(stft[i][j], 2));
+//
+//         }
+//     }
+//
+//     return db_spec;
+// }

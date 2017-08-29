@@ -11,6 +11,7 @@ import time
 import uuid
 
 import numpy as np
+import jsonpickle
 
 import audio_processing
 import config
@@ -27,7 +28,8 @@ class SeparationSession(object):
     """
     Object for a single session, handles
     """
-    _needs_special_encoding = ['user_general_audio']
+    _needs_special_encoding = ['user_general_audio',]
+    _uses_jsonpickle =['_action_queue']
     _file_ext_that_need_converting = ['mp3', 'flac']
 
     def __init__(self, from_json=False):
@@ -97,12 +99,31 @@ class SeparationSession(object):
             raise e
 
     def push_action(self, action_dict):
-        self._action_queue.append(actions.Action.new_action(action_dict))
+        action_id = len(self._action_queue) + 1
+        action = actions.Action.new_action(action_dict, action_id)
+
+        action_entry = {'received': time.asctime(),
+                        'owner': self.url_safe_id,
+                        'action_id': action_id,
+                        'action': action}
+
+        self._action_queue.append(action_entry)
 
     def apply_actions_in_queue(self):
 
         for action in self._action_queue:
-            action
+            action_object = action['action']
+            logger.debug('Applying {} - ID{}, got at {}'.format(str(action_object),
+                                                                action['action_id'],
+                                                                action['received']))
+
+            action_object.make_mask_for_action(self.user_general_audio.audio_signal_copy)
+            self.user_general_audio.audio_signal_copy = \
+                action_object.apply_action(self.user_general_audio.audio_signal_copy)
+
+            self._action_queue.pop(0)
+
+        # self.user_general_audio.audio_signal_copy.istft()
 
     def to_json(self):
         self.to_json_times.append(time.asctime(time.localtime(time.time())))
@@ -110,12 +131,15 @@ class SeparationSession(object):
 
     def _to_json_helper(self, o):
         if not isinstance(o, SeparationSession):
-            raise TypeError
+            raise TypeError('Expected SeparationSession but got {} object'.format(type(o)))
 
         d = copy.copy(o.__dict__)
         for k, v in d.items():
             if k in self._needs_special_encoding and v is not None:
                 d[k] = v.to_json()
+
+            if k in self._uses_jsonpickle and v is not None:
+                d[k] = jsonpickle.encode(v)
 
             elif isinstance(v, np.ndarray):
                 d[k] = nussl.json_ready_numpy_array(v)
@@ -147,7 +171,7 @@ class SeparationSession(object):
                     logger.error('Got something I don\'t understand: {}: {}'.format(k, v))
                     continue
 
-                if v is not None and isinstance(v, basestring):
+                if v is not None and isinstance(v, basestring):  # TODO: python 3-ify
 
                     if k == 'session_id':
                         s.__dict__[k] = uuid.UUID(v)
@@ -163,6 +187,9 @@ class SeparationSession(object):
 
                     # elif v is not None and k in SeparationSession._needs_special_encoding:
                     #     s.__dict__[k] = audio_processing.SourceSeparation.from_json(v)
+
+                    elif k in SeparationSession._uses_jsonpickle:
+                        s.__dict__[k] = jsonpickle.decode(v)
 
                     else:
                         s.__dict__[k] = v if not isinstance(v, unicode) else v.encode('ascii')
