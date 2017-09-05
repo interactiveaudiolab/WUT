@@ -1,6 +1,6 @@
 // import * as Plotly from "./vendor/plotly.js-master/src/core";
 
-function make_spectrogram(divID, url, filename, audioLength, selectedRange) {
+function make_spectrogram(divID, url, audioLength, selectedRange) {
     // var logY = document.getElementById('yLogCheckbox').checked;
     // if (typeof(logY) === 'undefined') logY = false;
     let logY = false;
@@ -8,27 +8,76 @@ function make_spectrogram(divID, url, filename, audioLength, selectedRange) {
 
     baseConfigCSV.complete = function(results) {
         if (results) {
-            mixture_spectrogram.rawData = parseSpecCsv(results.data);
+            mixture_spectrogram.rawData = papaParseSpecCsv(results.data);
             console.log('got csv file!!!');
             $('#general-status').text('Drawing Spectrogram...');
-            drawSpectrogramPlotly(divID, mixture_spectrogram.rawData, filename,
+            drawSpectrogramPlotly(divID, mixture_spectrogram.rawData,
                 freqMax, audioLength, selectedRange, logY);
+            enableSpecTools(true);
         }
     };
 
     console.log('getting URL: ' + url);
-    Papa.parse(url, baseConfigCSV);
+    // Papa.parse(url, baseConfigCSV);
 
     // drawSpectrogramPlotly(divID, results, filename, freqMax, audioLength, selectedRange, logY);
 
 
-    // Plotly.d3.csv(url).header('freqMax').get(function(err, rows) {
-    //
-    //     drawSpectrogramPlotly(divID, rows, filename, freqMax, audioLength, selectedRange, logY);
-    // });
+    Plotly.d3.csv(url, function(err, rows) {
+        console.log('got csv file!!!');
+        $('#general-status').text('Drawing Spectrogram...');
+
+        mixture_spectrogram.rawData = d3ParseCsv(rows);
+        drawSpectrogramPlotly(divID, mixture_spectrogram.rawData, freqMax, audioLength, selectedRange, logY);
+        enableSpecTools(true);
+    });
 }
 
-function drawSpectrogramPlotly(divID, spectrogramData, filename, freqMax, audioLength, selectedRange, logY) {
+spectrogramMargins = { l: 75 , r: 50, b: 50, t: 10, pad: 4 };  // TODO: Jinja variable
+spectrogramOptions = {
+    scrollZoom: false,
+    showLink: false,
+    // modeBarButtonsToRemove: ['sendDataToCloud', 'toImage',
+    //     'hoverClosestCartesian', 'hoverCompareCartesian',
+    //     'toggleSpikelines'],
+    // modeBarButtonsToAdd: ['lasso2d', 'select2d'],
+    displaylogo: false,
+    displayModeBar: false
+};
+
+spectrogramLayout = {
+    // title: "Spectrogram of " + filename,
+
+    // Data
+    xaxis : {title: "Time (s)",
+        // autorange: true,
+        type: "linear",
+        range: [0.0, 1.0],
+        rangeslider: [0.0, 1.0]
+    },
+    yaxis : {title: "Frequency (Hz)",
+        type: "linear",
+        // autorange: true,
+        // ticks: yTicks
+        range: [0.0, 20000.0]
+    },
+    // showscale :false,
+    // type: 'heatmap',
+
+    // Interaction
+    dragmode: 'select',
+    selectable: true,
+
+    // Cosmetics
+    paper_bgcolor: '#E3F0FB', // 'rgb(0,0,0,0); doesn't work :(
+    plot_bgcolor: '#E3F0FB',
+    // width: 500,
+    // height: 500,
+    margin: spectrogramMargins,
+
+};
+
+function drawSpectrogramPlotly(divID, spectrogramData, freqMax, audioLength, selectedRange, logY) {
 
     let yTicks = arange(0.0, freqMax, spectrogramData.length);
     let xTicks = arange(0.0, audioLength, spectrogramData[0].length);
@@ -36,139 +85,31 @@ function drawSpectrogramPlotly(divID, spectrogramData, filename, freqMax, audioL
     mixture_spectrogram.xTicks = xTicks;
     mixture_spectrogram.yTicks = yTicks;
 
-    let data = [ { x: xTicks, y: yTicks, z: spectrogramData, type: 'heatmap'}];
+    let data = [ { x: xTicks, y: yTicks, z: spectrogramData,
+        type: 'heatmap', colorbar: {len: 0.81, tickvals: [0, 20, 40, 60, 80]} }];
 
-    let layout = {
-        // title: "Spectrogram of " + filename,
+    let layout = spectrogramLayout;
+    layout.xaxis.range = selectedRange;
+    layout.xaxis.rangeslider = selectedRange;
+    layout.yaxis.type = logY ? "log" : "linear";
 
-        // Data
-        xaxis : {title: "Time (s)",
-            // autorange: true,
-            type: "linear",
-            range: selectedRange,
-            rangeslider: selectedRange
-        },
-        yaxis : {title: "Frequency (Hz)",
-            type: logY ? "log" : "linear",
-            autorange: true
-            // ticks: yTicks
-        },
-
-        // Interaction
-        dragmode: 'select',
-        selectable: true,
-
-        // Cosmetics
-        paper_bgcolor: '#E3F0FB', // 'rgb(0,0,0,0); doesn't work :(
-        plot_bgcolor: '#E3F0FB',
-        // width: 500,
-        // height: 500,
-        margin: {
-            l: 50,
-            r: 50,
-            b: 50,
-            t: 10,
-            pad: 4
-        },
-
-    };
-
-    let options = {
-        scrollZoom: false,
-        showLink: false,
-        modeBarButtonsToRemove: ['sendDataToCloud', 'toImage',
-            'hoverClosestCartesian', 'hoverCompareCartesian',
-             'toggleSpikelines'],
-        // modeBarButtonsToAdd: ['lasso2d', 'select2d'],
-        displaylogo: false,
-        displayModeBar: false
-    };
-
-    mixture_spectrogram.plot = Plotly.newPlot(divID, data, layout, options);
+    mixture_spectrogram.plot = Plotly.newPlot(divID, data, layout, spectrogramOptions);
     $('#general-status').text('Ready...');
 }
 
 function emptyHeatmap(divID) {
 
-    let data = [ { x: [0.0, 1.0], y: [0.0, 20000.0], z: [[0.0, 0.0], [0.0, 0.0]], type: 'heatmap'}];
+    let data = [ { x: [0.0, 1.0], y: [0.0, 20000.0], z: [[0.0, 0.0], [0.0, 0.0]],
+        type: 'heatmap', colorbar: {len: 0.81, tickvals: [0, 1]} }];
 
-    let layout = {
-        // title: "Spectrogram of " + filename,
-
-        // Data
-        xaxis : {title: "Time (s)",
-            // autorange: true,
-            type: "linear",
-            range: [0.0, 1.0],
-            rangeslider: [0.0, 1.0]
-        },
-        yaxis : {title: "Frequency (Hz)",
-            type: "linear",
-            // autorange: true,
-            // ticks: yTicks
-            range: [0.0, 20000.0]
-        },
-
-        // Interaction
-        dragmode: 'select',
-        selectable: true,
-
-        // Cosmetics
-        paper_bgcolor: '#E3F0FB', // 'rgb(0,0,0,0); doesn't work :(
-        // plot_bgcolor: '#E3F0FB',
-        // width: 500,
-        // height: 500,
-        margin: {
-            l: 50,
-            r: 50,
-            b: 50,
-            t: 10,
-            pad: 4
-        },
-
-    };
-
-    let options = {
-        scrollZoom: false,
-        showLink: false,
-        modeBarButtonsToRemove: ['sendDataToCloud', 'toImage',
-            'hoverClosestCartesian', 'hoverCompareCartesian',
-             'toggleSpikelines'],
-        // modeBarButtonsToAdd: ['lasso2d', 'select2d'],
-        displaylogo: false,
-        displayModeBar: false
-    };
-
-    mixture_spectrogram.plot = Plotly.newPlot(divID, data, layout, options);
+    mixture_spectrogram.plot = Plotly.newPlot(divID, data, spectrogramLayout, spectrogramOptions);
 
 }
 
-
-// var boxSelection = {
-//     xStart: null,
-//     xStartIdx: null,
-//     xEnd: null,
-//     xEndIdx: null,
-//     yStart: null,
-//     yStartIdx: null,
-//     yEnd: null,
-//     yEndIdx: null,
-//     timeConvertedToIndices: false,
-//     isEmpty: true
-// };
-// boxSelection.isValid = function() {
-//     return this.xStart !== null && this.xEnd !== null && this.yStart !== null && this.yEnd !== null;
-// };
-//
-// boxSelection.convertTimesToIndices = function () {
-//     this.xStartIdx = findClosestIndexInSortedArray(mixture_spectrogram.xTicks, this.xStart);
-//     this.xEndIdx = findClosestIndexInSortedArray(mixture_spectrogram.xTicks, this.xEnd);
-//     this.yStartIdx = findClosestIndexInSortedArray(mixture_spectrogram.yTicks, this.yStart);
-//     this.yEndIdx = findClosestIndexInSortedArray(mixture_spectrogram.yTicks, this.yEnd);
-//     this.timeConvertedToIndices = true;
-// };
-
 let selections = [];
+
+let undoSelections = [];
+let redoSelections = [];
 
 $('#spectrogram-heatmap').on('plotly_selected', function(eventData) {
     let range = eventData.handleObj.handler.arguments[1].range;
@@ -180,6 +121,30 @@ $('#spectrogram-heatmap').on('plotly_selected', function(eventData) {
     updatePlotWithSelection('spectrogram-heatmap', 50);
 
 });
+
+$('#undo').click(function() {
+    if( $(this).hasClass("disabled") ) {
+        return;
+    }
+
+    undoSelections.push(selections.shift());
+});
+
+$('#clear-selection').click(function() {
+    if( $(this).hasClass("disabled") ) {
+        return;
+    }
+    resetSelections('spectrogram-heatmap');
+
+});
+
+function resetSelections(divID) {
+    selections = [];
+
+    Plotly.restyle(divID, {z: [mixture_spectrogram.rawData]});
+
+    $('#general-status').text('Ready...')
+}
 
 function updateSelectionStatus(selection) {
     let message = '';
@@ -220,16 +185,11 @@ function updatePlotWithSelection(divID, val) {
     }
 }
 
-function makeUrlFromSelection(baseUrl, selection) {
-    baseUrl += '?xStart=' + truncateFloat(selection.xStart);
-    baseUrl += '&xEnd=' + truncateFloat(selection.xEnd);
-    baseUrl += '&yStart=' + truncateFloat(selection.yStart);
-    baseUrl += '&yEnd=' + truncateFloat(selection.yEnd);
-
-    return baseUrl;
-}
-
 $('#remove-all-but-selection').click(function () {
+    if( $(this).hasClass("disabled") ) {
+        return;
+    }
+
     if (selections.length > 0) {
 
         let selectionData = [];
@@ -244,12 +204,40 @@ $('#remove-all-but-selection').click(function () {
 
         let postUrl = '/action';
 
-        // $.post( postUrl, {actionData: actionData}, function () {
-        //         let url = '/process';
-        //         result_waveform.load(url);
-        //     },
-        //
-        // );
+        $.ajax({
+            type: "POST",
+            url: postUrl,
+            contentType: 'application/json',
+            dataType: 'json',
+            data: JSON.stringify({actionData: actionData}),
+            success: function () {
+            }
+        }).then(function(result) {
+            let url = '/process';
+            result_waveform.load(url);
+            enableResultControls(true);
+        });
+    }
+});
+
+$('#delete-selection').click(function () {
+    if( $(this).hasClass("disabled") ) {
+        return;
+    }
+
+    if (selections.length > 0) {
+
+        let selectionData = [];
+        for (let sel of selections) {
+            selectionData.push(sel.data());
+        }
+
+        let actionData = {
+            actionType: 'RemoveSelections',
+            data: { selectionData: selectionData }
+        };
+
+        let postUrl = '/action';
 
         $.ajax({
             type: "POST",
@@ -258,28 +246,29 @@ $('#remove-all-but-selection').click(function () {
             dataType: 'json',
             data: JSON.stringify({actionData: actionData}),
             success: function () {
-                let url = '/process';
-                result_waveform.load(url);
-            }
-        });
 
-        // let url = makeUrlFromSelection('/remove_all_but_selection', boxSelection);
+            }
+        }).then(function(result) {
+            let url = '/process';
+            result_waveform.load(url);
+            enableResultControls(true);
+        });
     }
 });
 
-function postSelection(selection) {
-    $.post()
-}
-
 $('#result-play').click(function() {
-    result_waveform.playPause();
+    if (!result_waveform.backend.buffer) {
+        return;
+    }
+
     if (!result_waveform.isPlaying()) {
         // Audio is paused
-        $('#result-play').removeClass('glyphicon glyphicon-play').addClass('glyphicon glyphicon-pause')
+        $('#result-play').find("i").removeClass('glyphicon glyphicon-play').addClass('glyphicon glyphicon-pause')
             .attr('title', 'Pause audio');
     } else {
         // Audio is playing
-        $('#result-play').removeClass('glyphicon glyphicon-pause').addClass('glyphicon glyphicon-play')
+        $('#result-play').find("i").removeClass('glyphicon glyphicon-pause').addClass('glyphicon glyphicon-play')
             .attr('title', 'Play audio');
     }
+    result_waveform.playPause();
 });

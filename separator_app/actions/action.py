@@ -158,5 +158,4 @@ class RemoveSelections(SelectionBasedRemove):
 
     def make_mask_for_action(self, audio_signal):
         final_mask = super(RemoveSelections, self).make_mask_for_action(audio_signal)
-        final_mask.invert_mask()
-        self.masks.append(final_mask)
+        self.masks.append(final_mask.inverse_mask())

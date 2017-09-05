@@ -19,7 +19,7 @@
 
 
     <script type="text/javascript" src="js/vendor/modernizr-2.8.3.min.js"></script>
-    <script type="text/javascript" src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.0.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.8.1/bootstrap-slider.min.js"></script>
     <!--<script src="js/vendor/plotly.js-master/src/plotly.js"></script>-->
@@ -30,6 +30,7 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/papaparse.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/buffer-loader.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/dsp.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/FileSaver.min.js') }}"></script>
 </head>
 <body>
 <!--[if lt IE 8]>
@@ -53,18 +54,21 @@
         <div class="collapse navbar-collapse" id="controls">
             <ul class="nav navbar-nav">
                 <li class="divider-vertical"></li>
-                <li onclick="audio.import_audio()">
-                    <a href="#"><i class="glyphicon glyphicon-open"> <p>Open</p> </i> </a>
+                <li id="import-audio">
+                    <a href="#">
+                        <i class="glyphicon glyphicon-open icon text-center"></i>
+                        <p class="control-text">Open</p>
+                    </a>
                 </li>
 
                 <li class="divider-vertical"></li>
-                <li onclick="playPauseButton()">
-                    <a href="#"><i class="glyphicon glyphicon-play" id="play_icon" title="Play Audio"></i></a>
+                <li id="mixture-play-pause">
+                    <a href="#"><i class="glyphicon glyphicon-play icon" id="play_icon" title="Play Audio"></i></a>
                 </li>
 
                 <li class="divider-vertical"></li>
-                <li onclick="stopButton()">
-                    <a href="#"><i class="glyphicon glyphicon-stop"></i></a>
+                <li id="mixture-stop">
+                    <a href="#"><i class="glyphicon glyphicon-stop icon"></i></a>
                 </li>
                 <li class="divider-vertical"></li>
 
@@ -78,6 +82,11 @@
                         <span class="range-value"></span>
                     </div>
                 </li>
+                <li class="divider-vertical"></li>
+                <li>
+                    <p class="control-text" style="display: inline; padding-left: 0.25em;"> Status:</p><p id="general-status">Ready...</p>
+                </li>
+
             </ul>
         </div>
     </nav>
@@ -86,29 +95,19 @@
         <input id="input_audio_file" style="display: none" accept="audio/*" type="file" name="audio_file" />
     </form>
     <div id="mainContent">
-        {#  <div id="controls">#}
-        {##}
-        {##}
-        {#                    Volume:#}
-        {#                    <div id="volume_slider">#}
-        {#                        <span class="glyphicon glyphicon-volume-down"></span>#}
-        {#                        <div id="volume"></div>#}
-        {#                        <span class="glyphicon glyphicon-volume-up"></span>#}
-        {#                    </div>#}
-        {#                    File name: <span id="filename"></span>#}
-        {##}
-        {#                </div>#}
         <div class="row" id="spectrogram-controls">
             <div class="col-md-1"></div>
             <div class="col-md-1" id="waveform-zoom-buttons">
-                <button id="mixture-zoom-in" class="btn btn-primary" title="Zoom in">
-                    <i class="glyphicon glyphicon-zoom-in" id="waveform"></i>
-                </button>
+                <div class="btn-group">
+                    <button id="mixture-zoom-in" class="btn btn-primary" title="Zoom in">
+                        <i class="glyphicon glyphicon-zoom-in" id="waveform"></i>
+                    </button>
 
-                <button id="mixture-zoom-out" class="btn btn-primary" title="Zoom out">
-                    <i class="glyphicon glyphicon-zoom-out"></i>
-                </button>
-{#                <p id="general-status">Ready...</p>#}
+                    <button id="mixture-zoom-out" class="btn btn-primary" title="Zoom out">
+                        <i class="glyphicon glyphicon-zoom-out"></i>
+                    </button>
+                </div>
+                {#                <p id="general-status">Ready...</p>#}
             </div>
 
             {# <div class="col-md-3">#}
@@ -116,55 +115,70 @@
             {#        Get Spectrogram#}
             {# </button>#}
             {# </div>#}
-            <div class="col-md-3">
-                <button id="remove-all-but-selection" class="btn btn-primary" title="Remove Everything but Selections">
-                    Remove Everything but Selections
-                </button>
-            </div>
-            {# <div class="col-md-3">#}
-            {# <button id="delete-selection" class="btn btn-primary" title="Delete Selections">#}
-            {#         Delete Selections#}
-            {# </button>#}
-            {# </div>#}
-            {# <div class="col-md-3">#}
-            {# <button id="clear-selection" class="btn btn-primary" title="Remove Everything but Selections">#}
-            {#        Remove Everything but Selections#}
-            {# </button>#}
-            {# </div>#}
-            <p id="general-status">Ready...</p>
-        </div>
-        <div class="row" id="mixture-container"></div>
-        <div id="mixture-waveform-wrapper" style="margin-left: 50px; margin-right: 105px;">
-            <h5 id="filename">Input Mixture Waveform</h5>
-            <div style="background-color:#F0F0F0 ; border-radius:2px; border: 1px solid #303030;">
-                <div id="mixture-waveform" style="width: 100%">
-                    <div class="progress progress-striped active" id="progress-bar" style="display: none;">
-                        <div class="progress-bar progress-bar-info" style="width: 100%;"></div>
-                    </div>
-                </div>
-                <div id="waveform-timeline"></div>
-            </div>
-        </div>
-        <div id="spectrogram-container">
-
-            <div id="spectrogram-heatmap">
-                <!-- Spectrogram will be drawn in this div -->
-            </div>
-
-        </div>
-
-{#        TODO: put this (and mixture) in a css class and add the style to main.css #}
-        <div id="result-waveform-wrapper" style="margin-left: 50px; margin-right: 105px;">
-            <h5 id="result-file">Resultant Waveform</h5>
-            <div class="row" id="result-controls">
-                <div class="col-md-3">
-                    <button id="result-play" class="btn btn-primary" title="Play/Pause">
-                        <i class="glyphicon glyphicon-play" title="Play Audio"></i>
+            <div class="col-md-6">
+                <div class="btn-group">
+                    <button id="remove-all-but-selection" class="btn btn-primary spec-tool disabled" title="Remove Everything but Selections">
+                        Remove Outside Selections
+                    </button>
+                    <button id="delete-selection" class="btn btn-primary spec-tool disabled" title="Delete Selections">
+                        Delete Selections
+                    </button>
+                    <button id="clear-selection" class="btn btn-primary spec-tool disabled" title="Clear Current Selections">
+                        Clear Current Selections
                     </button>
                 </div>
             </div>
 
-            <div style="background-color:#F0F0F0 ; border-radius:2px; border: 1px solid #303030">
+            <div class="col-md-2">
+                <div class="btn-group">
+                    <button id="undo" class="btn btn-primary spec-tool- disabled" title="Undo">
+                        Undo
+                    </button>
+                    <button id="redo" class="btn btn-primary spec-tool- disabled" title="Redo">
+                        Redo
+                    </button>
+                </div>
+            </div>
+        </div>
+        {#    </div>#}
+{#        <div class="row" id="mixture-container">#}
+            <div class="waveform-wrapper" id="mixture-waveform-wrapper">
+                <h5 id="filename">Input Mixture Waveform</h5>
+                <div class="waveform">
+                    <div id="mixture-waveform" style="width: 100%">
+                        <div class="progress progress-striped active" id="progress-bar" style="display: none;">
+                            <div class="progress-bar progress-bar-info" style="width: 100%;"></div>
+                        </div>
+                    </div>
+                    <div id="waveform-timeline"></div>
+                </div>
+            </div>
+            <div id="spectrogram-container">
+
+                <div id="spectrogram-heatmap">
+                    <!-- Spectrogram will be drawn in this div -->
+                </div>
+
+            </div>
+{#        </div>#}
+
+        <div class="waveform-wrapper" id="result-waveform-wrapper">
+            <h5 id="result-file">Resultant Waveform</h5>
+            <div class="row" id="result-controls">
+                <div class="col-md-1">
+                    <button id="result-play" class="btn btn-primary result-controls disabled" title="Play/Pause">
+                        <i class="glyphicon glyphicon-play" title="Play Audio"></i>
+                    </button>
+                </div>
+                <div class="col-md-1">
+                    <button id="save-result" class="btn btn-primary result-controls disabled" title="Save Result">
+                        {#                        <i class="glyphicon glyphicon-play" title="Play Audio"></i>#}
+                        Save
+                    </button>
+                </div>
+            </div>
+
+            <div class="waveform">
                 <div id="result-waveform" style="width: 100%">
                     {# <div class="progress progress-striped active" id="progress-bar" style="display: none;">#}
                     {# <div class="progress-bar progress-bar-info" style="width: 100%;"></div>#}

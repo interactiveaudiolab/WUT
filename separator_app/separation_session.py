@@ -9,6 +9,7 @@ import logging
 import os
 import time
 import uuid
+from collections import deque
 
 import numpy as np
 import jsonpickle
@@ -45,7 +46,7 @@ class SeparationSession(object):
         self.time_of_init = None
         self.to_json_times = []
         self.from_json_times = []
-        self._action_queue = []
+        self._action_queue = deque()
 
         if not from_json:
             # Set up a session ID and store it
@@ -111,7 +112,8 @@ class SeparationSession(object):
 
     def apply_actions_in_queue(self):
 
-        for action in self._action_queue:
+        while self._action_queue:
+            action = self._action_queue.popleft()
             action_object = action['action']
             logger.debug('Applying {} - ID{}, got at {}'.format(str(action_object),
                                                                 action['action_id'],
@@ -120,8 +122,6 @@ class SeparationSession(object):
             action_object.make_mask_for_action(self.user_general_audio.audio_signal_copy)
             self.user_general_audio.audio_signal_copy = \
                 action_object.apply_action(self.user_general_audio.audio_signal_copy)
-
-            self._action_queue.pop(0)
 
         # self.user_general_audio.audio_signal_copy.istft()
 

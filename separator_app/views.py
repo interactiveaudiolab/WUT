@@ -201,6 +201,8 @@ def process():
         file_mime_type = 'audio/wav'
         file_path = sess.user_general_audio.make_wav_file()
 
+        session['cur_session'] = sess.to_json()
+
         response = make_response(send_file(file_path, file_mime_type))
 
         return response

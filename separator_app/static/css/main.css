@@ -13,6 +13,8 @@ html {
     font-size: 1em;
     line-height: 1.4;
     background-color: #E3F0FB;
+    font-family: Century Gothic, CenturyGothic, AppleGothic, sans-serif;
+    font-weight: lighter;
 }
 
 /*
@@ -205,60 +207,60 @@ audio {
     stroke: #fff;
 }
 
-#volume_slider {
-    width: 350px;
-    height: 50px;
-    position: relative;
-    margin: 0 auto;
-    /*top: 80px;*/
-}
+/*#volume_slider {*/
+    /*width: 350px;*/
+    /*height: 50px;*/
+    /*position: relative;*/
+    /*margin: 0 auto;*/
+    /*!*top: 80px;*!*/
+/*}*/
 
-#volume_slider span {
-    position: absolute;
-    margin-top: -6px;
-    color: #666;
-}
+/*#volume_slider span {*/
+    /*position: absolute;*/
+    /*margin-top: -6px;*/
+    /*color: #666;*/
+/*}*/
 
-#volume_slider span.glyphicon-volume-down {
-    margin-left: -8px;
-}
+/*#volume_slider span.glyphicon-volume-down {*/
+    /*margin-left: -8px;*/
+/*}*/
 
-#volume_slider span.glyphicon-volume-up {
-    margin-right: -8px;
-    right: 0;
-}
+/*#volume_slider span.glyphicon-volume-up {*/
+    /*margin-right: -8px;*/
+    /*right: 0;*/
+/*}*/
 
-#volume {
-    position: absolute;
-    left: 24px;
-    margin: 0 auto;
-    height: 5px;
-    width: 300px;
-    background: #555;
-    border-radius: 15px;
-}
+/*#volume {*/
+    /*position: absolute;*/
+    /*left: 24px;*/
+    /*margin: 0 auto;*/
+    /*height: 5px;*/
+    /*width: 300px;*/
+    /*background: #555;*/
+    /*border-radius: 15px;*/
+/*}*/
 
-#volume .ui-slider-range-min {
-    height: 5px;
-    width: 300px;
-    position: absolute;
-    background: #2ecc71;
-    border: none;
-    border-radius: 10px;
-    outline: none;
-}
+/*#volume .ui-slider-range-min {*/
+    /*height: 5px;*/
+    /*width: 300px;*/
+    /*position: absolute;*/
+    /*background: #2ecc71;*/
+    /*border: none;*/
+    /*border-radius: 10px;*/
+    /*outline: none;*/
+/*}*/
 
-#volume .ui-slider-handle {
-    width: 20px;
-    height: 20px;
-    border-radius: 20px;
-    background: #FFF;
-    position: absolute;
-    margin-left: -8px;
-    margin-top: -8px;
-    cursor: pointer;
-    outline: none;
-}
+/*#volume .ui-slider-handle {*/
+    /*width: 20px;*/
+    /*height: 20px;*/
+    /*border-radius: 20px;*/
+    /*background: #FFF;*/
+    /*position: absolute;*/
+    /*margin-left: -8px;*/
+    /*margin-top: -8px;*/
+    /*cursor: pointer;*/
+    /*outline: none;*/
+/*}*/
 
 /*!*input[type="range"][orient="vertical"] {*!*/
     /*!*writing-mode: bt-lr; !* IE *!*!*/
@@ -276,20 +278,20 @@ audio {
     /*transform: rotate(270deg);*/
 /*}*/
 
-#beat_spectrum_container {
-        position: relative;
-        font-family: Arial, Helvetica, sans-serif;
-}
-#beat_spectrum_graph {
-        position: relative;
-        left: 40px;
-}
-#beat_spectrum_y_axis {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        width: 40px;
-}
+/*#beat_spectrum_container {*/
+        /*position: relative;*/
+        /*font-family: Arial, Helvetica, sans-serif;*/
+/*}*/
+/*#beat_spectrum_graph {*/
+        /*position: relative;*/
+        /*left: 40px;*/
+/*}*/
+/*#beat_spectrum_y_axis {*/
+        /*position: absolute;*/
+        /*top: 0;*/
+        /*bottom: 0;*/
+        /*width: 40px;*/
+/*}*/
 
 .navbar-default {
   background-color: #64d1ff;
@@ -386,6 +388,60 @@ audio {
     text-align: center;
     margin: 0 auto;
 
+}
+
+.navbar .divider-vertical {
+    height: 70px;
+    margin: 0 9px;
+    border-right: 1px solid #5ec5f0;
+    /*border-left: 1px solid #0052ff;*/
+}
+
+.navbar-inverse .divider-vertical {
+    border-right-color: #222222;
+    border-left-color: #111111;
+}
+
+@media (max-width: 767px) {
+    .navbar-collapse .nav > .divider-vertical {
+        display: none;
+     }
+}
+
+.icon{
+
+    /*height: 70px;*/
+    /*margin-left: auto;*/
+    /*margin-right: auto;*/
+}
+
+.icon i{
+    display: block;
+    text-align: center;
+    /*line-height: 70px;*/
+}
+
+#general-status {
+    border: 1px solid #005b99;
+    width: 400px;
+    background: #5ec5f0;
+    padding: 4px;
+}
+
+.control-text {
+    font-size: 0.9em;
+    margin: 0;
+}
+
+.waveform {
+    background-color:#F0F0F0;
+    border-radius:2px;
+    border: 1px solid #303030;
+}
+
+.waveform-wrapper {
+    margin-left: 75px;
+    margin-right: 105px;
 }
 
 /*#waveform-zoom-buttons {*/

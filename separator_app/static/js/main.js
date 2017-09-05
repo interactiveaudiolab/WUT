@@ -137,6 +137,35 @@ $("#get-spectrogram").click(function() {
 
 });
 
+$('#save-result').click(function() {
+    if (!result_waveform.backend.buffer) {
+        return;
+    }
+
+    let blob = bufferToWave(result_waveform.backend.buffer, 0.0, result_waveform.backend.buffer.length);
+    saveAs(blob, 'wut_result.wav', false);
+});
+
+
+function enableSpecTools(enabled) {
+    if (enabled === true) {
+        $('.spec-tool').removeClass('disabled');
+    }
+    else if (enabled === false) {
+        $('.spec-tool').addClass('disabled');
+    }
+}
+
+function enableResultControls(enabled) {
+    if (enabled === true) {
+        $('.result-controls').removeClass('disabled');
+    }
+    else if (enabled === false) {
+        $('.result-controls').addClass('disabled');
+    }
+}
+
+
 
 function getSpectrogram() {
     /*
@@ -163,6 +192,6 @@ function getSpectrogram() {
         // audioOffset = start;
     }
 
-    make_spectrogram("spectrogram-heatmap", url, mixture_audio_file.file.name, specLength, selectedRange);
+    make_spectrogram("spectrogram-heatmap", url, specLength, selectedRange);
 
 }

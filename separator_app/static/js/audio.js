@@ -46,6 +46,8 @@ mixture_audio_file.upload_to_server = function (obj) {
         form_data.append("audio_file", file);
     }
 
+    var upload_complete = false;
+
     $.ajax({
         url: '/audio_upload',
         type: "POST",
@@ -55,9 +57,11 @@ mixture_audio_file.upload_to_server = function (obj) {
         success: function (result) {
             console.log('/audio_upload POST done!');
             $('#general-status').text('Upload complete! Waiting for spectrogram...');
-            if (!DO_STFT_ON_CLIENT) {
-                getSpectrogram();
-            }
+            upload_complete = result !== null;
+        }
+    }).then(function(result) {
+        if (!DO_STFT_ON_CLIENT && upload_complete) {
+            getSpectrogram();
         }
     });
 };
@@ -101,6 +105,42 @@ function stopButton() {
         mixture_waveform.seekTo(0);
     }
 }
+
+$('#import-audio').click(function(){
+    audio.import_audio();
+    $('#general-status').text('Uploading audio to server...');
+});
+
+$('#mixture-stop').click(function() {
+    if (!mixture_waveform.backend.buffer) {
+        return;
+    }
+
+    if (mixture_waveform.isPlaying()) {
+        $('#mixture-play-pause').find("i").removeClass('glyphicon glyphicon-pause').addClass('glyphicon glyphicon-play')
+            .attr('title', 'Play audio');
+        mixture_waveform.stop();
+    }
+
+    mixture_waveform.seekTo(0);
+});
+
+$('#mixture-play-pause').click(function() {
+    if (!mixture_waveform.backend.buffer) {
+        return;
+    }
+
+    if (!mixture_waveform.isPlaying()) {
+        // Audio is paused
+        $('#mixture-play-pause').find("i").removeClass('glyphicon glyphicon-play').addClass('glyphicon glyphicon-pause')
+            .attr('title', 'Pause audio');
+    } else {
+        // Audio is playing
+        $('#mixture-play-pause').find("i").removeClass('glyphicon glyphicon-pause').addClass('glyphicon glyphicon-play')
+            .attr('title', 'Play audio');
+    }
+    mixture_waveform.playPause();
+});
 
 function setMixtureVolume(val) {
     mixture_waveform.setVolume(val);
@@ -162,4 +202,60 @@ function get_audio_data () {
     // };
 
     return [audio_data, bufferLoader.bufferList[0].sampleRate];
+}
+
+// FROM: https://stackoverflow.com/a/30045041
+// Convert a audio-buffer segment to a Blob using WAVE representation
+function bufferToWave(abuffer, offset, len) {
+
+  var numOfChan = abuffer.numberOfChannels,
+      length = len * numOfChan * 2 + 44,
+      buffer = new ArrayBuffer(length),
+      view = new DataView(buffer),
+      channels = [], i, sample,
+      pos = 0;
+
+  // write WAVE header
+  setUint32(0x46464952);                         // "RIFF"
+  setUint32(length - 8);                         // file length - 8
+  setUint32(0x45564157);                         // "WAVE"
+
+  setUint32(0x20746d66);                         // "fmt " chunk
+  setUint32(16);                                 // length = 16
+  setUint16(1);                                  // PCM (uncompressed)
+  setUint16(numOfChan);
+  setUint32(abuffer.sampleRate);
+  setUint32(abuffer.sampleRate * 2 * numOfChan); // avg. bytes/sec
+  setUint16(numOfChan * 2);                      // block-align
+  setUint16(16);                                 // 16-bit (hardcoded in this demo)
+
+  setUint32(0x61746164);                         // "data" - chunk
+  setUint32(length - pos - 4);                   // chunk length
+
+  // write interleaved data
+  for(i = 0; i < abuffer.numberOfChannels; i++)
+    channels.push(abuffer.getChannelData(i));
+
+  while(pos < length) {
+    for(i = 0; i < numOfChan; i++) {             // interleave channels
+      sample = Math.max(-1, Math.min(1, channels[i][offset])); // clamp
+      sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767)|0; // scale to 16-bit signed int
+      view.setInt16(pos, sample, true);          // update data chunk
+      pos += 2;
+    }
+    offset++                                     // next source sample
+  }
+
+  // create Blob
+  return new Blob([buffer], {type: "audio/wav"});
+
+  function setUint16(data) {
+    view.setUint16(pos, data, true);
+    pos += 2;
+  }
+
+  function setUint32(data) {
+    view.setUint32(pos, data, true);
+    pos += 4;
+  }
 }
