@@ -1,6 +1,6 @@
 # coding=utf-8
 """
-General toy_audio tasks in here
+General audio tasks in here
 """
 try:
     from StringIO import StringIO
@@ -20,7 +20,8 @@ logger = logging.getLogger()
 
 
 class GeneralAudio(object):
-    _needs_special_encoding = ['audio_signal', 'audio_signal_copy', 'preview_params', 'master_params']
+    _needs_special_encoding = ['audio_signal', 'audio_signal_copy', 'preview_params', 'master_params',
+                               'audio_signal_view', 'FT2D']
     PREVIEW = 'preview'
     MASTER = 'master'
 
@@ -28,6 +29,7 @@ class GeneralAudio(object):
 
         self.audio_signal = None
         self.audio_signal_copy = None
+        self.audio_signal_view = None
         self.storage_path = None
 
         self.spec_csv_path = None
@@ -47,6 +49,7 @@ class GeneralAudio(object):
 
             self.audio_signal = audio_signal_object  # Original audio data. Don't edit this.
             self.audio_signal_copy = copy.copy(self.audio_signal)
+            self.audio_signal_view = copy.copy(self.audio_signal)
             self.storage_path = storage_path
 
             self.master_params = nussl.StftParams(self.audio_signal_copy.sample_rate)
@@ -72,17 +75,19 @@ class GeneralAudio(object):
         csv_file_name = '{}_s{}_e{}_c{}.csv'.format(self.audio_signal_copy.file_name,
                                                     start_sample, stop_sample, channel)
 
-        if self.mode == self.PREVIEW:
-            self.audio_signal_copy.stft_params = self.preview_params
+        # if self.mode == self.PREVIEW:
+        self.audio_signal_view.stft_params = self.preview_params
 
         if channel is None:
             self.audio_signal_copy.to_mono(overwrite=True)
-            self.audio_signal_copy.stft()
-            return self._csv_string_maker(self.audio_signal_copy.get_power_spectrogram_channel(0)), csv_file_name
+            self.audio_signal_copy.stft()  # TODO: put this in a worker thread
+            self.audio_signal_view.stft()
+            return self._csv_string_maker(self.audio_signal_view.get_power_spectrogram_channel(0)), csv_file_name
 
         else:
             self.audio_signal_copy.stft()
-            return self._csv_string_maker(self.audio_signal_copy.get_power_spectrogram_channel(channel)), csv_file_name
+            self.audio_signal_view.stft()
+            return self._csv_string_maker(self.audio_signal_view.get_power_spectrogram_channel(channel)), csv_file_name
 
     @staticmethod
     def _csv_string_maker(spectrogram):
@@ -246,7 +251,7 @@ class GeneralAudio(object):
         return json.dumps(self, default=self._to_json_helper)
 
     def _to_json_helper(self, o):
-        if not isinstance(o, GeneralAudio):
+        if not issubclass(o.__class__, GeneralAudio):
             raise TypeError
 
         d = copy.copy(o.__dict__)

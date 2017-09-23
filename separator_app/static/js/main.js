@@ -8,6 +8,7 @@ var all_waveforms = [mixture_waveform, result_waveform];
 var defaultZoomStart;
 var zoomStepSize = 5;
 var mixture_spectrogram = {rawData: null, plot: null, xTicks: null, yTicks: null};
+var mixture_2dft = {rawData: null, plot: null, xTicks: null, yTicks: null};
 
 //Colors
 var red = 'rgba(255, 0, 0, 0.5)';
@@ -31,7 +32,12 @@ $(document).ready(function() {
 	context = online;
 //	make_spectrogram('heatmap');
 
+    $("#mainTabs a").click(function(e){
+        e.preventDefault();
+        $(this).tab('show');
+    });
 });
+
 
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -71,6 +77,7 @@ document.addEventListener('DOMContentLoaded', function () {
     result_waveform.init(resultOptions);
 
     emptyHeatmap('spectrogram-heatmap');
+    emptyHeatmap('ft2d-heatmap');
 });
 
 mixture_waveform.on('ready', function () {
@@ -165,7 +172,9 @@ function enableResultControls(enabled) {
     }
 }
 
-
+$('#results-pill').click(function() {
+    $(this).removeClass('result-ready');
+});
 
 function getSpectrogram() {
     /*
@@ -177,7 +186,7 @@ function getSpectrogram() {
         console.log('Uh oh!!! More than one region!!!');
     }
 
-    var url = "/get_spectrogram";
+    var url = "/get_spectrogram?val=" + Math.random().toString(36).substring(7);
     var specLength = mixture_waveform.backend.getDuration();
     var selectedRange = [0.0, specLength];
 
@@ -194,4 +203,9 @@ function getSpectrogram() {
 
     make_spectrogram("spectrogram-heatmap", url, specLength, selectedRange);
 
+};
+
+function get2DFT() {
+    var url = "/get_2dft?val=" + Math.random().toString(36).substring(7);
+    make_2dft("ft2d-heatmap", url);
 }

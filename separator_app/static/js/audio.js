@@ -63,6 +63,8 @@ mixture_audio_file.upload_to_server = function (obj) {
         if (!DO_STFT_ON_CLIENT && upload_complete) {
             getSpectrogram();
         }
+    }).then(function(result) {
+        get2DFT();
     });
 };
 

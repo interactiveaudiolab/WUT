@@ -21,6 +21,7 @@
     <script type="text/javascript" src="js/vendor/modernizr-2.8.3.min.js"></script>
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.0.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.8.1/bootstrap-slider.min.js"></script>
     <!--<script src="js/vendor/plotly.js-master/src/plotly.js"></script>-->
     <script type="text/javascript" src="https://cdn.plot.ly/plotly-latest.js"></script>
@@ -95,98 +96,122 @@
         <input id="input_audio_file" style="display: none" accept="audio/*" type="file" name="audio_file" />
     </form>
     <div id="mainContent">
-        <div class="row" id="spectrogram-controls">
-            <div class="col-md-1"></div>
-            <div class="col-md-1" id="waveform-zoom-buttons">
-                <div class="btn-group">
-                    <button id="mixture-zoom-in" class="btn btn-primary" title="Zoom in">
-                        <i class="glyphicon glyphicon-zoom-in" id="waveform"></i>
-                    </button>
+        <ul class="nav nav-tabs" id="mainTabs">
+            <li class="active"><a href="#spectrogram-tab">Input Mixture</a></li>
+            <li><a href="#ft2d-tab">2DFT</a></li>
+            <li id="results-pill"><a href="#results-tab">Results</a></li>
+        </ul>
 
-                    <button id="mixture-zoom-out" class="btn btn-primary" title="Zoom out">
-                        <i class="glyphicon glyphicon-zoom-out"></i>
-                    </button>
-                </div>
-                {#                <p id="general-status">Ready...</p>#}
-            </div>
 
-            {# <div class="col-md-3">#}
-            {# <button id="get-spectrogram" class="btn btn-primary" title="Get Spectrogram">#}
-            {#        Get Spectrogram#}
-            {# </button>#}
-            {# </div>#}
-            <div class="col-md-6">
-                <div class="btn-group">
-                    <button id="remove-all-but-selection" class="btn btn-primary spec-tool disabled" title="Remove Everything but Selections">
-                        Remove Outside Selections
-                    </button>
-                    <button id="delete-selection" class="btn btn-primary spec-tool disabled" title="Delete Selections">
-                        Delete Selections
-                    </button>
-                    <button id="clear-selection" class="btn btn-primary spec-tool disabled" title="Clear Current Selections">
-                        Clear Current Selections
-                    </button>
-                </div>
-            </div>
+        <div class="tab-content">
+            <div class="tab-pane active" id="spectrogram-tab">
+                <div class="row" id="spectrogram-controls">
+                    <div class="col-md-1"></div>
+                    <div class="col-md-1" id="waveform-zoom-buttons">
+                        <div class="btn-group">
+                            <button id="mixture-zoom-in" class="btn btn-primary" title="Zoom in">
+                                <i class="glyphicon glyphicon-zoom-in" id="waveform"></i>
+                            </button>
 
-            <div class="col-md-2">
-                <div class="btn-group">
-                    <button id="undo" class="btn btn-primary spec-tool- disabled" title="Undo">
-                        Undo
-                    </button>
-                    <button id="redo" class="btn btn-primary spec-tool- disabled" title="Redo">
-                        Redo
-                    </button>
-                </div>
-            </div>
-        </div>
-        {#    </div>#}
-{#        <div class="row" id="mixture-container">#}
-            <div class="waveform-wrapper" id="mixture-waveform-wrapper">
-                <h5 id="filename">Input Mixture Waveform</h5>
-                <div class="waveform">
-                    <div id="mixture-waveform" style="width: 100%">
-                        <div class="progress progress-striped active" id="progress-bar" style="display: none;">
-                            <div class="progress-bar progress-bar-info" style="width: 100%;"></div>
+                            <button id="mixture-zoom-out" class="btn btn-primary" title="Zoom out">
+                                <i class="glyphicon glyphicon-zoom-out"></i>
+                            </button>
+                        </div>
+                        {#                <p id="general-status">Ready...</p>#}
+                    </div>
+
+                    {# <div class="col-md-3">#}
+                    {# <button id="get-spectrogram" class="btn btn-primary" title="Get Spectrogram">#}
+                    {#        Get Spectrogram#}
+                    {# </button>#}
+                    {# </div>#}
+                    <div class="col-md-6">
+                        <div class="btn-group">
+                            <button id="remove-all-but-selection" class="btn btn-primary spec-tool disabled" title="Remove Everything but Selections">
+                                Delete Outside Selections
+                            </button>
+                            <button id="delete-selection" class="btn btn-primary spec-tool disabled" title="Delete Selections">
+                                Delete Selections
+                            </button>
+                            <button id="clear-selection" class="btn btn-primary spec-tool disabled" title="Clear Current Selections">
+                                Clear Current Selections
+                            </button>
                         </div>
                     </div>
-                    <div id="waveform-timeline"></div>
+
+                    <div class="col-md-2">
+                        <div class="btn-group">
+                            <button id="undo" class="btn btn-primary spec-tool- disabled" title="Undo">
+                                Undo
+                            </button>
+                            <button id="redo" class="btn btn-primary spec-tool- disabled" title="Redo">
+                                Redo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {#    </div>#}
+                {#        <div class="row" id="mixture-container">#}
+                <div class="waveform-wrapper" id="mixture-waveform-wrapper">
+                    <h5 id="filename">Input Mixture Waveform</h5>
+                    <div class="waveform">
+                        <div id="mixture-waveform" style="width: 100%">
+                            <div class="progress progress-striped active" id="progress-bar" style="display: none;">
+                                <div class="progress-bar progress-bar-info" style="width: 100%;"></div>
+                            </div>
+                        </div>
+                        <div id="waveform-timeline"></div>
+                    </div>
+                </div>
+                <div id="spectrogram-container">
+
+                    <div id="spectrogram-heatmap">
+                        <!-- Spectrogram will be drawn in this div -->
+                    </div>
+
+                </div>
+                {#        </div>#}
+            </div>
+            <div class="tab-pane" id="ft2d-tab">
+                <div id="ft2d-container">
+                    <h5>2-Dimensional Fourier Transform</h5>
+                    <div id="ft2d-heatmap">
+                        <!-- 2DFT will be drawn in this div -->
+                    </div>
                 </div>
             </div>
-            <div id="spectrogram-container">
+            <div class="tab-pane" id="results-tab">
+                <div class="waveform-wrapper" id="result-waveform-wrapper">
+                    <h5 id="result-file">Resultant Waveform</h5>
+                    <div class="row" id="result-controls">
+                        <div class="col-md-1">
+                            <button id="result-play" class="btn btn-primary result-controls disabled" title="Play/Pause">
+                                <i class="glyphicon glyphicon-play" title="Play Audio"></i>
+                            </button>
+                        </div>
+                        <div class="col-md-1">
+                            <button id="save-result" class="btn btn-primary result-controls disabled" title="Save Result">
+                                {#                        <i class="glyphicon glyphicon-play" title="Play Audio"></i>#}
+                                Save
+                            </button>
+                        </div>
+                    </div>
 
-                <div id="spectrogram-heatmap">
-                    <!-- Spectrogram will be drawn in this div -->
+                    <div class="waveform">
+                        <div id="result-waveform" style="width: 100%">
+                            {# <div class="progress progress-striped active" id="progress-bar" style="display: none;">#}
+                            {# <div class="progress-bar progress-bar-info" style="width: 100%;"></div>#}
+                            {# </div>#}
+                        </div>
+                        <div id="result-waveform-timeline"></div>
+                    </div>
                 </div>
-
-            </div>
-{#        </div>#}
-
-        <div class="waveform-wrapper" id="result-waveform-wrapper">
-            <h5 id="result-file">Resultant Waveform</h5>
-            <div class="row" id="result-controls">
-                <div class="col-md-1">
-                    <button id="result-play" class="btn btn-primary result-controls disabled" title="Play/Pause">
-                        <i class="glyphicon glyphicon-play" title="Play Audio"></i>
-                    </button>
-                </div>
-                <div class="col-md-1">
-                    <button id="save-result" class="btn btn-primary result-controls disabled" title="Save Result">
-                        {#                        <i class="glyphicon glyphicon-play" title="Play Audio"></i>#}
-                        Save
-                    </button>
-                </div>
-            </div>
-
-            <div class="waveform">
-                <div id="result-waveform" style="width: 100%">
-                    {# <div class="progress progress-striped active" id="progress-bar" style="display: none;">#}
-                    {# <div class="progress-bar progress-bar-info" style="width: 100%;"></div>#}
-                    {# </div>#}
-                </div>
-                <div id="result-waveform-timeline"></div>
             </div>
         </div>
+
+
+
+
     </div>
     {#        <div id="representation">#}
     {#            <button id="send_data" class="btn btn-primary" title="Get Toy Data back" onclick="sendDataBack()">#}
@@ -239,6 +264,7 @@
 <script type="text/javascript" src="{{ url_for('static', filename='js/audio.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/selection.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/plotly_plots.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/plot_2dft.js') }}"></script>
 
 <!--<div>-->
 <!--<input type="checkbox" id="yLogCheckbox">-->

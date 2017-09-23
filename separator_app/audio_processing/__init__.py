@@ -4,3 +4,4 @@
 # from repet import *
 
 from general_audio import GeneralAudio
+from ft2d import FT2D

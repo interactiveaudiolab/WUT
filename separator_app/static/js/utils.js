@@ -17,7 +17,7 @@ function namespace(namespaceString) {
 
 
 function truncateFloat(val) {
-    return Number(val.toFixed(3));
+    return Number(val.toFixed(1));
 }
 
 function getLastObject(obj) {

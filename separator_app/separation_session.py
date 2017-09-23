@@ -13,6 +13,8 @@ from collections import deque
 
 import numpy as np
 import jsonpickle
+import jsonpickle.ext.numpy as jsonpickle_numpy
+jsonpickle_numpy.register_handlers()
 
 import audio_processing
 import config
@@ -29,8 +31,8 @@ class SeparationSession(object):
     """
     Object for a single session, handles
     """
-    _needs_special_encoding = ['user_general_audio',]
-    _uses_jsonpickle =['_action_queue']
+    _needs_special_encoding = ['user_general_audio']
+    _uses_jsonpickle =['_action_queue', 'ft2d']
     _file_ext_that_need_converting = ['mp3', 'flac']
 
     def __init__(self, from_json=False):
@@ -62,6 +64,7 @@ class SeparationSession(object):
 
         self.user_original_file_location = None
         self.user_general_audio = None
+        self.ft2d = None
 
         self.undo_list = []
         self.initialized = False
@@ -92,6 +95,7 @@ class SeparationSession(object):
 
             user_signal = nussl.AudioSignal(self.user_original_file_location)
             self.user_general_audio = audio_processing.GeneralAudio(user_signal, self.user_original_file_folder)
+            self.ft2d = audio_processing.FT2D(user_signal, self.user_original_file_folder)
             self.initialized = True
             self.time_of_init = time.asctime(time.localtime(time.time()))
 
@@ -135,7 +139,7 @@ class SeparationSession(object):
 
         d = copy.copy(o.__dict__)
         for k, v in d.items():
-            if k in self._needs_special_encoding and v is not None:
+            if v is not None and hasattr(v, 'to_json'):
                 d[k] = v.to_json()
 
             if k in self._uses_jsonpickle and v is not None:
@@ -175,6 +179,9 @@ class SeparationSession(object):
 
                     if k == 'session_id':
                         s.__dict__[k] = uuid.UUID(v)
+
+                    # elif k == 'ft2d':
+                    #     s.__dict__[k] = audio_processing.FT2D.from_json(v)
 
                     elif audio_processing.GeneralAudio.__name__ in v:
                         s.__dict__[k] = audio_processing.GeneralAudio.from_json(v)

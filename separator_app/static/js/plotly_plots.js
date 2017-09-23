@@ -3,7 +3,7 @@
 function make_spectrogram(divID, url, audioLength, selectedRange) {
     // var logY = document.getElementById('yLogCheckbox').checked;
     // if (typeof(logY) === 'undefined') logY = false;
-    let logY = false;
+    let logY = true;
     let freqMax = 20000;
 
     baseConfigCSV.complete = function(results) {
@@ -33,8 +33,8 @@ function make_spectrogram(divID, url, audioLength, selectedRange) {
     });
 }
 
-spectrogramMargins = { l: 75 , r: 50, b: 50, t: 10, pad: 4 };  // TODO: Jinja variable
-spectrogramOptions = {
+let spectrogramMargins = { l: 75 , r: 75, b: 50, t: 10, pad: 4 };  // TODO: Jinja variable
+let spectrogramOptions = {
     scrollZoom: false,
     showLink: false,
     // modeBarButtonsToRemove: ['sendDataToCloud', 'toImage',
@@ -45,7 +45,7 @@ spectrogramOptions = {
     displayModeBar: false
 };
 
-spectrogramLayout = {
+let spectrogramLayout = {
     // title: "Spectrogram of " + filename,
 
     // Data
@@ -53,15 +53,14 @@ spectrogramLayout = {
         // autorange: true,
         type: "linear",
         range: [0.0, 1.0],
-        rangeslider: [0.0, 1.0]
+        // rangeslider: [0.0, 1.0]
     },
     yaxis : {title: "Frequency (Hz)",
         type: "linear",
-        // autorange: true,
+        autorange: true,
         // ticks: yTicks
         range: [0.0, 20000.0]
     },
-    // showscale :false,
     // type: 'heatmap',
 
     // Interaction
@@ -74,7 +73,15 @@ spectrogramLayout = {
     // width: 500,
     // height: 500,
     margin: spectrogramMargins,
+    autosize: true,
 
+};
+
+let colorBarOptions = {
+    len: 0.81,
+    tickvals: [0, 1],
+    ticks: "inside",
+    showticklabels: false
 };
 
 function drawSpectrogramPlotly(divID, spectrogramData, freqMax, audioLength, selectedRange, logY) {
@@ -84,14 +91,18 @@ function drawSpectrogramPlotly(divID, spectrogramData, freqMax, audioLength, sel
 
     mixture_spectrogram.xTicks = xTicks;
     mixture_spectrogram.yTicks = yTicks;
+    // let colorbarOpts = colorBarOptions;
+    // colorbarOpts.tickvals = [0, 20, 40, 60, 80];
 
     let data = [ { x: xTicks, y: yTicks, z: spectrogramData,
-        type: 'heatmap', colorbar: {len: 0.81, tickvals: [0, 20, 40, 60, 80]} }];
+        type: 'heatmap', showscale: false, /*colorbar: colorbarOpts*/ }];
 
     let layout = spectrogramLayout;
     layout.xaxis.range = selectedRange;
-    layout.xaxis.rangeslider = selectedRange;
+    // layout.xaxis.rangeslider = selectedRange;
     layout.yaxis.type = logY ? "log" : "linear";
+    layout.yaxis.autorange = logY;
+    layout.yaxis.range = [0.0, freqMax / 2];
 
     mixture_spectrogram.plot = Plotly.newPlot(divID, data, layout, spectrogramOptions);
     $('#general-status').text('Ready...');
@@ -100,11 +111,16 @@ function drawSpectrogramPlotly(divID, spectrogramData, freqMax, audioLength, sel
 function emptyHeatmap(divID) {
 
     let data = [ { x: [0.0, 1.0], y: [0.0, 20000.0], z: [[0.0, 0.0], [0.0, 0.0]],
-        type: 'heatmap', colorbar: {len: 0.81, tickvals: [0, 1]} }];
+        type: 'heatmap', showscale: false /*colorbar: colorBarOptions*/ }];
 
     mixture_spectrogram.plot = Plotly.newPlot(divID, data, spectrogramLayout, spectrogramOptions);
 
 }
+
+$( window ).resize(function() {
+    let update = { width: $(window).width() };
+    Plotly.relayout("spectrogram-heatmap", update);
+});
 
 let selections = [];
 
@@ -112,15 +128,28 @@ let undoSelections = [];
 let redoSelections = [];
 
 $('#spectrogram-heatmap').on('plotly_selected', function(eventData) {
-    let range = eventData.handleObj.handler.arguments[1].range;
+    let handlerArgs = eventData.handleObj.handler.arguments;
 
-    let curSelection = new BoxSelection(mixture_spectrogram.xTicks, mixture_spectrogram.yTicks, range);
-    selections.push(curSelection);
+    if (handlerArgs.length > 1 && handlerArgs[1].hasOwnProperty("range")) {
+        // click and drag event
+        let range = handlerArgs[1].range;
 
-    updateSelectionStatus(curSelection);
-    updatePlotWithSelection('spectrogram-heatmap', 50);
+        let curSelection = new BoxSelection(mixture_spectrogram.xTicks, mixture_spectrogram.yTicks, range);
+        selections.push(curSelection);
+
+        updateSelectionStatus(curSelection);
+        updatePlotWithSelection('spectrogram-heatmap', 50);
+    }
+    else {
+        // just a click event
+        resetSelections('spectrogram-heatmap');
+    }
 
 });
+
+// $('#spectrogram-heatmap').on('plotly_click', function(eventData) {
+//     resetSelections('spectrogram-heatmap');
+// });
 
 $('#undo').click(function() {
     if( $(this).hasClass("disabled") ) {
@@ -176,7 +205,7 @@ function updatePlotWithSelection(divID, val) {
         for (let sel of selections) {
             for (let y = sel.yStartIdx; y < sel.yEndIdx; y++) {
                 for (let x = sel.xStartIdx; x < sel.xEndIdx; x++) {
-                    dataWithSelections[y][x] -= val;
+                    dataWithSelections[y][x] += val;
                 }
             }
         }
@@ -216,6 +245,10 @@ $('#remove-all-but-selection').click(function () {
             let url = '/process';
             result_waveform.load(url);
             enableResultControls(true);
+        }).then(function(result) {
+            if (!$('#results-pill').hasClass('active')) {
+                $('#results-pill').addClass('result-ready');
+            }
         });
     }
 });
@@ -252,6 +285,10 @@ $('#delete-selection').click(function () {
             let url = '/process';
             result_waveform.load(url);
             enableResultControls(true);
+        }).then(function(result) {
+            if (!$('#results-pill').hasClass('active')) {
+                $('#results-pill').addClass('result-ready');
+            }
         });
     }
 });

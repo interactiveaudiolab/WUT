@@ -128,10 +128,10 @@ h1 {
     float: left;
 }
 
-#spectrogram {
-    width: 600px;
-    height: 400px;
-}
+/*#spectrogram {*/
+    /*width: 600px;*/
+    /*height: 400px;*/
+/*}*/
 
 #plots {
     width: 90%;
@@ -441,12 +441,26 @@ audio {
 
 .waveform-wrapper {
     margin-left: 75px;
-    margin-right: 105px;
+    margin-right: 75px;
 }
 
 /*#waveform-zoom-buttons {*/
     /*padding: 15px;*/
 /*}*/
+
+#footer {
+    margin-top: 100px;
+}
+
+.result-ready {
+    -webkit-animation: glow 2s infinite alternate;
+}
+
+@-webkit-keyframes glow {
+    to {
+        text-shadow: 0 0 10px slateblue;
+    }
+}
 
 
 /* ==========================================================================

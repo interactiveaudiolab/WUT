@@ -167,6 +167,28 @@ def remove_all_but_selection():
         return response
 
 
+@app.route('/get_2dft', methods=['GET'])
+def get_2dft():
+    logger.info('getting 2DFT')
+
+    if request.method == 'GET':
+        sess = separation_session.SeparationSession.from_json(session['cur_session'])
+        logger.info('session awake {}'.format(sess.session_id))
+
+        if not sess.initialized or not sess.stft_done:
+            _exception('sess not initialized or STFT not done!')
+
+        spec_mime_type = 'text/csv'
+        strIO, file_name = sess.ft2d.get_2dft_csv_string()
+        response = make_response(send_file(strIO, spec_mime_type,
+                                           attachment_filename=file_name, as_attachment=True))
+
+        sess_json = sess.to_json()
+        session['cur_session'] = sess_json
+        return response
+    return abort(405)
+
+
 @app.route('/action', methods=['POST'])
 def action():
     logger.info('receiving action')
