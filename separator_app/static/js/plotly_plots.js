@@ -28,6 +28,11 @@ function make_spectrogram(divID, url, audioLength, selectedRange) {
         $('#general-status').text('Drawing Spectrogram...');
 
         mixture_spectrogram.rawData = d3ParseCsv(rows);
+        mixture_spectrogram.selectedArray = Array.apply(null, new Array(rows.length)).map(Array.prototype.valueOf, []);
+        for (let i=0; i < rows.length; i++) {
+            mixture_spectrogram.selectedArray[i] = Array.apply(null, new Array(rows[0].length)).map(Boolean.prototype.valueOf, false);
+        }
+
         drawSpectrogramPlotly(divID, mixture_spectrogram.rawData, freqMax, audioLength, selectedRange, logY);
         enableSpecTools(true);
     });
@@ -170,6 +175,12 @@ $('#clear-selection').click(function() {
 function resetSelections(divID) {
     selections = [];
 
+    for (let i=0; i < mixture_spectrogram.selectedArray.length; i++) {
+        for (let j=0; j < mixture_spectrogram.selectedArray[i].length; j++) {
+            mixture_spectrogram.selectedArray[i][j] = false;
+        }
+    }
+
     Plotly.restyle(divID, {z: [mixture_spectrogram.rawData]});
 
     $('#general-status').text('Ready...')
@@ -191,6 +202,13 @@ function updateSelectionStatus(selection) {
 
 function updatePlotWithSelection(divID, val) {
     if (selections.length > 0) {
+        for (let sel of selections) {
+            for (let y = sel.yStartIdx; y < sel.yEndIdx; y++) {
+                for (let x = sel.xStartIdx; x < sel.xEndIdx; x++) {
+                    mixture_spectrogram.selectedArray[y][x] = true;
+                }
+            }
+        }
         let dataWithSelections = $.extend(true, [], mixture_spectrogram.rawData); // deep copy
 
         // TODO: Figure out generator syntax
@@ -202,9 +220,9 @@ function updatePlotWithSelection(divID, val) {
         //     }
         // }
 
-        for (let sel of selections) {
-            for (let y = sel.yStartIdx; y < sel.yEndIdx; y++) {
-                for (let x = sel.xStartIdx; x < sel.xEndIdx; x++) {
+        for (let y = sel.yStartIdx; y < sel.yEndIdx; y++) {
+            for (let x = sel.xStartIdx; x < sel.xEndIdx; x++) {
+                if (mixture_spectrogram.selectedArray[y][x]) {
                     dataWithSelections[y][x] += val;
                 }
             }

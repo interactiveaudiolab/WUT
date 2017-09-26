@@ -7,7 +7,7 @@ var result_waveform = Object.create(WaveSurfer);
 var all_waveforms = [mixture_waveform, result_waveform];
 var defaultZoomStart;
 var zoomStepSize = 5;
-var mixture_spectrogram = {rawData: null, plot: null, xTicks: null, yTicks: null};
+var mixture_spectrogram = {rawData: null, plot: null, xTicks: null, yTicks: null, selectedArray: null};
 var mixture_2dft = {rawData: null, plot: null, xTicks: null, yTicks: null};
 
 //Colors
