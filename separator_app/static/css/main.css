@@ -93,7 +93,7 @@ textarea {
 
 
 #wrapper {
-    background-color: #E3F0FB;
+    background-color: #bde4ff;
     border-radius: 0;
     padding: 0;
     font-family: Century Gothic, CenturyGothic, AppleGothic, sans-serif;
@@ -102,6 +102,7 @@ textarea {
 
 #main-content {
     margin: 15px;
+    /*background: #e3f9fb;*/
 }
 
 h1 {
@@ -109,7 +110,7 @@ h1 {
 }
 
 #title-text-wrapper-outer {
-    width: 300px;
+    width: 650px;
     text-align: center;
     float: left;
 }
@@ -118,6 +119,16 @@ h1 {
     width: 300px;
     text-align: center;
     float: left;
+}
+
+#title-text {
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: 4em;
+    padding-top: 30px;
+}
+
+#open-button {
+    padding-left: 10px;
 }
 
 #controls {
@@ -440,8 +451,8 @@ audio {
 }
 
 .waveform-wrapper {
-    margin-left: 75px;
-    margin-right: 75px;
+    margin-left: 95px;
+    margin-right: 95px;
 }
 
 /*#waveform-zoom-buttons {*/
@@ -462,6 +473,26 @@ audio {
     }
 }
 
+#tabs-wrapper {
+    margin-left: 95px;
+    margin-right: 95px;
+}
+
+.tab-content {
+    background: #E3F0FB;
+    padding: 15px 0;
+}
+
+.player-controls {
+    float: left;
+    padding-left: 25px;
+    padding-top: 7px;
+    text-align: right;
+}
+
+.player-controls-inner {
+    float: right;
+}
 
 /* ==========================================================================
    Helper classes

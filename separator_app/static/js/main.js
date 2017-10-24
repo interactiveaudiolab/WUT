@@ -7,8 +7,11 @@ var result_waveform = Object.create(WaveSurfer);
 var all_waveforms = [mixture_waveform, result_waveform];
 var defaultZoomStart;
 var zoomStepSize = 5;
-var mixture_spectrogram = {rawData: null, plot: null, xTicks: null, yTicks: null, selectedArray: null};
-var mixture_2dft = {rawData: null, plot: null, xTicks: null, yTicks: null};
+// var mixture_spectrogram = {rawData: null, plot: null, xTicks: null, yTicks: null, selectedArray: null};
+var mixture_spectrogram_heatmap = new SpectrogramHeatmap('spectrogram-heatmap', 20000);
+var result_spectrogram_heatmap = new SpectrogramHeatmap('result-spectrogram-heatmap', 20000);
+var ft2d_heatmap = new FT2DHeatmap('ft2d-heatmap', 1.0);
+// var mixture_2dft = {rawData: null, plot: null, xTicks: null, yTicks: null};
 
 //Colors
 var red = 'rgba(255, 0, 0, 0.5)';
@@ -32,7 +35,7 @@ $(document).ready(function() {
 	context = online;
 //	make_spectrogram('heatmap');
 
-    $("#mainTabs a").click(function(e){
+    $("#mainTabs").find("a").click(function(e){
         e.preventDefault();
         $(this).tab('show');
     });
@@ -76,8 +79,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     result_waveform.init(resultOptions);
 
-    emptyHeatmap('spectrogram-heatmap');
-    emptyHeatmap('ft2d-heatmap');
+    // emptyHeatmap('spectrogram-heatmap');
+    // emptyHeatmap('ft2d-heatmap');
 });
 
 mixture_waveform.on('ready', function () {
@@ -163,6 +166,15 @@ function enableSpecTools(enabled) {
     }
 }
 
+function enableFt2dTools(enabled) {
+    if (enabled === true) {
+        $('.ft2d-tool').removeClass('disabled');
+    }
+    else if (enabled === false) {
+        $('.ft2d-tool').addClass('disabled');
+    }
+}
+
 function enableResultControls(enabled) {
     if (enabled === true) {
         $('.result-controls').removeClass('disabled');
@@ -187,8 +199,8 @@ function getSpectrogram() {
     }
 
     var url = "/get_spectrogram?val=" + Math.random().toString(36).substring(7);
-    var specLength = mixture_waveform.backend.getDuration();
-    var selectedRange = [0.0, specLength];
+    var audioLength = mixture_waveform.backend.getDuration();
+    var selectedRange = [0.0, audioLength];
 
 
     if (numberOfRegions() === 1) {
@@ -201,11 +213,11 @@ function getSpectrogram() {
         // audioOffset = start;
     }
 
-    make_spectrogram("spectrogram-heatmap", url, specLength, selectedRange);
+    make_spectrogram(mixture_spectrogram_heatmap, url, audioLength);
 
 };
 
 function get2DFT() {
     var url = "/get_2dft?val=" + Math.random().toString(36).substring(7);
-    make_2dft("ft2d-heatmap", url);
+    make_2dft(url);
 }

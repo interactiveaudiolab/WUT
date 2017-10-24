@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
           integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.8.1/css/bootstrap-slider.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Josefin+Sans:300,400" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 
 
@@ -22,15 +23,16 @@
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.0.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.8.1/bootstrap-slider.min.js"></script>
+{#    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.8.1/bootstrap-slider.min.js"></script>#}
     <!--<script src="js/vendor/plotly.js-master/src/plotly.js"></script>-->
     <script type="text/javascript" src="https://cdn.plot.ly/plotly-latest.js"></script>
+{#    <script data-main="scripts/main" src="scripts/require.js"></script>#}
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/wavesurfer.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/wavesurfer.regions.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/wavesurfer.timeline.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/papaparse.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/buffer-loader.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/dsp.js') }}"></script>
+{#    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/papaparse.js') }}"></script>#}
+{#    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/buffer-loader.js') }}"></script>#}
+{#    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/dsp.js') }}"></script>#}
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/FileSaver.min.js') }}"></script>
 </head>
 <body>
@@ -49,7 +51,7 @@
         <div class="container-fluid" id="title-text-wrapper-outer">
             <div class="navbar-header" id="title-text-inner">
                 <a class="navbar-brand" href="#" id="title-text"
-                   data-text-swap="Web Unmixing Toolbox" title="What's WUT?">WUT</a>
+                   data-text-swap="Web Unmixing Toolbox" title="What's WUT?">Web Unmixing Toolbox</a>
             </div>
         </div>
         <div class="collapse navbar-collapse" id="controls">
@@ -57,32 +59,32 @@
                 <li class="divider-vertical"></li>
                 <li id="import-audio">
                     <a href="#">
-                        <i class="glyphicon glyphicon-open icon text-center"></i>
+                        <i class="glyphicon glyphicon-open icon text-center" id="open-button"></i>
                         <p class="control-text">Open</p>
                     </a>
                 </li>
 
-                <li class="divider-vertical"></li>
-                <li id="mixture-play-pause">
-                    <a href="#"><i class="glyphicon glyphicon-play icon" id="play_icon" title="Play Audio"></i></a>
-                </li>
-
-                <li class="divider-vertical"></li>
-                <li id="mixture-stop">
-                    <a href="#"><i class="glyphicon glyphicon-stop icon"></i></a>
-                </li>
-                <li class="divider-vertical"></li>
-
-                <li class="dropdown" id="volume-slider-dropdown-li">
+{#                <li class="divider-vertical"></li>#}
+{#                <li id="mixture-play-pause">#}
+{#                    <a href="#"><i class="glyphicon glyphicon-play icon" id="play_icon" title="Play Audio"></i></a>#}
+{#                </li>#}
+{##}
+{#                <li class="divider-vertical"></li>#}
+{#                <li id="mixture-stop">#}
+{#                    <a href="#"><i class="glyphicon glyphicon-stop icon"></i></a>#}
+{#                </li>#}
+{#                <li class="divider-vertical"></li>#}
+{##}
+{#                <li class="dropdown" id="volume-slider-dropdown-li">#}
                     {# <input id="volume-slider" type="range" data-slider-min="0" data-slider-max="100"#}
                     {#       data-slider-step="5" data-slider-value="75" data-slider-orientation="vertical" />#}
                     {# <input id="ex4" type="text" data-slider-min="-5" data-slider-max="20" data-slider-step="1" data-slider-value="-3" data-slider-orientation="vertical"/>#}
                     {# <input class="vert" id="volume-slider" type="range" orientation="vertical" />#}
-                    <div class="range-slider">
-                        <input class="input-range" orient="vertical" type="range" step="5" value="75" min="0" max="100">
-                        <span class="range-value"></span>
-                    </div>
-                </li>
+{#                    <div class="range-slider">#}
+{#                        <input class="input-range" orient="vertical" type="range" step="5" value="75" min="0" max="100">#}
+{#                        <span class="range-value"></span>#}
+{#                    </div>#}
+{#                </li>#}
                 <li class="divider-vertical"></li>
                 <li>
                     <p class="control-text" style="display: inline; padding-left: 0.25em;"> Status:</p><p id="general-status">Ready...</p>
@@ -96,11 +98,13 @@
         <input id="input_audio_file" style="display: none" accept="audio/*" type="file" name="audio_file" />
     </form>
     <div id="mainContent">
-        <ul class="nav nav-tabs" id="mainTabs">
-            <li class="active"><a href="#spectrogram-tab">Input Mixture</a></li>
-            <li><a href="#ft2d-tab">2DFT</a></li>
-            <li id="results-pill"><a href="#results-tab">Results</a></li>
-        </ul>
+        <div id="tabs-wrapper">
+            <ul class="nav nav-tabs" id="mainTabs">
+                <li class="active"><a href="#spectrogram-tab">Input Mixture</a></li>
+                <li><a href="#ft2d-tab">2DFT</a></li>
+                <li id="results-pill"><a href="#results-tab">Results</a></li>
+            </ul>
+        </div>
 
 
         <div class="tab-content">
@@ -117,50 +121,57 @@
                                 <i class="glyphicon glyphicon-zoom-out"></i>
                             </button>
                         </div>
-                        {#                <p id="general-status">Ready...</p>#}
                     </div>
 
-                    {# <div class="col-md-3">#}
-                    {# <button id="get-spectrogram" class="btn btn-primary" title="Get Spectrogram">#}
-                    {#        Get Spectrogram#}
-                    {# </button>#}
-                    {# </div>#}
+
                     <div class="col-md-6">
                         <div class="btn-group">
-                            <button id="remove-all-but-selection" class="btn btn-primary spec-tool disabled" title="Remove Everything but Selections">
-                                Delete Outside Selections
+                            <button id="mixture-spec-delete-unselected" class="btn btn-primary spec-tool disabled" title="Remove selected regions">
+                                Delete Selected
                             </button>
-                            <button id="delete-selection" class="btn btn-primary spec-tool disabled" title="Delete Selections">
-                                Delete Selections
-                            </button>
-                            <button id="clear-selection" class="btn btn-primary spec-tool disabled" title="Clear Current Selections">
-                                Clear Current Selections
+                            <button id="mixture-spec-delete-selected" class="btn btn-primary spec-tool disabled" title="Remove everything outside selected regions">
+                                Delete Unselected
                             </button>
                         </div>
                     </div>
 
                     <div class="col-md-2">
                         <div class="btn-group">
-                            <button id="undo" class="btn btn-primary spec-tool- disabled" title="Undo">
-                                Undo
-                            </button>
-                            <button id="redo" class="btn btn-primary spec-tool- disabled" title="Redo">
-                                Redo
-                            </button>
+{#                            <button id="undo" class="btn btn-primary spec-tool- disabled" title="Undo">#}
+{#                                Undo#}
+{#                            </button>#}
+{#                            <button id="redo" class="btn btn-primary spec-tool- disabled" title="Redo">#}
+{#                                Redo#}
+{#                            </button>#}
                         </div>
                     </div>
                 </div>
-                {#    </div>#}
-                {#        <div class="row" id="mixture-container">#}
-                <div class="waveform-wrapper" id="mixture-waveform-wrapper">
-                    <h5 id="filename">Input Mixture Waveform</h5>
-                    <div class="waveform">
-                        <div id="mixture-waveform" style="width: 100%">
-                            <div class="progress progress-striped active" id="progress-bar" style="display: none;">
-                                <div class="progress-bar progress-bar-info" style="width: 100%;"></div>
+                <div class="player-wrapper" id="mixture-player">
+                    <div class="player-controls" id="mixture-player-controls">
+                        <div class="player-controls-inner" style="padding-left: 20px">
+                            <div style="padding-bottom: 10px">
+                                <button id="mixture-play" class="btn btn-primary result-controls"
+                                        title="Play/Pause">
+                                        <i class="glyphicon glyphicon-play" title="Play Audio"></i>
+                                </button>
+                            </div>
+                            <div>
+                                <button id="mixture-stop" class="btn btn-primary result-controls"
+                                        title="Stop">
+                                        <i class="glyphicon glyphicon-stop" title="Stop Audio"></i>
+                                </button>
                             </div>
                         </div>
-                        <div id="waveform-timeline"></div>
+                    </div>
+                    <div class="waveform-wrapper" id="mixture-waveform-wrapper">
+                        <div class="waveform">
+                            <div id="mixture-waveform" style="width: 100%">
+                                {# <div class="progress progress-striped active" id="progress-bar" style="display: none;">#}
+                                {# <div class="progress-bar progress-bar-info" style="width: 100%;"></div>#}
+                                {# </div>#}
+                            </div>
+                            <div id="waveform-timeline"></div>
+                        </div>
                     </div>
                 </div>
                 <div id="spectrogram-container">
@@ -170,41 +181,84 @@
                     </div>
 
                 </div>
-                {#        </div>#}
             </div>
             <div class="tab-pane" id="ft2d-tab">
+                <div class="row" id="ft2d-controls">
+                    <div class="col-md-1"></div>
+                    <div class="col-md-1" id="ft2d-zoom-buttons">
+                        <div class="btn-group">
+                            <button id="ft2d-zoom-in" class="btn btn-primary" title="Zoom in">
+                                <i class="glyphicon glyphicon-zoom-in" id="waveform"></i>
+                            </button>
+
+                            <button id="ft2d-zoom-out" class="btn btn-primary" title="Zoom out">
+                                <i class="glyphicon glyphicon-zoom-out"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="btn-group">
+                            <button id="ft2d-delete-unselected" class="btn btn-primary ft2d-tool disabled" title="Remove selected regions">
+                                Delete Selected
+                            </button>
+                            <button id="ft2d-delete-selected" class="btn btn-primary ft2d-tool disabled" title="Remove everything outside selected regions">
+                                Delete Unselected
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
                 <div id="ft2d-container">
-                    <h5>2-Dimensional Fourier Transform</h5>
+{#                    <h5>2-Dimensional Fourier Transform</h5>#}
                     <div id="ft2d-heatmap">
                         <!-- 2DFT will be drawn in this div -->
                     </div>
                 </div>
             </div>
             <div class="tab-pane" id="results-tab">
-                <div class="waveform-wrapper" id="result-waveform-wrapper">
-                    <h5 id="result-file">Resultant Waveform</h5>
-                    <div class="row" id="result-controls">
-                        <div class="col-md-1">
-                            <button id="result-play" class="btn btn-primary result-controls disabled" title="Play/Pause">
-                                <i class="glyphicon glyphicon-play" title="Play Audio"></i>
-                            </button>
+                <div class="row" style="height: 33px">
+                </div>
+                <div class="player-wrapper" id="results-player">
+                    <div class="player-controls" id="result-player-controls">
+                        <div class="player-controls-inner">
+                            <div style="padding-bottom: 5px">
+                                <button id="result-play" class="btn btn-primary result-controls disabled"
+                                        title="Play/Pause">
+                                        <i class="glyphicon glyphicon-play" title="Play Audio"></i>
+                                </button>
+                            </div>
+                            <div style="padding-bottom: 5px">
+                                <button id="result-stop" class="btn btn-primary result-controls disabled"
+                                        title="Stop">
+                                        <i class="glyphicon glyphicon-stop" title="Stop Audio"></i>
+                                </button>
+                            </div>
+                            <div>
+                                <button id="save-result" class="btn btn-primary result-controls disabled"
+                                        title="Save Result">
+                                        Save
+                                </button>
+                            </div>
                         </div>
-                        <div class="col-md-1">
-                            <button id="save-result" class="btn btn-primary result-controls disabled" title="Save Result">
-                                {#                        <i class="glyphicon glyphicon-play" title="Play Audio"></i>#}
-                                Save
-                            </button>
+                    </div>
+                    <div class="waveform-wrapper" id="result-waveform-wrapper">
+                        <div class="waveform">
+                            <div id="result-waveform" style="width: 100%">
+                                {# <div class="progress progress-striped active" id="progress-bar" style="display: none;">#}
+                                {# <div class="progress-bar progress-bar-info" style="width: 100%;"></div>#}
+                                {# </div>#}
+                            </div>
+                            <div id="result-waveform-timeline"></div>
                         </div>
+                    </div>
+                </div>
+                <div id="result-spectrogram-container">
+
+                    <div id="result-spectrogram-heatmap">
+                        <!-- Spectrogram will be drawn in this div -->
                     </div>
 
-                    <div class="waveform">
-                        <div id="result-waveform" style="width: 100%">
-                            {# <div class="progress progress-striped active" id="progress-bar" style="display: none;">#}
-                            {# <div class="progress-bar progress-bar-info" style="width: 100%;"></div>#}
-                            {# </div>#}
-                        </div>
-                        <div id="result-waveform-timeline"></div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -253,18 +307,22 @@
     {#        </div>#}
 
     <div id="footer">
-        <p>Ethan Manilow, Bryan Pardo, Darren Gergle<br />Northwestern University</p>
+        <p>Ethan Manilow, Bryan Pardo, Darren Gergle
+            <br />This work supported in part by NSF Award
+            <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=1420971&HistoricalAwards=false">1420971</a>
+            <br />Northwestern University</p>
     </div>
 </div>
 <script type="text/javascript" src="{{ url_for('static', filename='js/utils.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/plotly_plots.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/plot_spectrogram.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/plot_2dft.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/array.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/stft.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/csv_parse.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/audio.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/selection.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/plotly_plots.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/plot_2dft.js') }}"></script>
 
 <!--<div>-->
 <!--<input type="checkbox" id="yLogCheckbox">-->

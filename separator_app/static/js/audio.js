@@ -18,14 +18,6 @@ audio.import_audio = function() {
     // buffer_loader_load(mixture_audio_file.url);
 };
 
-$(window).keypress(function (e) {
-    if (e.keyCode === 0 || e.keyCode === 32) {
-        e.preventDefault();
-        console.log('Space pressed');
-        audio.playPause();
-    }
-});
-
 $('#input_audio_file').change(function () {
     mixture_audio_file.file = this.files[0];
     mixture_audio_file.url = URL.createObjectURL(mixture_audio_file.file);
@@ -54,16 +46,18 @@ mixture_audio_file.upload_to_server = function (obj) {
         data: form_data,
         processData: false,
         contentType: false,
+        cache: false,
         success: function (result) {
             console.log('/audio_upload POST done!');
             $('#general-status').text('Upload complete! Waiting for spectrogram...');
             upload_complete = result !== null;
         }
-    }).then(function(result) {
+    }).then(function() {
         if (!DO_STFT_ON_CLIENT && upload_complete) {
             getSpectrogram();
         }
-    }).then(function(result) {
+    }).then(function() {
+        $('#general-status').text('Got spectrogram! Waiting for 2DFT...');
         get2DFT();
     });
 };
@@ -113,13 +107,47 @@ $('#import-audio').click(function(){
     $('#general-status').text('Uploading audio to server...');
 });
 
+$('#result-play').click(function() {
+    if (!result_waveform.backend.buffer) {
+        return;
+    }
+
+    if (!result_waveform.isPlaying()) {
+        // Audio is paused
+        $('#result-play').find("i").removeClass('glyphicon glyphicon-play').addClass('glyphicon glyphicon-pause')
+            .attr('title', 'Pause audio');
+    } else {
+        // Audio is playing
+        $('#result-play').find("i").removeClass('glyphicon glyphicon-pause').addClass('glyphicon glyphicon-play')
+            .attr('title', 'Play audio');
+    }
+    result_waveform.playPause();
+});
+
+$('#mixture-play').click(function() {
+    if (!mixture_waveform.backend.buffer) {
+        return;
+    }
+
+    if (!mixture_waveform.isPlaying()) {
+        // Audio is paused
+        $('#mixture-play').find("i").removeClass('glyphicon glyphicon-play').addClass('glyphicon glyphicon-pause')
+            .attr('title', 'Pause audio');
+    } else {
+        // Audio is playing
+        $('#mixture-play').find("i").removeClass('glyphicon glyphicon-pause').addClass('glyphicon glyphicon-play')
+            .attr('title', 'Play audio');
+    }
+    mixture_waveform.playPause();
+});
+
 $('#mixture-stop').click(function() {
     if (!mixture_waveform.backend.buffer) {
         return;
     }
 
     if (mixture_waveform.isPlaying()) {
-        $('#mixture-play-pause').find("i").removeClass('glyphicon glyphicon-pause').addClass('glyphicon glyphicon-play')
+        $('#mixture-play').find("i").removeClass('glyphicon glyphicon-pause').addClass('glyphicon glyphicon-play')
             .attr('title', 'Play audio');
         mixture_waveform.stop();
     }
@@ -127,38 +155,30 @@ $('#mixture-stop').click(function() {
     mixture_waveform.seekTo(0);
 });
 
-$('#mixture-play-pause').click(function() {
-    if (!mixture_waveform.backend.buffer) {
+$('#result-stop').click(function() {
+    if (!result_waveform.backend.buffer) {
         return;
     }
 
-    if (!mixture_waveform.isPlaying()) {
-        // Audio is paused
-        $('#mixture-play-pause').find("i").removeClass('glyphicon glyphicon-play').addClass('glyphicon glyphicon-pause')
-            .attr('title', 'Pause audio');
-    } else {
-        // Audio is playing
-        $('#mixture-play-pause').find("i").removeClass('glyphicon glyphicon-pause').addClass('glyphicon glyphicon-play')
+    if (result_waveform.isPlaying()) {
+        $('#result-play').find("i").removeClass('glyphicon glyphicon-pause').addClass('glyphicon glyphicon-play')
             .attr('title', 'Play audio');
+        result_waveform.stop();
     }
-    mixture_waveform.playPause();
+
+    result_waveform.seekTo(0);
 });
 
-function setMixtureVolume(val) {
-    mixture_waveform.setVolume(val);
-}
-
- mixture_waveform.on('pause', function () {
-     mixture_waveform.params.container.style.opacity = 0.8;
- });
-
- mixture_waveform.on('play', function () {
-     mixture_waveform.params.container.style.opacity = 1.0;
- });
-
 mixture_waveform.on('finish', function () {
-    $('#play_icon').removeClass('glyphicon glyphicon-pause').addClass('glyphicon glyphicon-play');
+    $('#mixture-play').find("i").removeClass('glyphicon glyphicon-pause').addClass('glyphicon glyphicon-play')
+            .attr('title', 'Play audio');
     mixture_waveform.seekTo(0);
+});
+
+result_waveform.on('finish', function () {
+    $('#result-play').find("i").removeClass('glyphicon glyphicon-pause').addClass('glyphicon glyphicon-play')
+            .attr('title', 'Play audio');
+    result_waveform.seekTo(0);
 });
 
 function buffer_loader_load(url) {

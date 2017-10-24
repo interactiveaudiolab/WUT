@@ -3,8 +3,12 @@
 
 """
 import logging
+import os
+import librosa
 
 import numpy as np
+import scipy.ndimage
+import matplotlib.pyplot as plt
 
 from .. import nussl
 from . import selection
@@ -19,7 +23,9 @@ class Action(object):
     """
     # TODO: eventually change this to: `vars()[self.__name__].__subclasses__()`
     KNOWN_ACTIONS = ['RemoveAllButSelections', 'RemoveSelections']
+    VALID_TARGETS = ['spectrogram-heatmap', 'ft2d-heatmap']
     ACTION_TYPE = 'actionType'
+    TARGET = 'target'
     DATA = 'data'
 
     def __init__(self, action_dict, action_id):
@@ -33,6 +39,7 @@ class Action(object):
         self.data_dict = action_dict[self.DATA]
         self.selections = []
         self.masks = []
+        self.target = None
 
     def is_action_dict_valid(self, action_dict):
         return isinstance(action_dict, dict) and self.DATA in action_dict and self.ACTION_TYPE in action_dict
@@ -57,10 +64,10 @@ class Action(object):
     def known_actions(self):
         return self.subclasses
 
-    def make_mask_for_action(self, audio_signal):
+    def make_mask_for_action(self, session):
         raise NotImplemented
 
-    def apply_action(self, audio_signal):
+    def apply_action(self, session):
         raise NotImplemented
 
     @staticmethod
@@ -98,14 +105,24 @@ class SelectionBasedRemove(Action):
         if not isinstance(action_dict[self.DATA][self.SELECTION_DATA], list):
             return False
 
+        if self.TARGET not in action_dict or not isinstance(action_dict[self.TARGET], (str, unicode, bytes)):
+            return False
+
+        if action_dict[self.TARGET] not in self.VALID_TARGETS:
+            return False
+
         return True
 
     def init_action(self):
+        self.target = self.action_dict[self.TARGET]
+
         for sel in self.data_dict[self.SELECTION_DATA]:
             new_selection = selection.Selection.new_selection_instance(sel)
             self.selections.append(new_selection)
 
-    def make_mask_for_action(self, audio_signal):
+    def make_mask_for_action(self, session):
+
+        audio_signal = session.user_general_audio.audio_signal_copy
 
         if not audio_signal.has_stft_data:
             raise Exception('Audio Signal has no STFT data!')
@@ -114,31 +131,96 @@ class SelectionBasedRemove(Action):
             logger.warn('No Selections!')
             return nussl.separation.BinaryMask.ones(audio_signal.stft_data.shape)
 
-        # final_mask = nussl.separation.BinaryMask.zeros(audio_signal.stft_data.shape)
-        final_mask = np.zeros_like(audio_signal.get_stft_channel(0), dtype=float)
-        for sel in self.selections:
-            mask = sel.make_mask(audio_signal.time_bins_vector, audio_signal.freq_vector)
-            final_mask += mask
+        # TODO: Kludge. This triage is a mess
+        if 'spectrogram' in self.target:
+            # final_mask = nussl.separation.BinaryMask.zeros(audio_signal.stft_data.shape)
+            final_mask = np.zeros_like(audio_signal.get_stft_channel(0), dtype=float)
+            for sel in self.selections:
+                mask = sel.make_mask(audio_signal.time_bins_vector, audio_signal.freq_vector)
+                final_mask += mask
+
+            final_mask = np.clip(final_mask, a_min=0.0, a_max=1.0)
+
+        elif 'ft2d' in self.target:
+            ft2d_preview = session.ft2d.ft2d_preview
+            ft2d = session.ft2d.ft2d
+            final_mask = np.zeros_like(ft2d).astype('float')
+
+            for sel in self.selections:
+                mask = sel.make_mask(np.arange(ft2d_preview.shape[1]), np.arange(ft2d_preview.shape[0]))
+                mask = scipy.ndimage.zoom(mask, zoom=1.0/session.ft2d.zoom_ratio)
+                mask = np.vstack([np.flipud(mask)[1:, :], mask])
+                mask = np.hstack([np.fliplr(mask)[:, 1:], mask])
+                mask = np.fft.ifftshift(mask)
+                final_mask += mask
+
+        else:
+            raise ActionException('Unknown target: {}!'.format(self.target))
 
         final_mask = np.clip(final_mask, a_min=0.0, a_max=1.0)
+        final_mask = final_mask > 0.5
+        # self._plot_mask(final_mask, os.path.join(session.user_original_file_folder, 'final_mask.png'))
         final_mask = nussl.separation.BinaryMask(input_mask=final_mask)
         # final_mask = final_mask.invert_mask()
         # self.masks.append(final_mask)
         return final_mask
 
-    def apply_action(self, audio_signal):
+    @staticmethod
+    def _plot_mask(mask, path):
+        plt.close('all')
+        plt.imshow(mask, interpolation=None)
+        plt.title('shape = {}'.format(mask.shape))
+        plt.gca().invert_yaxis()
+        logger.info('Saving mask image at {}'.format(path))
+        plt.savefig(path)
+
+    def apply_action(self, session):
+
+        audio_signal = session.user_general_audio.audio_signal_copy
 
         if not audio_signal.has_stft_data:
             raise Exception('Audio Signal has no STFT data!')
 
         if len(self.selections) <= 0:
             logger.warn('No Selections!')
-            return nussl.separation.BinaryMask.ones(audio_signal.stft_data.shape)
+            self.masks = [nussl.separation.BinaryMask.ones(audio_signal.stft_data.shape)]
 
         if len(self.masks) <= 0:
             self.make_mask_for_action(audio_signal)
 
-        return audio_signal.apply_mask(self.masks[0])
+        # TODO: Kludge. This triage is a mess
+        if 'spectrogram' in self.target:
+            return audio_signal.apply_mask(self.masks[0])
+
+        elif 'ft2d' in self.target:
+            mask = self.masks[0].get_channel(0)
+            ft2d = session.ft2d.ft2d
+            p = session.user_original_file_folder
+
+            fg_inverted  = np.fft.ifft2(np.multiply(mask, ft2d))
+            bg_inverted  = np.fft.ifft2(np.multiply(1 - mask, ft2d))
+
+            bg_mask = bg_inverted > fg_inverted  # hard mask
+            fg_mask = 1 - bg_mask
+
+            # self._plot_mask(bg_mask, os.path.join(p, 'bg_mask.png'))
+            # self._plot_mask(fg_mask, os.path.join(p, 'fg_mask.png'))
+
+            fg_stft = np.multiply(fg_mask, audio_signal.get_stft_channel(0))
+            bg_stft = np.multiply(bg_mask, audio_signal.get_stft_channel(0))
+
+            if type(self) != RemoveAllButSelections:
+                stft = fg_stft
+            else:
+                stft = bg_stft
+
+            # self._plot_mask(np.add(librosa.logamplitude(np.abs(stft)**2, ref_power=np.max).astype('int8'), 80),
+            #                 os.path.join(p, 'final_stft.png'))
+            # self._plot_mask(np.add(librosa.logamplitude(np.abs(audio_signal.get_stft_channel(0))**2, ref_power=np.max).astype('int8'), 80),
+            #                             os.path.join(p, 'original_stft.png'))
+
+            return audio_signal.make_copy_with_stft_data(np.expand_dims(stft, axis=-1))
+
 
 
 class RemoveAllButSelections(SelectionBasedRemove):
@@ -159,3 +241,8 @@ class RemoveSelections(SelectionBasedRemove):
     def make_mask_for_action(self, audio_signal):
         final_mask = super(RemoveSelections, self).make_mask_for_action(audio_signal)
         self.masks.append(final_mask.inverse_mask())
+
+
+class ActionException(Exception):
+    def __init__(self, msg):
+        super(ActionException, self).__init__(msg)

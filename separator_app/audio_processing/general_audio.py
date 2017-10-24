@@ -39,6 +39,7 @@ class GeneralAudio(object):
         self.mode = self.MASTER
         self.master_params = None
         self.preview_params = None
+        self.zoom_ratio = 0.75
 
         if audio_signal_object is not None:
             if not isinstance(audio_signal_object, nussl.AudioSignal):
@@ -54,7 +55,7 @@ class GeneralAudio(object):
 
             self.master_params = nussl.StftParams(self.audio_signal_copy.sample_rate)
             self.preview_params = nussl.StftParams(self.audio_signal_copy.sample_rate,
-                                                   window_length=8192, n_fft_bins=1024)
+                                                   window_length=2048, n_fft_bins=1024)
 
     @property
     def stft_done(self):
@@ -64,7 +65,7 @@ class GeneralAudio(object):
     def _prep_spectrogram(spectrogram):
         return np.add(librosa.logamplitude(spectrogram, ref_power=np.max).astype('int8'), 80)
 
-    def get_spectrogram_csv_string(self, channel=None, start=None, stop=None):
+    def get_spectrogram_csv_string(self, get_result=False, channel=None, start=None, stop=None):
         # Set active region
         start_sample = 0 if start is None else self.audio_signal_copy.sample_rate * start
         stop_sample = self.audio_signal_copy.signal_length \
@@ -215,6 +216,8 @@ class GeneralAudio(object):
 
     def make_wav_file(self):
         self.audio_signal_copy.istft(overwrite=True)
+        self.audio_signal_copy.plot_spectrogram(os.path.join(self.storage_path, 'result.png'))
+        self.audio_signal_view.audio_data = self.audio_signal_copy.audio_data
         file_name_stem = self.audio_signal_copy.file_name.replace('.', '-')
 
         # create a new file name

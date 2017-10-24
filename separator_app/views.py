@@ -112,22 +112,14 @@ def send_spectrogram():
         if not sess.initialized:
             _exception('sess not initialized!')
 
-        # args = {'channel': None, 'start': None, 'stop': None, 'csv': None}
+        get_result = False
+        if 'result' in request.args and request.args.get('result'):
+            get_result = bool(request.args.get('result'))
 
-        # spec_mime_type = 'text/csv' if args['csv'] in (None, 0.0, 0, '') else 'text/json'
         spec_mime_type = 'text/csv'
-        if WRITE_TMP_CSV:
-            args = {'channel': None, 'start': None, 'stop': None, 'csv': True}
-            args = _get_args_float(args)
-            spec_file_path, freq_max = sess.user_general_audio.make_spectrogram_file(**args)
-
-            response = make_response(send_file(spec_file_path, spec_mime_type))
-        else:
-            args = {'channel': None, 'start': None, 'stop': None}
-            args = _get_args_float(args)
-            strIO, file_name = sess.user_general_audio.get_spectrogram_csv_string(**args)
-            response = make_response(send_file(strIO, spec_mime_type,
-                                               attachment_filename=file_name, as_attachment=True))
+        strIO, file_name = sess.user_general_audio.get_spectrogram_csv_string(get_result=get_result)
+        response = make_response(send_file(strIO, spec_mime_type,
+                                           attachment_filename=file_name, as_attachment=True))
 
         sess_json = sess.to_json()
         session['cur_session'] = sess_json

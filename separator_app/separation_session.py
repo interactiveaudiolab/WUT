@@ -14,7 +14,6 @@ from collections import deque
 import numpy as np
 import jsonpickle
 import jsonpickle.ext.numpy as jsonpickle_numpy
-jsonpickle_numpy.register_handlers()
 
 import audio_processing
 import config
@@ -23,8 +22,10 @@ import actions
 import utils
 
 # Set up logging
-# logger = logging.getLogger(__name__)
 logger = logging.getLogger()
+
+
+jsonpickle_numpy.register_handlers()
 
 
 class SeparationSession(object):
@@ -32,7 +33,7 @@ class SeparationSession(object):
     Object for a single session, handles
     """
     _needs_special_encoding = ['user_general_audio']
-    _uses_jsonpickle =['_action_queue', 'ft2d']
+    _uses_jsonpickle = ['_action_queue', 'ft2d']
     _file_ext_that_need_converting = ['mp3', 'flac']
 
     def __init__(self, from_json=False):
@@ -91,7 +92,7 @@ class SeparationSession(object):
             #     # TODO: Conversion
             #     converted_path = None
             #     self.user_converted_file_location = converted_path
-                # self.file_needs_conversion = False
+            #     self.file_needs_conversion = False
 
             user_signal = nussl.AudioSignal(self.user_original_file_location)
             self.user_general_audio = audio_processing.GeneralAudio(user_signal, self.user_original_file_folder)
@@ -123,9 +124,9 @@ class SeparationSession(object):
                                                                 action['action_id'],
                                                                 action['received']))
 
-            action_object.make_mask_for_action(self.user_general_audio.audio_signal_copy)
-            self.user_general_audio.audio_signal_copy = \
-                action_object.apply_action(self.user_general_audio.audio_signal_copy)
+            action_object.make_mask_for_action(self)
+
+            self.user_general_audio.audio_signal_copy = action_object.apply_action(self)
 
         # self.user_general_audio.audio_signal_copy.istft()
 
