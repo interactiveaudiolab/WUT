@@ -33,7 +33,7 @@ class SeparationSession(object):
     Object for a single session, handles
     """
     _needs_special_encoding = ['user_general_audio']
-    _uses_jsonpickle = ['_action_queue', 'ft2d']
+    _uses_jsonpickle = ['_action_queue', 'ft2d', 'duet']
     _file_ext_that_need_converting = ['mp3', 'flac']
 
     def __init__(self, from_json=False):
@@ -66,6 +66,7 @@ class SeparationSession(object):
         self.user_original_file_location = None
         self.user_general_audio = None
         self.ft2d = None
+        self.duet = None
 
         self.undo_list = []
         self.initialized = False
@@ -97,6 +98,8 @@ class SeparationSession(object):
             user_signal = nussl.AudioSignal(self.user_original_file_location)
             self.user_general_audio = audio_processing.GeneralAudio(user_signal, self.user_original_file_folder)
             self.ft2d = audio_processing.FT2D(user_signal, self.user_original_file_folder)
+            self.duet = audio_processing.Duet(user_signal, self.user_original_file_folder)
+
             self.initialized = True
             self.time_of_init = time.asctime(time.localtime(time.time()))
 
@@ -131,8 +134,9 @@ class SeparationSession(object):
         # self.user_general_audio.audio_signal_copy.istft()
 
     def to_json(self):
-        self.to_json_times.append(time.asctime(time.localtime(time.time())))
-        return json.dumps(self, default=self._to_json_helper)
+        return jsonpickle.encode(self)
+        # self.to_json_times.append(time.asctime(time.localtime(time.time())))
+        # return json.dumps(self, default=self._to_json_helper)
 
     def _to_json_helper(self, o):
         if not isinstance(o, SeparationSession):
@@ -140,11 +144,12 @@ class SeparationSession(object):
 
         d = copy.copy(o.__dict__)
         for k, v in d.items():
-            if v is not None and hasattr(v, 'to_json'):
-                d[k] = v.to_json()
 
             if k in self._uses_jsonpickle and v is not None:
                 d[k] = jsonpickle.encode(v)
+
+            if v is not None and hasattr(v, 'to_json'):
+                d[k] = v.to_json()
 
             elif isinstance(v, np.ndarray):
                 d[k] = nussl.json_ready_numpy_array(v)
@@ -159,7 +164,9 @@ class SeparationSession(object):
 
     @staticmethod
     def from_json(json_string):
-        return json.loads(json_string, object_hook=SeparationSession._from_json_helper)
+        return jsonpickle.decode(json_string)
+
+        # return json.loads(json_string, object_hook=SeparationSession._from_json_helper)
 
     @staticmethod
     def _from_json_helper(json_dict):

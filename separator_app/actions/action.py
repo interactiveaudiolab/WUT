@@ -23,7 +23,7 @@ class Action(object):
     """
     # TODO: eventually change this to: `vars()[self.__name__].__subclasses__()`
     KNOWN_ACTIONS = ['RemoveAllButSelections', 'RemoveSelections']
-    VALID_TARGETS = ['spectrogram-heatmap', 'ft2d-heatmap']
+    VALID_TARGETS = ['spectrogram-heatmap', 'ft2d-heatmap', 'duet-heatmap']
     ACTION_TYPE = 'actionType'
     TARGET = 'target'
     DATA = 'data'
@@ -154,6 +154,15 @@ class SelectionBasedRemove(Action):
                 mask = np.fft.ifftshift(mask)
                 final_mask += mask
 
+        elif 'duet' in self.target:
+            final_mask = np.zeros_like(audio_signal.get_stft_channel(0), dtype=float)
+            ad_hist = session.duet.atn_delay_hist.T
+            for sel in self.selections:
+                mask = sel.make_mask(np.linspace(-3, 3, ad_hist.shape[1]), np.linspace(-3, 3, ad_hist.shape[0]))
+                peaks = zip(*np.where(mask))
+                duet_mask = session.duet.duet.convert_peaks_to_masks(peak_indices=peaks)[1]
+                final_mask += duet_mask.get_channel(0)
+
         else:
             raise ActionException('Unknown target: {}!'.format(self.target))
 
@@ -189,7 +198,7 @@ class SelectionBasedRemove(Action):
             self.make_mask_for_action(audio_signal)
 
         # TODO: Kludge. This triage is a mess
-        if 'spectrogram' in self.target:
+        if 'spectrogram' in self.target or 'duet' in self.target:
             return audio_signal.apply_mask(self.masks[0])
 
         elif 'ft2d' in self.target:

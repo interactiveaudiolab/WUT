@@ -259,6 +259,22 @@ $('#ft2d-delete-selected').click(function () {
     postActionAndProcess('RemoveSelections', ft2d_heatmap.divID, ft2d_heatmap.selections);
 });
 
+$('#duet-delete-unselected').click(function () {
+    if( $(this).hasClass("disabled") ) {
+        return;
+    }
+    postActionAndProcess('RemoveAllButSelections', duet_histogram.divID, duet_histogram.selections);
+
+});
+
+$('#duet-delete-selected').click(function () {
+    if( $(this).hasClass("disabled") ) {
+        return;
+    }
+
+    postActionAndProcess('RemoveSelections', duet_histogram.divID, duet_histogram.selections);
+});
+
 function postActionAndProcess(actionType, target, selections) {
     if (selections.length > 0) {
 

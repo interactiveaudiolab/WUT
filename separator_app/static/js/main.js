@@ -11,6 +11,7 @@ var zoomStepSize = 5;
 var mixture_spectrogram_heatmap = new SpectrogramHeatmap('spectrogram-heatmap', 20000);
 var result_spectrogram_heatmap = new SpectrogramHeatmap('result-spectrogram-heatmap', 20000);
 var ft2d_heatmap = new FT2DHeatmap('ft2d-heatmap', 1.0);
+var duet_histogram = new AttenuationDelayHistogram('duet-heatmap', 0.0);
 // var mixture_2dft = {rawData: null, plot: null, xTicks: null, yTicks: null};
 
 //Colors
@@ -27,6 +28,9 @@ var aquamarine = 'rgba(127, 255, 212, 0.3)';
 var burntSienna = 'rgba(138, 54, 12, 0.3)';
 var lightGreen = 'rgba(102, 255, 178, 0.3)';
 var gray = 'rgba(100, 100, 100, 0.3)';
+
+var duet_color = pink;
+var ft2d_color = yellow;
 
 $(document).ready(function() {
 	window.AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -59,10 +63,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Init mixture_waveform
     mixture_waveform.init(mixtureOptions);
-    mixture_waveform.enableDragSelection({
-        color: green,
-        resize: true
-    });
+    // mixture_waveform.enableDragSelection({
+    //     color: green,
+    //     resize: true
+    // });
     defaulZoomStart = mixture_waveform.params.minPxPerSec;
 
     // Init result_waveform
@@ -134,13 +138,13 @@ $('#mixture-zoom-out').click(function(){
     mixture_waveform.zoom(mixture_waveform.params.minPxPerSec - zoomStepSize);
 });
 
-mixture_waveform.on('region-created', function() {
-    if (numberOfRegions() > 0) {
-        prevRegion = getFirstObject(mixture_waveform.regions.list);
-        prevRegion.remove();
-    }
-
-});
+// mixture_waveform.on('region-created', function() {
+//     if (numberOfRegions() > 0) {
+//         prevRegion = getFirstObject(mixture_waveform.regions.list);
+//         prevRegion.remove();
+//     }
+//
+// });
 
 $("#get-spectrogram").click(function() {
     getSpectrogram();
@@ -175,6 +179,15 @@ function enableFt2dTools(enabled) {
     }
 }
 
+function enableDuetTools(enabled) {
+    if (enabled === true) {
+        $('.duet-tool').removeClass('disabled');
+    }
+    else if (enabled === false) {
+        $('.duet-tool').addClass('disabled');
+    }
+}
+
 function enableResultControls(enabled) {
     if (enabled === true) {
         $('.result-controls').removeClass('disabled');
@@ -194,30 +207,38 @@ function getSpectrogram() {
     First has to check to see if there are any regions, if so only gets spectrogram in that region.
     */
 
-    if (numberOfRegions() > 1) {
-        console.log('Uh oh!!! More than one region!!!');
-    }
-
     var url = "/get_spectrogram?val=" + Math.random().toString(36).substring(7);
     var audioLength = mixture_waveform.backend.getDuration();
-    var selectedRange = [0.0, audioLength];
-
-
-    if (numberOfRegions() === 1) {
-        selectedRegion = getFirstObject(mixture_waveform.regions.list);
-        selectedRange = [selectedRegion.start, selectedRegion.end];
-        // var start = truncateFloat(selectedRegion.start);
-        // var stop =  truncateFloat(selectedRegion.end);
-        // url += '?start=' + start + '&stop=' + stop;
-        // specLength = stop - start;
-        // audioOffset = start;
-    }
 
     make_spectrogram(mixture_spectrogram_heatmap, url, audioLength);
 
-};
+}
 
 function get2DFT() {
     var url = "/get_2dft?val=" + Math.random().toString(36).substring(7);
     make_2dft(url);
+}
+
+function getAtnDelayHist() {
+    var url = "/get_atn_delay_hist?val=" + Math.random().toString(36).substring(7);
+    make_atn_delay_hist(url);
+}
+
+function getReqs() {
+    var url = "/reqs?val=" + Math.random().toString(36).substring(7);
+    $.get(url, function( data ) {
+        let resp = JSON.parse(data);
+        for (var i = 0; i < resp.length; ++i) {
+            let current_req = resp[i];
+
+            mixture_waveform.addRegion({
+                id: current_req.type + '_' +  i,
+                start: resp[i].time.start,
+                end: resp[i].time.end,
+                color: current_req.type === 'duet' ? duet_color : ft2d_color,
+                drag: false,
+                resize: false
+            });
+        }
+    });
 }

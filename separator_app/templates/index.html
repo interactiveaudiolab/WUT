@@ -102,6 +102,7 @@
             <ul class="nav nav-tabs" id="mainTabs">
                 <li class="active"><a href="#spectrogram-tab">Input Mixture</a></li>
                 <li><a href="#ft2d-tab">2DFT</a></li>
+                <li><a href="#duet-tab">Attenuation/Delay Histogram</a></li>
                 <li id="results-pill"><a href="#results-tab">Results</a></li>
             </ul>
         </div>
@@ -182,6 +183,8 @@
 
                 </div>
             </div>
+
+
             <div class="tab-pane" id="ft2d-tab">
                 <div class="row" id="ft2d-controls">
                     <div class="col-md-1"></div>
@@ -216,6 +219,44 @@
                     </div>
                 </div>
             </div>
+
+
+            <div class="tab-pane" id="duet-tab">
+                <div class="row" id="duet-controls">
+                    <div class="col-md-1"></div>
+                    <div class="col-md-1" id="duet-zoom-buttons">
+                        <div class="btn-group">
+                            <button id="duet-zoom-in" class="btn btn-primary" title="Zoom in">
+                                <i class="glyphicon glyphicon-zoom-in"></i>
+                            </button>
+
+                            <button id="ft2d-zoom-out" class="btn btn-primary" title="Zoom out">
+                                <i class="glyphicon glyphicon-zoom-out"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="btn-group">
+                            <button id="duet-delete-unselected" class="btn btn-primary duet-tool disabled" title="Remove selected regions">
+                                Delete Selected
+                            </button>
+                            <button id="duet-delete-selected" class="btn btn-primary duet-tool disabled" title="Remove everything outside selected regions">
+                                Delete Unselected
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+                <div id="duet-container">
+{#                    <h5>duet</h5>#}
+                    <div id="duet-heatmap">
+                        <!-- Attenuation/Delay Histogram will be drawn in this div -->
+                    </div>
+                </div>
+            </div>
+
+
             <div class="tab-pane" id="results-tab">
                 <div class="row" style="height: 33px">
                 </div>
@@ -317,6 +358,7 @@
 <script type="text/javascript" src="{{ url_for('static', filename='js/plotly_plots.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/plot_spectrogram.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/plot_2dft.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/plot_atn_delay_hist.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/array.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/stft.js') }}"></script>

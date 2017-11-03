@@ -50,6 +50,7 @@ mixture_audio_file.upload_to_server = function (obj) {
         success: function (result) {
             console.log('/audio_upload POST done!');
             $('#general-status').text('Upload complete! Waiting for spectrogram...');
+            getReqs();
             upload_complete = result !== null;
         }
     }).then(function() {
@@ -57,7 +58,10 @@ mixture_audio_file.upload_to_server = function (obj) {
             getSpectrogram();
         }
     }).then(function() {
-        $('#general-status').text('Got spectrogram! Waiting for 2DFT...');
+        $('#general-status').text('Got spectrogram! Waiting for attenuation/delay histogram...');
+        getAtnDelayHist();
+    }).then(function() {
+        $('#general-status').text('Got attenuation/delay histogram! Waiting for 2DFT...');
         get2DFT();
     });
 };
