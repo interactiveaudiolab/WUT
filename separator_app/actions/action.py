@@ -156,10 +156,14 @@ class SelectionBasedRemove(Action):
 
         elif 'duet' in self.target:
             final_mask = np.zeros_like(audio_signal.get_stft_channel(0), dtype=float)
-            ad_hist = session.duet.atn_delay_hist.T
+            ad_hist = session.duet.atn_delay_hist
             for sel in self.selections:
                 mask = sel.make_mask(np.linspace(-3, 3, ad_hist.shape[1]), np.linspace(-3, 3, ad_hist.shape[0]))
-                peaks = zip(*np.where(mask))
+                applied_mask = ad_hist * mask
+                peaks = nussl.find_peak_indices(applied_mask, 1)
+                peaks.append(nussl.find_peak_indices(ad_hist * np.logical_not(mask), 1)[0])
+                # peaks = zip(*np.where(mask))
+                # session.duet.duet.num_sources = 1
                 duet_mask = session.duet.duet.convert_peaks_to_masks(peak_indices=peaks)[1]
                 final_mask += duet_mask.get_channel(0)
 

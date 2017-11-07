@@ -8,7 +8,7 @@ function make_atn_delay_hist(url) {
 
         duet_histogram.rawData = d3ParseCsv(rows);
         duet_histogram.drawHeatmap();
-        enableDuetTools(true);
+        enableTools(true, '.duet-tool');
 
         status.text('Ready...');
     });

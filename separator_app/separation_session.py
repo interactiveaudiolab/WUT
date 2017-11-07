@@ -30,7 +30,7 @@ jsonpickle_numpy.register_handlers()
 
 class SeparationSession(object):
     """
-    Object for a single session, handles
+    Object for a single session, handles everything
     """
     _needs_special_encoding = ['user_general_audio']
     _uses_jsonpickle = ['_action_queue', 'ft2d', 'duet']
@@ -40,7 +40,6 @@ class SeparationSession(object):
         """
 
         """
-        # super(JSONEncoder, self).__init__()
 
         self.session_id = None
         self.base_audio_path = None
@@ -50,6 +49,9 @@ class SeparationSession(object):
         self.to_json_times = []
         self.from_json_times = []
         self._action_queue = deque()
+        self.audio_contains = []
+        self.user_goals = []
+        self.save_user_data = False
 
         if not from_json:
             # Set up a session ID and store it
@@ -98,7 +100,9 @@ class SeparationSession(object):
             user_signal = nussl.AudioSignal(self.user_original_file_location)
             self.user_general_audio = audio_processing.GeneralAudio(user_signal, self.user_original_file_folder)
             self.ft2d = audio_processing.FT2D(user_signal, self.user_original_file_folder)
-            self.duet = audio_processing.Duet(user_signal, self.user_original_file_folder)
+
+            if user_signal.is_stereo:
+                self.duet = audio_processing.Duet(user_signal, self.user_original_file_folder)
 
             self.initialized = True
             self.time_of_init = time.asctime(time.localtime(time.time()))
@@ -106,6 +110,11 @@ class SeparationSession(object):
         except Exception as e:
             logger.error('Got exception! - {}'.format(e.message))
             raise e
+
+    def save_survey_data(self, survey_data):
+        self.audio_contains = survey_data['mixture_contains']
+        self.user_goals = survey_data['extraction_goals']
+        self.save_user_data = not survey_data['do_not_store']
 
     def push_action(self, action_dict):
         action_id = len(self._action_queue) + 1

@@ -25,7 +25,15 @@ $('#input_audio_file').change(function () {
         buffer_loader_load(mixture_audio_file.url);
     }
 
-    $("#filename").text(mixture_audio_file.file.name + " Waveform");
+    $("#filename").text(mixture_audio_file.file.name);
+    $('#mixture-contains').multiselect('enable');
+    $('#mixture-contains').multiselect('rebuild');
+        // Collapse all groups in mixture-contains dropdown by default
+    $('#mixture-contains-container ul.multiselect-container li:not(.multiselect-all):not(.multiselect-group)')
+        .hide()
+        .addClass('multiselect-collapsible-hidden');
+    $('#extraction-goal').multiselect('enable');
+    $('#extraction-goal').multiselect('rebuild');
     mixture_waveform.load(mixture_audio_file.url);
     mixture_audio_file.upload_to_server(this);
 });
@@ -58,8 +66,10 @@ mixture_audio_file.upload_to_server = function (obj) {
             getSpectrogram();
         }
     }).then(function() {
-        $('#general-status').text('Got spectrogram! Waiting for attenuation/delay histogram...');
-        getAtnDelayHist();
+        if (mixture_waveform.backend.buffer.numberOfChannels === 2) {
+            $('#general-status').text('Got spectrogram! Waiting for attenuation/delay histogram...');
+            getAtnDelayHist();
+        }
     }).then(function() {
         $('#general-status').text('Got attenuation/delay histogram! Waiting for 2DFT...');
         get2DFT();
@@ -106,10 +116,10 @@ function stopButton() {
     }
 }
 
-$('#import-audio').click(function(){
-    audio.import_audio();
-    $('#general-status').text('Uploading audio to server...');
-});
+// $('#import-audio').click(function(){
+//     audio.import_audio();
+//     $('#general-status').text('Uploading audio to server...');
+// });
 
 $('#result-play').click(function() {
     if (!result_waveform.backend.buffer) {

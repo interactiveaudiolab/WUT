@@ -15,7 +15,7 @@ function make_2dft(url) {
         ft2d_heatmap.rawData = d3ParseCsv(rows);
         ft2d_heatmap.drawHeatmap();
         status.text('Ready...');
-        enableFt2dTools(true);
+        enableTools(true, '.ft2d-tool');
     });
 }
 

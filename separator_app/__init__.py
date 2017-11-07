@@ -3,9 +3,11 @@ import logging
 from flask import Flask
 from flask_session import Session
 # from flask_compress import Compress
+from werkzeug.contrib.fixers import ProxyFix
 
 # set up app
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app)
 
 SESSION_TYPE = 'filesystem'
 app.config.from_object(__name__)

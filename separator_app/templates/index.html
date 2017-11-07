@@ -16,6 +16,7 @@
           integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.8.1/css/bootstrap-slider.min.css">
     <link href="https://fonts.googleapis.com/css?family=Josefin+Sans:300,400" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap-multiselect.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 
 
@@ -34,6 +35,7 @@
 {#    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/buffer-loader.js') }}"></script>#}
 {#    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/dsp.js') }}"></script>#}
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/FileSaver.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/bootstrap-multiselect.js') }}"></script>
 </head>
 <body>
 <!--[if lt IE 8]>
@@ -64,27 +66,6 @@
                     </a>
                 </li>
 
-{#                <li class="divider-vertical"></li>#}
-{#                <li id="mixture-play-pause">#}
-{#                    <a href="#"><i class="glyphicon glyphicon-play icon" id="play_icon" title="Play Audio"></i></a>#}
-{#                </li>#}
-{##}
-{#                <li class="divider-vertical"></li>#}
-{#                <li id="mixture-stop">#}
-{#                    <a href="#"><i class="glyphicon glyphicon-stop icon"></i></a>#}
-{#                </li>#}
-{#                <li class="divider-vertical"></li>#}
-{##}
-{#                <li class="dropdown" id="volume-slider-dropdown-li">#}
-                    {# <input id="volume-slider" type="range" data-slider-min="0" data-slider-max="100"#}
-                    {#       data-slider-step="5" data-slider-value="75" data-slider-orientation="vertical" />#}
-                    {# <input id="ex4" type="text" data-slider-min="-5" data-slider-max="20" data-slider-step="1" data-slider-value="-3" data-slider-orientation="vertical"/>#}
-                    {# <input class="vert" id="volume-slider" type="range" orientation="vertical" />#}
-{#                    <div class="range-slider">#}
-{#                        <input class="input-range" orient="vertical" type="range" step="5" value="75" min="0" max="100">#}
-{#                        <span class="range-value"></span>#}
-{#                    </div>#}
-{#                </li>#}
                 <li class="divider-vertical"></li>
                 <li>
                     <p class="control-text" style="display: inline; padding-left: 0.25em;"> Status:</p><p id="general-status">Ready...</p>
@@ -93,6 +74,134 @@
             </ul>
         </div>
     </nav>
+
+    <div id="open-modal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+{#                    <button type="button" class="close" data-dismiss="modal">&times;</button>#}
+                    <h3 class="modal-title">Welcome! Open a New Audio File</h3>
+                </div>
+                <div class="modal-body">
+                    <div class="row modal-section" id="file-info-container">
+                        <div class="col-sm-2">
+                            <p>File: </p>
+                        </div>
+                        <div class="col-sm-8">
+                            <p id="filename"></p>
+                        </div>
+                        <div class="col-sm-2">
+                            <button type="button" class="btn btn-primary btn-sm" id="open-button-modal">
+                                <i class="glyphicon glyphicon-folder-open icon text-center"></i>
+                                Open File
+                            </button>
+                        </div>
+                    </div>
+                    <form id="survey">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <h4>Please tell WUT about your audio...</h4>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="modal-section">
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        <p>This audio contains:</p>
+                                    </div>
+
+                                    <div class="col-sm-8">
+                                        <select id="mixture-contains" multiple="multiple">
+                                            <optgroup label="Voice">
+                                                <option value="speech-male">Speech (Male)</option>
+                                                <option value="speech-female">Speech (Female)</option>
+                                                <option value="speech-other">Speech (Other)</option>
+                                                <option value="singing-male">Singer (Male)</option>
+                                                <option value="singing-female">Singer (Female)</option>
+                                                <option value="singing-other">Singer (Other)</option>
+                                                <option value="voice-other">Other Voice</option>
+                                            </optgroup>
+                                            <optgroup label="Strings">
+                                                <option value="guitar-acoustic">Acoustic Guitar</option>
+                                                <option value="guitar-clean">Electric Guitar (Clean)</option>
+                                                <option value="guitar-effects">Electric Guitar (with effects)</option>
+                                                <option value="bass-guitar">Bass Guitar</option>
+                                                <option value="violin-viola">Violin/Viola</option>
+                                                <option value="cello">Cello</option>
+                                                <option value="double-bass">Double (Upright) Bass</option>
+                                                <option value="string-section">String Section</option>
+                                                <option value="string-other">Strings (Other)</option>
+                                            </optgroup>
+                                            <optgroup label="Keyboard Instruments">
+                                                <option value="piano">Piano</option>
+                                                <option value="electric-piano">Electric Piano</option>
+                                                <option value="synthesizer">Synthesizer</option>
+                                                <option value="keyboard-other">Keyboards (Other)</option>
+                                            </optgroup>
+                                            <optgroup label="Woodwind and Brasswind">
+                                                <option value="saxophone">Saxophone</option>
+                                                <option value="clarinet">Clarinet</option>
+                                                <option value="flute">Flute</option>
+                                                <option value="oboe">Oboe</option>
+                                                <option value="bassoon">Bassoon</option>
+                                                <option value="trumpet">Trumpet/Cornet</option>
+                                                <option value="trombone">Trombone</option>
+                                                <option value="tuba">Tuba</option>
+                                                <option value="horn-section">Horn Section</option>
+                                                <option value="horn-other">Woodwind and Brasswind (Other)</option>
+                                            </optgroup>
+                                            <optgroup label="Percussion">
+                                                <option value="drum-kit">Drum Kit</option>
+                                                <option value="bass-drum">Bass Drum</option>
+                                                <option value="snare-drum">Snare Drum</option>
+                                                <option value="high-hat">High Hat</option>
+                                                <option value="cymbals">Cymbals</option>
+                                                <option value="mallets">Mallet Instrument</option>
+                                                <option value="percussion-other">Percussion (Other)</option>
+                                            </optgroup>
+                                            <optgroup label="Other">
+                                                <option value="sirens">Sirens</option>
+                                                <option value="motor">Motors/Cars</option>
+                                                <option value="other-other">Other</option>
+                                            </optgroup>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-section">
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        <p>I am trying to extract:</p>
+                                    </div>
+                                    <div class="col-sm-8">
+                                        <select id="extraction-goal" multiple="multiple">
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+{#                            <div class="modal-section">#}
+                                <div class="checkbox">
+                                    <label><input type="checkbox" value="" id="do-not-store">Do not store my data.</label>
+                                </div>
+{#                            </div>#}
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <span class="form-control-static pull-left">
+                        <a href="#" data-toggle="popover" data-trigger="hover" data-placement="bottom"
+                           data-content="These two questions allow WUT to recommend which tools will help you the most.
+                                         Your response also powers how these recommendations are made. To opt out,
+                                         select 'Do not store my data' above.">
+                            Why are you asking about my audio?
+                        </a>
+                    </span>
+                    <button id="survey-done" type="submit" class="btn btn-primary disabled" data-dismiss="modal">Start!</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <form action="audio_upload" style="display: none;" method="post" role="form"
           enctype="multipart/form-data">
         <input id="input_audio_file" style="display: none" accept="audio/*" type="file" name="audio_file" />

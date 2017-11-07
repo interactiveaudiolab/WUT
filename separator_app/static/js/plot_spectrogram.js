@@ -14,7 +14,7 @@ function make_spectrogram(heatmap, url, audioLength) {
 
         heatmap.rawData = d3ParseCsv(rows);
         heatmap.drawHeatmap(audioLength, freqMax, logY);
-        enableSpecTools(true);
+        enableTools(true, '.spec-tool');
 
         status.text('Ready...');
     });

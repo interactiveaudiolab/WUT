@@ -195,6 +195,22 @@ def recommendations():
     return abort(405)
 
 
+@app.route('/survey_results', methods=['POST'])
+def survey_results():
+    logger.info('Getting survey results')
+
+    if request.method == 'POST':
+        survey_results = request.json['survey_data']
+
+        sess = separation_session.SeparationSession.from_json(session['cur_session'])
+        logger.info('session awake {}'.format(sess.session_id))
+        sess.save_survey_data(survey_results)
+
+        session['cur_session'] = sess.to_json()
+
+        return json.dumps(True)
+
+
 @app.route('/action', methods=['POST'])
 def action():
     logger.info('receiving action')

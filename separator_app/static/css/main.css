@@ -498,6 +498,23 @@ audio {
     width: 500px;
 }
 
+#open-modal {
+    position: absolute;
+    top: 50px;
+}
+.modal-section {
+    padding: 10px;
+    margin: 10px 0;
+}
+
+#file-info-container {
+    border-bottom: 1px solid #ccc;
+}
+
+.popover{
+    max-width: 50%; /* Max Width of the popover (depending on the container!) */
+}
+
 /* ==========================================================================
    Helper classes
    ========================================================================== */

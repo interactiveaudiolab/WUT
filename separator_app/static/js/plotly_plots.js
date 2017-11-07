@@ -302,7 +302,7 @@ function postActionAndProcess(actionType, target, selections) {
         }).then(function(result) {
             let url = '/process?val='+ Math.random().toString(36).substring(7);
             result_waveform.load(url);
-            enableResultControls(true);
+            enableTools(true, '.result-controls');
         }).then(function() {
             let res = $('#results-pill');
             if (!res.hasClass('active')) {

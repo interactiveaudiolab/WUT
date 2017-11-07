@@ -83,9 +83,65 @@ document.addEventListener('DOMContentLoaded', function () {
 
     result_waveform.init(resultOptions);
 
-    // emptyHeatmap('spectrogram-heatmap');
-    // emptyHeatmap('ft2d-heatmap');
+
+    //  ~~~~~~~~~~~~~   MODAL STUFF   ~~~~~~~~~~~~~~~~
+
+
+    $('#open-modal').modal({
+        backdrop: 'static',
+        keyboard: false
+    });
+
+    $('#mixture-contains').multiselect({
+        enableCollapsibleOptGroups: true,
+        buttonContainer: '<div id="mixture-contains-container" />',
+        maxHeight: 300,
+        buttonWidth: '300px',
+        enableFiltering: false,
+        onChange: function(element, checked) {
+            if (checked === true) {
+                $('#extraction-goal').append('<option value="' + element.val() + '">'
+                    + element.context.label + '</option>')
+            }
+            else if (checked === false) {
+                $('option[value="' + element.val() + '"]', $('#extraction-goal')).remove();
+            }
+            $('#extraction-goal').multiselect('rebuild');
+
+            enableSurveyDoneButton();
+        }
+    });
+
+    // Collapse all groups in mixture-contains dropdown by default
+    $('#mixture-contains-container ul.multiselect-container li:not(.multiselect-all):not(.multiselect-group)')
+        .hide()
+        .addClass('multiselect-collapsible-hidden');
+
+    $('#extraction-goal').multiselect({
+        enableCollapsibleOptGroups: true,
+        maxHeight: 300,
+        buttonWidth: '300px',
+        enableFiltering: false,
+        onChange: function(element, checked) {
+            enableSurveyDoneButton();
+        }
+    });
+
+    $("#survey :input").prop('readonly', true);
+    $('#mixture-contains').multiselect('disable');
+    $('#extraction-goal').multiselect('disable');
+    $('[data-toggle="popover"]').popover();
+
 });
+
+function enableSurveyDoneButton() {
+    if ($('#extraction-goal option:selected').length > 0
+        && $('#mixture-contains option:selected').length > 0) {
+        $('#survey-done').removeClass('disabled');
+    } else {
+        $('#survey-done').addClass('disabled');
+    }
+}
 
 mixture_waveform.on('ready', function () {
   var timeline = Object.create(WaveSurfer.Timeline);
@@ -105,29 +161,17 @@ result_waveform.on('ready', function () {
   });
 });
 
-$("#volume-slider").slider({
-//$("#ex4").slider({
-    reversed: true,
-    min: 0,
-    max: 100,
-    value: 50,
-    range: "min",
-    slide: function(event, ui) {
-        setMixtureVolume(ui.value / 100);
-    }
-});
 
-
-$("#title-text")
-.mouseenter(function() {
-    var el = $(this);
-    el.data("text-original", el.text());
-    el.text(el.data("text-swap"));
-})
-.mouseleave(function() {
-    var el = $(this);
-    el.text(el.data("text-original"));
-});
+// $("#title-text")
+// .mouseenter(function() {
+//     var el = $(this);
+//     el.data("text-original", el.text());
+//     el.text(el.data("text-swap"));
+// })
+// .mouseleave(function() {
+//     var el = $(this);
+//     el.text(el.data("text-original"));
+// });
 
 
 $('#mixture-zoom-in').click(function(){
@@ -138,18 +182,6 @@ $('#mixture-zoom-out').click(function(){
     mixture_waveform.zoom(mixture_waveform.params.minPxPerSec - zoomStepSize);
 });
 
-// mixture_waveform.on('region-created', function() {
-//     if (numberOfRegions() > 0) {
-//         prevRegion = getFirstObject(mixture_waveform.regions.list);
-//         prevRegion.remove();
-//     }
-//
-// });
-
-$("#get-spectrogram").click(function() {
-    getSpectrogram();
-
-});
 
 $('#save-result').click(function() {
     if (!result_waveform.backend.buffer) {
@@ -160,46 +192,76 @@ $('#save-result').click(function() {
     saveAs(blob, 'wut_result.wav', false);
 });
 
-
-function enableSpecTools(enabled) {
+function enableTools(enabled, className) {
     if (enabled === true) {
-        $('.spec-tool').removeClass('disabled');
+        $(className).removeClass('disabled');
     }
     else if (enabled === false) {
-        $('.spec-tool').addClass('disabled');
-    }
-}
-
-function enableFt2dTools(enabled) {
-    if (enabled === true) {
-        $('.ft2d-tool').removeClass('disabled');
-    }
-    else if (enabled === false) {
-        $('.ft2d-tool').addClass('disabled');
-    }
-}
-
-function enableDuetTools(enabled) {
-    if (enabled === true) {
-        $('.duet-tool').removeClass('disabled');
-    }
-    else if (enabled === false) {
-        $('.duet-tool').addClass('disabled');
-    }
-}
-
-function enableResultControls(enabled) {
-    if (enabled === true) {
-        $('.result-controls').removeClass('disabled');
-    }
-    else if (enabled === false) {
-        $('.result-controls').addClass('disabled');
+        $(className).addClass('disabled');
     }
 }
 
 $('#results-pill').click(function() {
     $(this).removeClass('result-ready');
 });
+
+$('#import-audio').click(function(){
+    $('#open-modal').modal({
+        backdrop: 'static',
+        keyboard: false
+    });
+    openFileDialog();
+});
+
+$('#open-button-modal').click(function () {
+    openFileDialog();
+});
+
+function openFileDialog() {
+    $('#survey')[0].reset();
+    $('#extraction-goal').multiselect('deselectAll', false);
+    $('#mixture-contains').multiselect('deselectAll', false);
+    // $('#mixture-contains-container .caret-container').click();
+    audio.import_audio();
+    $('#general-status').text('Uploading audio to server...');
+}
+
+$('#open-modal').on('shown.bs.modal', function(){
+    // $('#mixture-contains-container .caret-container').click();
+});
+
+$('#survey-done').click(function () {
+    sendSurveyResults();
+});
+
+function sendSurveyResults() {
+    let mixture_contains = $('#mixture-contains option:selected').map(function() {
+        return $(this).val();
+    }).get();
+
+    let extraction_goals = $('#extraction-goal option:selected').map(function() {
+        return $(this).val();
+    }).get();
+
+    let do_not_store = $('#do-not-store').is(':checked');
+
+    let survey_data = {
+        mixture_contains: mixture_contains,
+        extraction_goals: extraction_goals,
+        do_not_store: do_not_store
+    };
+
+    let url = "/survey_results?val=" + Math.random().toString(36).substring(7);
+    // $.post(url, JSON.stringify({survey_data: survey_data}), 'json');
+    $.ajax({
+            type: "POST",
+            url: url,
+            contentType: 'application/json',
+            dataType: 'json',
+            cache: false,
+            data: JSON.stringify({survey_data: survey_data})
+        })
+}
 
 function getSpectrogram() {
     /*
