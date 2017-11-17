@@ -474,8 +474,10 @@ audio {
 }
 
 #tabs-wrapper {
-    margin-left: 95px;
-    margin-right: 95px;
+    padding-left: 95px;
+    padding-right: 95px;
+    padding-top: 5px;
+    background-color: rgba(227, 240, 251, 0.3);
 }
 
 .tab-content {
@@ -513,6 +515,11 @@ audio {
 
 .popover{
     max-width: 50%; /* Max Width of the popover (depending on the container!) */
+}
+
+#mixture-player {
+    padding-bottom: 10px;
+    margin-top: -18px;
 }
 
 /* ==========================================================================

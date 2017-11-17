@@ -85,6 +85,7 @@ class PlotlyHeatmap {
             // height: 500,
             margin: this.plotMargins,
             autosize: true,
+            shapes: new Array(),
         };
 
         this.colorBarOptions = {
@@ -113,7 +114,6 @@ class PlotlyHeatmap {
             type: 'heatmap', showscale: false }];
 
         this.plotLayout.yaxis.autorange = false;
-        // this.plotLayout.yaxis.type = "log";
 
         this.plot = Plotly.newPlot(this.divID, data, this.plotLayout, this.plotOptions);
         let update = { width: $(window).width() };
@@ -121,47 +121,59 @@ class PlotlyHeatmap {
     }
 
     updatePlotWithSelection() {
-        if (this.selections.length > 0) {
-            for (let sel of this.selections) {
-                for (let y = sel.yStartIdx; y < sel.yEndIdx; y++) {
-                    for (let x = sel.xStartIdx; x < sel.xEndIdx; x++) {
-                        this.selectionData[y][x] = true;
-                    }
-                }
-            }
-            let dataWithSelections = $.extend(true, [], this.rawData); // deep copy
+        // if (this.selections.length > 0) {
+        //     for (let sel of this.selections) {
+        let sel = getLastItemInArray(this.selections);
+        let rect = {
+            'type': 'rect',
+            'x0': sel.xStart,
+            'y0': sel.yStart,
+            'x1': sel.xEnd,
+            'y1': sel.yEnd,
+            'line': {
+                'color': 'rgba(245, 245, 245, 1)',
+                'width': 2,
+            },
+            'fillcolor': 'rgba(255, 255, 255, 0.5)',
+        };
+        if (!this.plotLayout.hasOwnProperty('shapes')) {
+            this.plotLayout.shapes = [];
+        }
+        this.plotLayout.shapes.push(rect);
+                // for (let y = sel.yStartIdx; y < sel.yEndIdx; y++) {
+                //     for (let x = sel.xStartIdx; x < sel.xEndIdx; x++) {
+                //         this.selectionData[y][x] = true;
+                //     }
+                // }
 
-            // TODO: Figure out generator syntax
-            // for (let sel in selections) {
-            //     let s = sel.valuesInSelection();
-            //     while (!s.done) {
-            //         dataWithSelections[i.y][i.x] -= val;
-            //         s = s.next();
+            // }
+            // let dataWithSelections = $.extend(true, [], this.rawData); // deep copy
+            //
+            // for (let y = 0; y < dataWithSelections.length; y++) {
+            //     for (let x = 0; x < dataWithSelections[0].length; x++) {
+            //         if (this.selectionData[y][x]) {
+            //             dataWithSelections[y][x] += this.selected_val;
+            //         }
             //     }
             // }
 
-            for (let y = 0; y < dataWithSelections.length; y++) {
-                for (let x = 0; x < dataWithSelections[0].length; x++) {
-                    if (this.selectionData[y][x]) {
-                        dataWithSelections[y][x] += this.selected_val;
-                    }
-                }
-            }
-
-            Plotly.restyle(this.divID, {z: [dataWithSelections]});
-        }
+            // Plotly.restyle(this.divID, {z: [dataWithSelections]});
+        Plotly.relayout(this.divID, this.plotLayout);
+        // }
     }
 
     resetSelections() {
         this.selections = [];
+        this.plotLayout.shapes = [];
 
-        for (let i=0; i < this.selectionData.length; i++) {
-            for (let j=0; j < this.selectionData[i].length; j++) {
-                this.selectionData[i][j] = false;
-            }
-        }
+        // for (let i=0; i < this.selectionData.length; i++) {
+        //     for (let j=0; j < this.selectionData[i].length; j++) {
+        //         this.selectionData[i][j] = false;
+        //     }
+        // }
 
-        Plotly.restyle(this.divID, {z: [this.rawData]});
+        // Plotly.restyle(this.divID, {z: [this.rawData]});
+        Plotly.restyle(this.divID, this.plotLayout);
 
         $('#general-status').text('Ready...')
     }
@@ -179,30 +191,8 @@ $( window ).resize(function() {
     Plotly.relayout("ft2d-heatmap", update);
 });
 
-// let selections = [];
-
 let undoSelections = [];
 let redoSelections = [];
-
-// $('#spectrogram-heatmap').on('plotly_selected', function(eventData) {
-//     let handlerArgs = eventData.handleObj.handler.arguments;
-//
-//     if (handlerArgs.length > 1 && handlerArgs[1].hasOwnProperty("range")) {
-//         // click and drag event
-//         let range = handlerArgs[1].range;
-//
-//         let curSelection = new BoxSelection(mixture_spectrogram.xTicks, mixture_spectrogram.yTicks, range);
-//         selections.push(curSelection);
-//
-//         updateSelectionStatus(curSelection);
-//         updatePlotWithSelection('spectrogram-heatmap', 50);
-//     }
-//     else {
-//         // just a click event
-//         resetSelections('spectrogram-heatmap');
-//     }
-//
-// });
 
 
 $('#undo').click(function() {

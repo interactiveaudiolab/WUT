@@ -48,7 +48,7 @@ class FT2DHeatmap extends PlotlyHeatmap {
             paper_bgcolor: '#E3F0FB', // 'rgb(0,0,0,0); doesn't work :(
             plot_bgcolor: '#E3F0FB',
             // width: 500,
-            height: 575,
+            // height: 575,
             margin: this.plotMargins,
             autosize: true,
 
@@ -73,29 +73,6 @@ class FT2DHeatmap extends PlotlyHeatmap {
         Plotly.relayout(this.divID, update);
     }
 }
-
-// let ft2dMargins = { l: 75 , r: 75, b: 50, t: 10, pad: 4 };  // TODO: Jinja variable
-// let ft2dOptions = {
-//     scrollZoom: false,
-//     showLink: false,
-//     displaylogo: false,
-//     displayModeBar: false
-// };
-
-
-// function draw2DFTPlotly(divID, ft2dData) {
-//
-//     // let yTicks = arange(0.0, freqMax, spectrogramData.length);
-//     // let xTicks = arange(0.0, audioLength, spectrogramData[0].length);
-//
-//     // mixture_spectrogram.xTicks = xTicks;
-//     // mixture_spectrogram.yTicks = yTicks;
-//     // let colorbarOpts = colorBarOptions;
-//     // colorbarOpts.tickvals = [0, 20, 40, 60, 80];
-//
-//
-//     $('#general-status').
-// }
 
 $( window ).resize(function() {
     let update = { width: $(window).width() };

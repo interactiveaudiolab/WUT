@@ -108,93 +108,32 @@
                             <div class="modal-section">
                                 <div class="row">
                                     <div class="col-sm-4">
-                                        <p>This audio contains:</p>
-                                    </div>
-
-                                    <div class="col-sm-8">
-                                        <select id="mixture-contains" multiple="multiple">
-                                            <optgroup label="Voice">
-                                                <option value="speech-male">Speech (Male)</option>
-                                                <option value="speech-female">Speech (Female)</option>
-                                                <option value="speech-other">Speech (Other)</option>
-                                                <option value="singing-male">Singer (Male)</option>
-                                                <option value="singing-female">Singer (Female)</option>
-                                                <option value="singing-other">Singer (Other)</option>
-                                                <option value="voice-other">Other Voice</option>
-                                            </optgroup>
-                                            <optgroup label="Strings">
-                                                <option value="guitar-acoustic">Acoustic Guitar</option>
-                                                <option value="guitar-clean">Electric Guitar (Clean)</option>
-                                                <option value="guitar-effects">Electric Guitar (with effects)</option>
-                                                <option value="bass-guitar">Bass Guitar</option>
-                                                <option value="violin-viola">Violin/Viola</option>
-                                                <option value="cello">Cello</option>
-                                                <option value="double-bass">Double (Upright) Bass</option>
-                                                <option value="string-section">String Section</option>
-                                                <option value="string-other">Strings (Other)</option>
-                                            </optgroup>
-                                            <optgroup label="Keyboard Instruments">
-                                                <option value="piano">Piano</option>
-                                                <option value="electric-piano">Electric Piano</option>
-                                                <option value="synthesizer">Synthesizer</option>
-                                                <option value="keyboard-other">Keyboards (Other)</option>
-                                            </optgroup>
-                                            <optgroup label="Woodwind and Brasswind">
-                                                <option value="saxophone">Saxophone</option>
-                                                <option value="clarinet">Clarinet</option>
-                                                <option value="flute">Flute</option>
-                                                <option value="oboe">Oboe</option>
-                                                <option value="bassoon">Bassoon</option>
-                                                <option value="trumpet">Trumpet/Cornet</option>
-                                                <option value="trombone">Trombone</option>
-                                                <option value="tuba">Tuba</option>
-                                                <option value="horn-section">Horn Section</option>
-                                                <option value="horn-other">Woodwind and Brasswind (Other)</option>
-                                            </optgroup>
-                                            <optgroup label="Percussion">
-                                                <option value="drum-kit">Drum Kit</option>
-                                                <option value="bass-drum">Bass Drum</option>
-                                                <option value="snare-drum">Snare Drum</option>
-                                                <option value="high-hat">High Hat</option>
-                                                <option value="cymbals">Cymbals</option>
-                                                <option value="mallets">Mallet Instrument</option>
-                                                <option value="percussion-other">Percussion (Other)</option>
-                                            </optgroup>
-                                            <optgroup label="Other">
-                                                <option value="sirens">Sirens</option>
-                                                <option value="motor">Motors/Cars</option>
-                                                <option value="other-other">Other</option>
-                                            </optgroup>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="modal-section">
-                                <div class="row">
-                                    <div class="col-sm-4">
                                         <p>I am trying to extract:</p>
                                     </div>
                                     <div class="col-sm-8">
                                         <select id="extraction-goal" multiple="multiple">
+                                            <option value="vocals">Vocals</option>
+                                            <option value="accompaniment">Accompaniment</option>
+                                            <option value="drums">Drums</option>
+                                            <option value="bass">Bass</option>
+                                            <option value="other">Other</option>
                                         </select>
                                     </div>
                                 </div>
                             </div>
-{#                            <div class="modal-section">#}
-                                <div class="checkbox">
-                                    <label><input type="checkbox" value="" id="do-not-store">Do not store my data.</label>
-                                </div>
-{#                            </div>#}
+{#                                <div class="checkbox">#}
+{#                                    <label><input type="checkbox" value="" id="do-not-store">Do not use my response to enable further recommendations.</label>#}
+{#                                </div>#}
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <span class="form-control-static pull-left">
                         <a href="#" data-toggle="popover" data-trigger="hover" data-placement="bottom"
-                           data-content="These two questions allow WUT to recommend which tools will help you the most.
-                                         Your response also powers how these recommendations are made. To opt out,
-                                         select 'Do not store my data' above.">
-                            Why are you asking about my audio?
+                           data-content="WUT stores your raw audio data on the server for 7 days after your last
+                            active sesion. For more information about how your audio is stored, see our Privacy Policy
+                            (at the bottom of the main WUT page).">
+                            Privacy
                         </a>
                     </span>
                     <button id="survey-done" type="submit" class="btn btn-primary disabled" data-dismiss="modal">Start!</button>
@@ -202,14 +141,46 @@
             </div>
         </div>
     </div>
+
     <form action="audio_upload" style="display: none;" method="post" role="form"
           enctype="multipart/form-data">
         <input id="input_audio_file" style="display: none" accept="audio/*" type="file" name="audio_file" />
     </form>
     <div id="mainContent">
+
+        <div class="player-wrapper" id="mixture-player">
+            <div class="player-controls" id="mixture-player-controls">
+                <div class="player-controls-inner" style="padding-left: 20px">
+                    <div class="btn-group-vertical" {#  style="padding-bottom: 10px" #} >
+
+                        <button id="mixture-play" class="btn btn-primary result-controls"
+                                title="Play/Pause">
+                                <i class="glyphicon glyphicon-play" title="Play Audio"></i>
+                        </button>
+{#                    </div>#}
+{#                    <div>#}
+                        <button id="mixture-stop" class="btn btn-primary result-controls"
+                                title="Stop">
+                                <i class="glyphicon glyphicon-stop" title="Stop Audio"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="waveform-wrapper" id="mixture-waveform-wrapper">
+                <div class="waveform">
+                    <div id="mixture-waveform" style="width: 100%">
+                        {# <div class="progress progress-striped active" id="progress-bar" style="display: none;">#}
+                        {# <div class="progress-bar progress-bar-info" style="width: 100%;"></div>#}
+                        {# </div>#}
+                    </div>
+                    <div id="waveform-timeline"></div>
+                </div>
+            </div>
+        </div>
+
         <div id="tabs-wrapper">
             <ul class="nav nav-tabs" id="mainTabs">
-                <li class="active"><a href="#spectrogram-tab">Input Mixture</a></li>
+                <li class="active"><a href="#spectrogram-tab">Spectrogram</a></li>
                 <li><a href="#ft2d-tab">2DFT</a></li>
                 <li><a href="#duet-tab">Attenuation/Delay Histogram</a></li>
                 <li id="results-pill"><a href="#results-tab">Results</a></li>
@@ -253,34 +224,6 @@
 {#                            <button id="redo" class="btn btn-primary spec-tool- disabled" title="Redo">#}
 {#                                Redo#}
 {#                            </button>#}
-                        </div>
-                    </div>
-                </div>
-                <div class="player-wrapper" id="mixture-player">
-                    <div class="player-controls" id="mixture-player-controls">
-                        <div class="player-controls-inner" style="padding-left: 20px">
-                            <div style="padding-bottom: 10px">
-                                <button id="mixture-play" class="btn btn-primary result-controls"
-                                        title="Play/Pause">
-                                        <i class="glyphicon glyphicon-play" title="Play Audio"></i>
-                                </button>
-                            </div>
-                            <div>
-                                <button id="mixture-stop" class="btn btn-primary result-controls"
-                                        title="Stop">
-                                        <i class="glyphicon glyphicon-stop" title="Stop Audio"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="waveform-wrapper" id="mixture-waveform-wrapper">
-                        <div class="waveform">
-                            <div id="mixture-waveform" style="width: 100%">
-                                {# <div class="progress progress-striped active" id="progress-bar" style="display: none;">#}
-                                {# <div class="progress-bar progress-bar-info" style="width: 100%;"></div>#}
-                                {# </div>#}
-                            </div>
-                            <div id="waveform-timeline"></div>
                         </div>
                     </div>
                 </div>
@@ -413,54 +356,39 @@
             </div>
         </div>
 
-
-
-
-    </div>
-    {#        <div id="representation">#}
-    {#            <button id="send_data" class="btn btn-primary" title="Get Toy Data back" onclick="sendDataBack()">#}
-    {#                Get Toy Data From Server#}
-    {#            </button>#}
-    {#            <input id="selection_start" type="number" />#}
-    {#            <input id="selection_end" type="number" />#}
-    {#            <svg id="beat_spectrum_svg" width="1000" height="500"></svg>#}
-    {#            <br />#}
-    {#            <br />#}
-    {#            <h3>Beat Spectrum</h3>#}
-    {#            <div id="beat_spectrum_container">#}
-    {#                <div id="beat_spectrum_y_axis"></div>#}
-    {#                <div id="beat_spectrum_graph"></div>#}
-    {#            </div>#}
-    {#            <div id="beat_spectrum_statistics">#}
-    {#                <p id="beat_spectrum_entropy">Entropy: </p> <br />#}
-    {#                <p id="beat_spectrum_log_mean">log(mean): </p>#}
-    {#            </div>#}
-    {#            <h2>BOKEH</h2>#}
-    {#            <button id="spectrogram_button" class="btn btn-primary"#}
-    {#                    title="Spectrogram" onclick="getSpectrogramJson()">#}
-    {#                Get Power Spectrogram#}
-    {#            </button>#}
-    {#            <h3>Power Spectrogram</h3>#}
-    {#            <p>Channel #<input id="channel" type="number" /> </p>#}
-    {#            <div id="spectrogram_bokeh" style="width: 1000px; height: 600px; position: relative;">#}
-    {##}
-    {#            </div>#}
-    {#            <br />#}
-    {#            <br />#}
-    {#            <button id="beat_spectrum_button" class="btn btn-primary"#}
-    {#                    title="beat_spectrum" onclick="sendDataBack()">#}
-    {#                Get Beat Spectrum#}
-    {#            </button>#}
-    {#             <div id="beat_spectrum_container_bokeh" style="width: 1000px; height: 600px; position: relative;">#}
-    {#                {{ beat_spectrum_bokeh }}#}
-    {#            </div>#}
-    {#        </div>#}
-
     <div id="footer">
         <p>Ethan Manilow, Bryan Pardo, Darren Gergle
             <br />This work supported in part by NSF Award
             <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=1420971&HistoricalAwards=false">1420971</a>
             <br />Northwestern University</p>
+        <a id="privacy-policy-link" href="">Privacy Policy</a>
+    </div>
+    <div id="privacy-modal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h3 class="modal-title">Privacy Policy</h3>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        The Web Unmixing Toolbox (WUT) only stores your raw audio data for 7 days
+                        after your last session, after which your raw audio data will be deleted. WUT necessarily
+                        needs a copy of your raw audio data in order to do the server-side processing that enables
+                        the interactions WUT provides. The only remnants of your audio that are stored on our servers
+                        after the 7 day grace period are high-level statistics and non-invertable high-dimensional
+                        audio representations (i.e., representations of your audio that cannot be turned back
+                        into sound). These statistics and high-dimensional representations are used to power the
+                        recommendation engine in WUT. WUT also uses information about how you use WUT (i.e.,
+                        what tools you use) to power these recommendations.
+                    </p>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-primary" data-dismiss="modal">Back</button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 <script type="text/javascript" src="{{ url_for('static', filename='js/utils.js') }}"></script>
@@ -474,14 +402,6 @@
 <script type="text/javascript" src="{{ url_for('static', filename='js/csv_parse.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/audio.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/selection.js') }}"></script>
-
-<!--<div>-->
-<!--<input type="checkbox" id="yLogCheckbox">-->
-<!--<label for="yLogCheckbox">Log on Y-Axis?</label>-->
-<!--</div>-->
-<!--<div>-->
-<!--<button onclick="make_spectrogram('heatmap')">Redraw</button>-->
-<!--</div>-->
 
 <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
 <!--<script>-->

@@ -26,14 +26,7 @@ $('#input_audio_file').change(function () {
     }
 
     $("#filename").text(mixture_audio_file.file.name);
-    $('#mixture-contains').multiselect('enable');
-    $('#mixture-contains').multiselect('rebuild');
-        // Collapse all groups in mixture-contains dropdown by default
-    $('#mixture-contains-container ul.multiselect-container li:not(.multiselect-all):not(.multiselect-group)')
-        .hide()
-        .addClass('multiselect-collapsible-hidden');
     $('#extraction-goal').multiselect('enable');
-    $('#extraction-goal').multiselect('rebuild');
     mixture_waveform.load(mixture_audio_file.url);
     mixture_audio_file.upload_to_server(this);
 });
