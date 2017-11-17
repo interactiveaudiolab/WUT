@@ -7,12 +7,10 @@ var result_waveform = Object.create(WaveSurfer);
 var all_waveforms = [mixture_waveform, result_waveform];
 var defaultZoomStart;
 var zoomStepSize = 5;
-// var mixture_spectrogram = {rawData: null, plot: null, xTicks: null, yTicks: null, selectedArray: null};
 var mixture_spectrogram_heatmap = new SpectrogramHeatmap('spectrogram-heatmap', 20000);
 var result_spectrogram_heatmap = new SpectrogramHeatmap('result-spectrogram-heatmap', 20000);
 var ft2d_heatmap = new FT2DHeatmap('ft2d-heatmap', 1.0);
 var duet_histogram = new AttenuationDelayHistogram('duet-heatmap', 0.0);
-// var mixture_2dft = {rawData: null, plot: null, xTicks: null, yTicks: null};
 
 //Colors
 var red = 'rgba(255, 0, 0, 0.5)';
@@ -37,7 +35,6 @@ $(document).ready(function() {
 	online = new AudioContext();
 
 	context = online;
-//	make_spectrogram('heatmap');
 
     $("#mainTabs").find("a").click(function(e){
         e.preventDefault();
@@ -54,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function () {
         progressColor: 'navy',
         cursorColor: 'black',
         scrollParent: false,
-        height: 120,
+        height: 80,
         normalize: true,
         //backend: 'MediaElement'
         audioRate: 1.0
@@ -63,10 +60,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Init mixture_waveform
     mixture_waveform.init(mixtureOptions);
-    // mixture_waveform.enableDragSelection({
-    //     color: green,
-    //     resize: true
-    // });
     defaulZoomStart = mixture_waveform.params.minPxPerSec;
 
     // Init result_waveform
@@ -92,30 +85,6 @@ document.addEventListener('DOMContentLoaded', function () {
         keyboard: false
     });
 
-    $('#mixture-contains').multiselect({
-        enableCollapsibleOptGroups: true,
-        buttonContainer: '<div id="mixture-contains-container" />',
-        maxHeight: 300,
-        buttonWidth: '300px',
-        enableFiltering: false,
-        onChange: function(element, checked) {
-            if (checked === true) {
-                $('#extraction-goal').append('<option value="' + element.val() + '">'
-                    + element.context.label + '</option>')
-            }
-            else if (checked === false) {
-                $('option[value="' + element.val() + '"]', $('#extraction-goal')).remove();
-            }
-            $('#extraction-goal').multiselect('rebuild');
-
-            enableSurveyDoneButton();
-        }
-    });
-
-    // Collapse all groups in mixture-contains dropdown by default
-    $('#mixture-contains-container ul.multiselect-container li:not(.multiselect-all):not(.multiselect-group)')
-        .hide()
-        .addClass('multiselect-collapsible-hidden');
 
     $('#extraction-goal').multiselect({
         enableCollapsibleOptGroups: true,
@@ -128,15 +97,13 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     $("#survey :input").prop('readonly', true);
-    $('#mixture-contains').multiselect('disable');
     $('#extraction-goal').multiselect('disable');
     $('[data-toggle="popover"]').popover();
 
 });
 
 function enableSurveyDoneButton() {
-    if ($('#extraction-goal option:selected').length > 0
-        && $('#mixture-contains option:selected').length > 0) {
+    if ($('#extraction-goal option:selected').length > 0) {
         $('#survey-done').removeClass('disabled');
     } else {
         $('#survey-done').addClass('disabled');
@@ -161,17 +128,12 @@ result_waveform.on('ready', function () {
   });
 });
 
+$('#privacy-policy-link').click(function(){
+    $('#privacy-modal').modal({
+        backdrop: 'static'
+    });
+});
 
-// $("#title-text")
-// .mouseenter(function() {
-//     var el = $(this);
-//     el.data("text-original", el.text());
-//     el.text(el.data("text-swap"));
-// })
-// .mouseleave(function() {
-//     var el = $(this);
-//     el.text(el.data("text-original"));
-// });
 
 
 $('#mixture-zoom-in').click(function(){
@@ -220,39 +182,25 @@ $('#open-button-modal').click(function () {
 function openFileDialog() {
     $('#survey')[0].reset();
     $('#extraction-goal').multiselect('deselectAll', false);
-    $('#mixture-contains').multiselect('deselectAll', false);
-    // $('#mixture-contains-container .caret-container').click();
     audio.import_audio();
     $('#general-status').text('Uploading audio to server...');
 }
-
-$('#open-modal').on('shown.bs.modal', function(){
-    // $('#mixture-contains-container .caret-container').click();
-});
 
 $('#survey-done').click(function () {
     sendSurveyResults();
 });
 
 function sendSurveyResults() {
-    let mixture_contains = $('#mixture-contains option:selected').map(function() {
-        return $(this).val();
-    }).get();
-
     let extraction_goals = $('#extraction-goal option:selected').map(function() {
         return $(this).val();
     }).get();
 
-    let do_not_store = $('#do-not-store').is(':checked');
-
     let survey_data = {
-        mixture_contains: mixture_contains,
         extraction_goals: extraction_goals,
         do_not_store: do_not_store
     };
 
     let url = "/survey_results?val=" + Math.random().toString(36).substring(7);
-    // $.post(url, JSON.stringify({survey_data: survey_data}), 'json');
     $.ajax({
             type: "POST",
             url: url,
