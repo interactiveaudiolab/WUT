@@ -10,13 +10,12 @@
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <!-- Place favicon.ico in the root directory -->
 
-    <!--<link rel="stylesheet" href="css/normalize.css">-->
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
           integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
-{#    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.8.1/css/bootstrap-slider.min.css">#}
     <link href="https://fonts.googleapis.com/css?family=Josefin+Sans:300,400" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap-multiselect.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/font-awesome.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 
 
@@ -24,14 +23,11 @@
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.0.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-{#    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.8.1/bootstrap-slider.min.js"></script>#}
-    <!--<script src="js/vendor/plotly.js-master/src/plotly.js"></script>-->
     <script type="text/javascript" src="https://cdn.plot.ly/plotly-latest.js"></script>
 {#    <script data-main="scripts/main" src="scripts/require.js"></script>#}
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/wavesurfer.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/wavesurfer.regions.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/wavesurfer.timeline.js') }}"></script>
-{#    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/papaparse.js') }}"></script>#}
 {#    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/buffer-loader.js') }}"></script>#}
 {#    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/dsp.js') }}"></script>#}
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/FileSaver.min.js') }}"></script>
@@ -207,13 +203,30 @@
 
                     <div class="col-md-6">
                         <div class="btn-group">
-                            <button id="mixture-spec-delete-unselected" class="btn btn-primary spec-tool disabled" title="Remove selected regions">
-                                Delete Selected
+                            Selection Tools:
+                            <button id="selection-louder" class="btn btn-primary spec-tool disabled" title="Make selection louder">
+                                <i class="fa fa-volume-off fa-lg" aria-hidden="true"></i>
+                                <i class="fa fa-plus" aria-hidden="true"></i>
                             </button>
-                            <button id="mixture-spec-delete-selected" class="btn btn-primary spec-tool disabled" title="Remove everything outside selected regions">
-                                Delete Unselected
+                            <button id="selection-softer" class="btn btn-primary spec-tool disabled" title="Make selection softer">
+                                <i class="fa fa-volume-off fa-lg" aria-hidden="true"></i>
+                                <i class="fa fa-minus" aria-hidden="true"></i>
+                            </button>
+                            <button id="selection-remove" class="btn btn-primary spec-tool disabled" title="Delete selected regions">
+                                <i class="fa fa-eraser" aria-hidden="true"></i>
+                            </button>
+                            <button id="selection-inverse" class="btn btn-primary spec-tool disabled" title="Invert selection">
+                                Invert Selection
                             </button>
                         </div>
+{#                        <div class="btn-group">#}
+{#                            <button id="mixture-spec-delete-unselected" class="btn btn-primary spec-tool disabled" title="Remove selected regions">#}
+{#                                Delete Selected#}
+{#                            </button>#}
+{#                            <button id="mixture-spec-delete-selected" class="btn btn-primary spec-tool disabled" title="Remove everything outside selected regions">#}
+{#                                Delete Unselected#}
+{#                            </button>#}
+{#                        </div>#}
                     </div>
 
                     <div class="col-md-2">
@@ -254,13 +267,27 @@
 
                     <div class="col-md-6">
                         <div class="btn-group">
-                            <button id="ft2d-delete-unselected" class="btn btn-primary ft2d-tool disabled" title="Remove selected regions">
-                                Delete Selected
+                            <button id="selection-louder" class="btn btn-primary spec-tool disabled" title="Make selection louder">
+                                Make Selection Louder
                             </button>
-                            <button id="ft2d-delete-selected" class="btn btn-primary ft2d-tool disabled" title="Remove everything outside selected regions">
-                                Delete Unselected
+                            <button id="selection-softer" class="btn btn-primary spec-tool disabled" title="Make selection softer">
+                                Make Selection Softer
+                            </button>
+                            <button id="selection-remove" class="btn btn-primary spec-tool disabled" title="Remove selection">
+                                Remove Selection
+                            </button>
+                            <button id="selection-inverse" class="btn btn-primary spec-tool disabled" title="Invert selection">
+                                Invert Selection
                             </button>
                         </div>
+{#                        <div class="btn-group">#}
+{#                            <button id="ft2d-delete-unselected" class="btn btn-primary ft2d-tool disabled" title="Remove selected regions">#}
+{#                                Delete Selected#}
+{#                            </button>#}
+{#                            <button id="ft2d-delete-selected" class="btn btn-primary ft2d-tool disabled" title="Remove everything outside selected regions">#}
+{#                                Delete Unselected#}
+{#                            </button>#}
+{#                        </div>#}
                     </div>
 
                 </div>
@@ -290,13 +317,27 @@
 
                     <div class="col-md-6">
                         <div class="btn-group">
-                            <button id="duet-delete-unselected" class="btn btn-primary duet-tool disabled" title="Remove selected regions">
-                                Delete Selected
+                            <button id="selection-louder" class="btn btn-primary spec-tool disabled" title="Make selection louder">
+                                Make Selection Louder
                             </button>
-                            <button id="duet-delete-selected" class="btn btn-primary duet-tool disabled" title="Remove everything outside selected regions">
-                                Delete Unselected
+                            <button id="selection-softer" class="btn btn-primary spec-tool disabled" title="Make selection softer">
+                                Make Selection Softer
+                            </button>
+                            <button id="selection-remove" class="btn btn-primary spec-tool disabled" title="Remove selection">
+                                Remove Selection
+                            </button>
+                            <button id="selection-inverse" class="btn btn-primary spec-tool disabled" title="Invert selection">
+                                Invert Selection
                             </button>
                         </div>
+{#                        <div class="btn-group">#}
+{#                            <button id="duet-delete-unselected" class="btn btn-primary duet-tool disabled" title="Remove selected regions">#}
+{#                                Delete Selected#}
+{#                            </button>#}
+{#                            <button id="duet-delete-selected" class="btn btn-primary duet-tool disabled" title="Remove everything outside selected regions">#}
+{#                                Delete Unselected#}
+{#                            </button>#}
+{#                        </div>#}
                     </div>
 
                 </div>

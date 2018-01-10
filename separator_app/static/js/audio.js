@@ -56,7 +56,11 @@ mixture_audio_file.upload_to_server = function (obj) {
         }
     }).then(function() {
         if (!DO_STFT_ON_CLIENT && upload_complete) {
-            getSpectrogram();
+            if (spec_as_image) {
+                getSpectrogramAsImage();
+            } else {
+                getSpectrogram();
+            }
         }
     }).then(function() {
         if (mixture_waveform.backend.buffer.numberOfChannels === 2) {

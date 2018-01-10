@@ -86,35 +86,39 @@ class SeparationSession(object):
         return self.user_general_audio.stft_done
 
     def initialize(self, path_to_file):
-        try:
-            if not os.path.isfile(path_to_file):
-                raise Exception('File path not a file! - {}'.format(path_to_file))
+        # try:
+        if not os.path.isfile(path_to_file):
+            raise Exception('File path not a file! - {}'.format(path_to_file))
 
-            self.user_original_file_location = path_to_file
-            # if os.path.splitext(path_to_file)[1] in self._file_ext_that_need_converting:
-            #     # TODO: Conversion
-            #     converted_path = None
-            #     self.user_converted_file_location = converted_path
-            #     self.file_needs_conversion = False
+        self.user_original_file_location = path_to_file
+        # if os.path.splitext(path_to_file)[1] in self._file_ext_that_need_converting:
+        #     # TODO: Conversion
+        #     converted_path = None
+        #     self.user_converted_file_location = converted_path
+        #     self.file_needs_conversion = False
 
-            user_signal = nussl.AudioSignal(self.user_original_file_location)
-            self.user_general_audio = audio_processing.GeneralAudio(user_signal, self.user_original_file_folder)
-            self.ft2d = audio_processing.FT2D(user_signal, self.user_original_file_folder)
+        user_signal = nussl.AudioSignal(self.user_original_file_location)
+        self.user_general_audio = audio_processing.GeneralAudio(user_signal, self.user_original_file_folder)
+        self.ft2d = audio_processing.FT2D(user_signal, self.user_original_file_folder)
 
-            if user_signal.is_stereo:
-                self.duet = audio_processing.Duet(user_signal, self.user_original_file_folder)
+        if user_signal.is_stereo:
+            self.duet = audio_processing.Duet(user_signal, self.user_original_file_folder)
 
-            self.initialized = True
-            self.time_of_init = time.asctime(time.localtime(time.time()))
+        self.initialized = True
+        self.time_of_init = time.asctime(time.localtime(time.time()))
 
-        except Exception as e:
-            logger.error('Got exception! - {}'.format(e.message))
-            raise e
+        # except Exception as e:
+        #     logger.error('Got exception! - {}'.format(e.message))
+        #     raise e
 
     def save_survey_data(self, survey_data):
-        self.audio_contains = survey_data['mixture_contains']
-        self.user_goals = survey_data['extraction_goals']
-        self.save_user_data = not survey_data['do_not_store']
+        try:
+            self.audio_contains = survey_data['mixture_contains']
+            self.user_goals = survey_data['extraction_goals']
+            self.save_user_data = not survey_data['do_not_store']
+        except Exception:
+            logger.warning('Survey data: {}'.format(json.dumps(survey_data)))
+            pass
 
     def push_action(self, action_dict):
         action_id = len(self._action_queue) + 1
