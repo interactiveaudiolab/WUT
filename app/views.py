@@ -8,8 +8,8 @@ import numpy as np
 from flask import render_template, request, flash, redirect, url_for, session, abort, send_file, make_response
 from werkzeug.utils import secure_filename
 
-from separator_app import app
-from separator_app import separation_session
+from app import app
+from app import separation_session
 from config import ALLOWED_EXTENSIONS
 
 DEBUG = True
@@ -24,7 +24,6 @@ logger = logging.getLogger()
 def index():
     new_sess = separation_session.SeparationSession()
     session['cur_session'] = new_sess.to_json()
-
     return render_template('index.html')
 
 
