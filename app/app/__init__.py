@@ -1,6 +1,6 @@
 import logging
 
-from app import views
+from . import views
 
 # Set folders up
 from config import INIT_FOLDERS

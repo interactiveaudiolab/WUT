@@ -7,4 +7,6 @@ COPY requirements.txt /tmp/
 RUN pip install -U pip
 RUN pip install -r /tmp/requirements.txt
 
+ENV STATIC_PATH /app/app/static
+
 COPY ./app /app

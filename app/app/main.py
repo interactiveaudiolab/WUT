@@ -12,6 +12,8 @@ SESSION_TYPE = 'filesystem'
 app.config.from_object(__name__)
 Session(app)
 
+# app.config['SERVER_NAME'] = 'localhost'
+
 from config import UPLOAD_BASE_FOLDER, Config
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_BASE_FOLDER

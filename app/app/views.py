@@ -8,8 +8,8 @@ import numpy as np
 from flask import render_template, request, flash, redirect, url_for, session, abort, send_file, make_response
 from werkzeug.utils import secure_filename
 
-from app import app
-from app import separation_session
+from .main import app
+import separation_session
 from config import ALLOWED_EXTENSIONS
 
 DEBUG = True
