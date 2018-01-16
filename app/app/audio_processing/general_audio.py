@@ -53,9 +53,9 @@ class GeneralAudio(object):
             self.audio_signal_view = copy.copy(self.audio_signal)
             self.storage_path = storage_path
 
-            self.master_params = nussl.StftParams(self.audio_signal_copy.sample_rate)
-            self.preview_params = nussl.StftParams(self.audio_signal_copy.sample_rate,
-                                                   window_length=2048, n_fft_bins=1024)
+            self.master_params = nussl.stft_utils.StftParams(self.audio_signal_copy.sample_rate)
+            self.preview_params = nussl.stft_utils.StftParams(self.audio_signal_copy.sample_rate,
+                                                              window_length=2048, n_fft_bins=1024)
 
     @property
     def stft_done(self):
