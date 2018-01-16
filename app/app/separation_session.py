@@ -112,9 +112,13 @@ class SeparationSession(object):
         #     raise e
 
     def save_survey_data(self, survey_data):
-        self.audio_contains = survey_data['mixture_contains']
-        self.user_goals = survey_data['extraction_goals']
-        self.save_user_data = not survey_data['do_not_store']
+        try:
+            self.audio_contains = survey_data['mixture_contains']
+            self.user_goals = survey_data['extraction_goals']
+            self.save_user_data = not survey_data['do_not_store']
+        except Exception:
+            logger.warning('Survey data: {}'.format(json.dumps(survey_data)))
+            pass
 
     def push_action(self, action_dict):
         action_id = len(self._action_queue) + 1

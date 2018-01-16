@@ -12,6 +12,7 @@ import json
 import logging
 import os
 
+import matplotlib.pyplot as plt
 import numpy as np
 import librosa
 from .. import nussl
@@ -199,6 +200,22 @@ class GeneralAudio(object):
             result = self._get_spectrogram_json_file(channel, start, stop)
 
         return result
+
+    def spectrogram_image(self):
+        file_name = '{}_spec.png'.format(self.audio_signal_copy.file_name.replace('.', '_'))
+        file_path = os.path.join(self.storage_path, file_name)
+
+        self.audio_signal_copy.stft()
+        spec = self.audio_signal_view.get_power_spectrogram_channel(0)
+        spec = self._prep_spectrogram(spec)
+
+        img = plt.imshow(spec, interpolation='nearest')
+        img.set_cmap('hot')
+        plt.axis('off')
+        plt.savefig(file_path, bbox_inches='tight')
+
+        return file_path
+
 
     def zero_outside_box_selection(self, xStart, xEnd, yStart, yEnd):
         if not self.audio_signal_copy.has_stft_data:

@@ -124,6 +124,23 @@ def send_spectrogram():
     return abort(405)
 
 
+@app.route('/spec_image', methods=['GET'])
+def spectrogram_image():
+    logger.info('in /spec_image')
+
+    if request.method == 'GET':
+        sess = separation_session.SeparationSession.from_json(session['cur_session'])
+        logger.info('session awake {}'.format(sess.session_id))
+
+        if not sess.initialized:
+            _exception('sess not initialized!')
+
+        file_name = sess.user_general_audio.spectrogram_image()
+
+        session['cur_session'] = sess.to_json()
+        return send_file(file_name, mimetype='image/png')
+
+
 @app.route('/get_2dft', methods=['GET'])
 def get_2dft():
     logger.info('getting 2DFT')

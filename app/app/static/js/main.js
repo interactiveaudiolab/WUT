@@ -29,6 +29,7 @@ var gray = 'rgba(100, 100, 100, 0.3)';
 
 var duet_color = pink;
 var ft2d_color = yellow;
+var spec_as_image = false;
 
 $(document).ready(function() {
 	window.AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -197,7 +198,7 @@ function sendSurveyResults() {
 
     let survey_data = {
         extraction_goals: extraction_goals,
-        do_not_store: do_not_store
+        // do_not_store: do_not_store
     };
 
     let url = "/survey_results?val=" + Math.random().toString(36).substring(7);
@@ -224,6 +225,27 @@ function getSpectrogram() {
 
 }
 
+function getSpectrogramAsImage() {
+    let url = window.location.protocol + "//" + window.location.host + "/spec_image?val=" + Math.random().toString(36).substring(7);
+
+    Plotly.plot(mixture_spectrogram_heatmap.divID, [{x:[], y:[]}], {
+        images: [
+            {
+                "source": url,
+                "xref": "x",
+                "yref": "y",
+                "x": 1,
+                "y": 3,
+                "sizex": 2,
+                "sizey": 2,
+                "sizing": "stretch",
+                "opacity": 1.0,
+                "layer": "below"
+            }
+        ]
+    });
+}
+
 function get2DFT() {
     var url = "/get_2dft?val=" + Math.random().toString(36).substring(7);
     make_2dft(url);
@@ -241,14 +263,14 @@ function getReqs() {
         for (var i = 0; i < resp.length; ++i) {
             let current_req = resp[i];
 
-            mixture_waveform.addRegion({
-                id: current_req.type + '_' +  i,
-                start: resp[i].time.start,
-                end: resp[i].time.end,
-                color: current_req.type === 'duet' ? duet_color : ft2d_color,
-                drag: false,
-                resize: false
-            });
+            // mixture_waveform.addRegion({
+            //     id: current_req.type + '_' +  i,
+            //     start: resp[i].time.start,
+            //     end: resp[i].time.end,
+            //     color: current_req.type === 'duet' ? duet_color : ft2d_color,
+            //     drag: false,
+            //     resize: false
+            // });
         }
     });
 }
