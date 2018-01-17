@@ -32,17 +32,20 @@ following command:
 
 4. Build the docker container:
 
-        docker build -t [name_of_container] .
+        sudo docker build -t [name_of_container] .
         
     where you replace `[name_of_container]` with a container name. 
     Note the period `.` at the end. This will take 2-5 minutes.
+    (If you run out of memory (see this post on how to add more 
+    swap memory to your instance[https://stackoverflow.com/questions/19595944/trouble-installing-scipy-in-virtualenv-on-a-amazon-ec2-linux-micro-instance?noredirect=1&lq=1])
+    ).
 
 5. Run the docker container:
 
-         docker run -p 80:80 -t [name_of_container]
+         sudo docker run -p 80:80 -t [name_of_container]
          
      Or if you want to run persistently:
      
-         docker run -d --restart=always -p 80:80 -t [name_of_container]
+         sudo docker run -d --restart=always -p 80:80 -t [name_of_container]
          
 6. Go to the public DNS url.
