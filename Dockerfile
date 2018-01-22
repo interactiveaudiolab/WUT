@@ -12,5 +12,5 @@ RUN pip install -U pip && pip install -r /tmp/requirements.txt
 # Point nginx to the static directory
 ENV STATIC_PATH /app/app/static
 
-# Copy over the actuall webapp
+# Copy over the actual webapp
 COPY ./app /app
