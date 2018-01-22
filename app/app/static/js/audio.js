@@ -32,45 +32,19 @@ $('#input_audio_file').change(function () {
 });
 
 mixture_audio_file.upload_to_server = function (obj) {
-    var form_data = new FormData();
     if($(obj).prop('files').length > 0)
     {
         file = $(obj).prop('files')[0];
-        form_data.append("audio_file", file);
+        file_with_metadata = {
+            'file_name': file.name,
+            'file_size': file.size,
+            'file_type': file.type,
+            'file_data': file };
+        socket.emit('audio_upload', {'audio_file': file_with_metadata});
     }
-
-    var upload_complete = false;
-
-    $.ajax({
-        url: '/audio_upload',
-        type: "POST",
-        data: form_data,
-        processData: false,
-        contentType: false,
-        cache: false,
-        success: function (result) {
-            console.log('/audio_upload POST done!');
-            $('#general-status').text('Upload complete! Waiting for spectrogram...');
-            getReqs();
-            upload_complete = result !== null;
-        }
-    }).then(function() {
-        if (!DO_STFT_ON_CLIENT && upload_complete) {
-            if (spec_as_image) {
-                getSpectrogramAsImage();
-            } else {
-                getSpectrogram();
-            }
-        }
-    }).then(function() {
-        if (mixture_waveform.backend.buffer.numberOfChannels === 2) {
-            $('#general-status').text('Got spectrogram! Waiting for attenuation/delay histogram...');
-            getAtnDelayHist();
-        }
-    }).then(function() {
-        $('#general-status').text('Got attenuation/delay histogram! Waiting for 2DFT...');
-        get2DFT();
-    });
+    else {
+        socket.emit('audio_upload', {'audio_file': null});
+    }
 };
 
 audio.playPause = function () {
@@ -112,11 +86,6 @@ function stopButton() {
         mixture_waveform.seekTo(0);
     }
 }
-
-// $('#import-audio').click(function(){
-//     audio.import_audio();
-//     $('#general-status').text('Uploading audio to server...');
-// });
 
 $('#result-play').click(function() {
     if (!result_waveform.backend.buffer) {

@@ -1,17 +1,15 @@
 
-function make_atn_delay_hist(url) {
+function make_atn_delay_hist(results) {
 
-    Plotly.d3.csv(url, function(err, rows) {
-        console.log('got csv file!!!');
-        let status = $('#general-status');
-        status.text('Drawing Attenuation/Delay Histogram...');
+    console.log('Got Attenuation/Delay histogram!');
+    let status = $('#general-status');
+    status.text('Drawing Attenuation/Delay Histogram...');
+    duet_histogram.rawData = results;
+    duet_histogram.drawHeatmap();
+    enableTools(true, '.duet-tool');
 
-        duet_histogram.rawData = d3ParseCsv(rows);
-        duet_histogram.drawHeatmap();
-        enableTools(true, '.duet-tool');
+    status.text('Ready...');
 
-        status.text('Ready...');
-    });
 }
 
 

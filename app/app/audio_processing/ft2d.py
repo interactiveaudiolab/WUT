@@ -2,12 +2,8 @@
 """
 2DFT tasks in here
 """
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
-
 import logging
+import json
 
 import numpy as np
 import general_audio
@@ -26,8 +22,7 @@ class FT2D(general_audio.GeneralAudio):
         self.ft2d_preview = None
         self.zoom_ratio = 1.0
 
-    def get_2dft_csv_string(self):
-        csv_file_name = '{}_2dft.csv'.format(self.audio_signal_copy.file_name)
+    def get_2dft_json(self):
         self.audio_signal_copy.to_mono(overwrite=True)
         self.stft = self.audio_signal_copy.stft(overwrite=True, remove_reflection=True, use_librosa=False)
 
@@ -50,8 +45,8 @@ class FT2D(general_audio.GeneralAudio):
         ft2d_preview = ft2d_preview[freq_bins:, time_bins:]
 
         self.ft2d_preview = scipy.ndimage.zoom(ft2d_preview, zoom=self.zoom_ratio)
-
-        return general_audio.GeneralAudio._csv_string_maker(self.ft2d_preview), csv_file_name
+        ft2d = general_audio.GeneralAudio._prep_spectrogram(self.ft2d_preview)
+        return json.dumps(ft2d.tolist())
 
 
 class General2DFTException(Exception):

@@ -1,23 +1,21 @@
 
 // import PlotlyHeatmap from "plotly_plots.js";
 
-function make_spectrogram(heatmap, url, audioLength) {
+function make_spectrogram(heatmap, results, audioLength) {
     // var logY = document.getElementById('yLogCheckbox').checked;
     // if (typeof(logY) === 'undefined') logY = false;
     let logY = true;
     let freqMax = 20000;
 
-    Plotly.d3.csv(url, function(err, rows) {
-        console.log('got csv file!!!');
-        let status = $('#general-status');
-        status.text('Drawing Spectrogram...');
+    console.log('Got spectrogram from server!');
+    let status = $('#general-status');
+    status.text('Drawing Spectrogram...');
 
-        heatmap.rawData = d3ParseCsv(rows);
-        heatmap.drawHeatmap(audioLength, freqMax, logY);
-        enableTools(true, '.spec-tool');
+    heatmap.rawData = results;
+    heatmap.drawHeatmap(audioLength, freqMax, logY);
+    enableTools(true, '.spec-tool');
 
-        status.text('Ready...');
-    });
+    status.text('Ready...');
 }
 
 

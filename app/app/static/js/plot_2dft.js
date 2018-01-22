@@ -1,22 +1,17 @@
 
 // import PlotlyHeatmap from "plotly_plots.js";
 
-function make_2dft(url) {
-    // var logY = document.getElementById('yLogCheckbox').checked;
+function make_2dft(results) {
 
+    console.log('Got 2DFT from server!');
+    let status = $('#general-status');
+    status.text('Drawing 2DFT...');
 
-    console.log('getting URL: ' + url);
+    ft2d_heatmap.rawData = results;
+    ft2d_heatmap.drawHeatmap();
+    status.text('Ready...');
+    enableTools(true, '.ft2d-tool');
 
-    Plotly.d3.csv(url, function(err, rows) {
-        console.log('got csv 2DFT file!!!');
-        let status = $('#general-status');
-        status.text('Drawing 2DFT...');
-
-        ft2d_heatmap.rawData = d3ParseCsv(rows);
-        ft2d_heatmap.drawHeatmap();
-        status.text('Ready...');
-        enableTools(true, '.ft2d-tool');
-    });
 }
 
 

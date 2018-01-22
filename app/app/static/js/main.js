@@ -12,6 +12,8 @@ var result_spectrogram_heatmap = new SpectrogramHeatmap('result-spectrogram-heat
 var ft2d_heatmap = new FT2DHeatmap('ft2d-heatmap', 1.0);
 var duet_histogram = new AttenuationDelayHistogram('duet-heatmap', 0.0);
 
+var socket;
+
 //Colors
 var red = 'rgba(255, 0, 0, 0.5)';
 var blue = 'rgba(0, 0, 255, 0.5)';
@@ -40,6 +42,32 @@ $(document).ready(function() {
     $("#mainTabs").find("a").click(function(e){
         e.preventDefault();
         $(this).tab('show');
+    });
+
+    socket_namespace = '/wut';
+    socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + socket_namespace);
+
+    socket.on('connect', function() {
+        console.log('Socket connected.');
+    });
+
+    socket.on('audio_upload_ok', function () {
+        $('#general-status').text('Audio uploaded to server.');
+    });
+
+    socket.on('spectrogram', function (message) {
+        var data = JSON.parse(message.spectrogram);
+        make_spectrogram(mixture_spectrogram_heatmap, data, mixture_waveform.backend.getDuration());
+    });
+
+    socket.on('ft2d', function(message) {
+        var data = JSON.parse(message.ft2d);
+        make_2dft(data);
+    });
+
+    socket.on('ad_hist', function(message) {
+        var data = JSON.parse(message.ad_hist);
+        make_atn_delay_hist(data);
     });
 });
 
@@ -136,7 +164,6 @@ $('#privacy-policy-link').click(function(){
 });
 
 
-
 $('#mixture-zoom-in').click(function(){
     mixture_waveform.zoom(mixture_waveform.params.minPxPerSec + zoomStepSize);
 });
@@ -212,19 +239,6 @@ function sendSurveyResults() {
         })
 }
 
-function getSpectrogram() {
-    /*
-    Gets spectrogram data from server using an ajax request.
-    First has to check to see if there are any regions, if so only gets spectrogram in that region.
-    */
-
-    var url = "/get_spectrogram?val=" + Math.random().toString(36).substring(7);
-    var audioLength = mixture_waveform.backend.getDuration();
-
-    make_spectrogram(mixture_spectrogram_heatmap, url, audioLength);
-
-}
-
 function getSpectrogramAsImage() {
     let url = window.location.protocol + "//" + window.location.host + "/spec_image?val=" + Math.random().toString(36).substring(7);
 
@@ -244,16 +258,6 @@ function getSpectrogramAsImage() {
             }
         ]
     });
-}
-
-function get2DFT() {
-    var url = "/get_2dft?val=" + Math.random().toString(36).substring(7);
-    make_2dft(url);
-}
-
-function getAtnDelayHist() {
-    var url = "/get_atn_delay_hist?val=" + Math.random().toString(36).substring(7);
-    make_atn_delay_hist(url);
 }
 
 function getReqs() {
