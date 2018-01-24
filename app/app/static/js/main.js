@@ -69,6 +69,10 @@ $(document).ready(function() {
         var data = JSON.parse(message.ad_hist);
         make_atn_delay_hist(data);
     });
+
+    socket.on('bad_file', function () {
+        console.log('File rejected by server');
+    });
 });
 
 

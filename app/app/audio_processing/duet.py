@@ -27,3 +27,8 @@ class Duet(general_audio.GeneralAudio):
         self.atn_delay_hist *= 80
         self.atn_delay_hist = self.atn_delay_hist.T
         return json.dumps(self.atn_delay_hist.tolist())
+
+    def send_ad_histogram_json(self, socket, namespace):
+        ad_hist_json = self.get_ad_histogram_json()
+        socket.emit('ad_hist', {'ad_hist': ad_hist_json}, namespace=namespace)
+        logger.info('Sent AD histogram for {}'.format(self.audio_signal.file_name))

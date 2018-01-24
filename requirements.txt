@@ -8,6 +8,7 @@ cycler==0.10.0
 Cython==0.26
 decorator==4.1.1
 docutils==0.13.1
+eventlet==0.22.0
 Flask==0.12.2
 Flask-Compress==1.4.0
 Flask-Session==0.3.1

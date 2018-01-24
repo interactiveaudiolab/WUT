@@ -69,6 +69,11 @@ class GeneralAudio(object):
         spec = self._prep_spectrogram(self.audio_signal_view.get_power_spectrogram_channel(0))
         return json.dumps(spec.tolist())
 
+    def send_spectrogram_json(self, socket, namespace):
+        spec_json = self.get_spectrogram_json()
+        socket.emit('spectrogram', {'spectrogram': spec_json}, namespace=namespace)
+        logger.info('Sent spectrogram for {}'.format(self.audio_signal.file_name))
+
     def spectrogram_image(self):
         file_name = '{}_spec.png'.format(self.audio_signal_copy.file_name.replace('.', '_'))
         file_path = os.path.join(self.storage_path, file_name)

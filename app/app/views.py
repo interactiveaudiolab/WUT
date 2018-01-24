@@ -5,7 +5,7 @@ import json
 
 import numpy as np
 
-from flask import render_template, request, flash, redirect, url_for, session, abort, send_file, make_response
+from flask import render_template, request, flash, session, abort, send_file, make_response
 from werkzeug.utils import secure_filename
 from flask_socketio import emit
 
@@ -14,12 +14,11 @@ import separation_session
 from config import ALLOWED_EXTENSIONS
 
 DEBUG = True
-WRITE_TMP_CSV = False
 
 
 logger = logging.getLogger()
-
 wut_namespace = '/wut'
+
 
 @app_.route('/')
 @app_.route('/index')
@@ -30,7 +29,7 @@ def index():
 
 
 @app_.errorhandler(404)
-def page_not_found(*args):
+def page_not_found():
     logger.warn('404! {}'.format(request.full_path))
     return render_template('404.html')
 
@@ -49,6 +48,53 @@ def disconnected():
 @socketio.on('audio_upload', namespace=wut_namespace)
 def initialize(audio_file_data):
     logger.info('got upload request!')
+
+    if not check_file_upload(audio_file_data):
+        logger.warn('Got bad audio file!')
+        socketio.emit('bad_file', namespace=wut_namespace)
+
+    # The file is OKAY
+    logger.info('File OKAY!')
+    audio_file = audio_file_data['audio_file']
+    filename = secure_filename(audio_file['file_name'])
+
+    # Retrieve the session from memory
+    sess = separation_session.SeparationSession.from_json(session['cur_session'])
+    path = os.path.join(sess.user_original_file_folder, filename)
+    logger.info('Saving at {}'.format(path))
+
+    # Save the file
+    with open(path, 'wb') as f:
+        f.write(audio_file['file_data'])
+    logger.info('{} saved at {}'.format(filename, path))
+
+    # Initialize the session
+    logger.info('Initializing session for {}...'.format(filename))
+    sess.initialize(path)
+    socketio.emit('audio_upload_ok', namespace=wut_namespace)
+    logger.info('Initialization successful for file {}!'.format(sess.user_original_file_location))
+
+    # Compute and send the STFT, Synchronously (STFT data is needed for further calculations)
+    logger.info('Computing and sending spectrogram for {}'.format(filename))
+    spec_json = sess.user_general_audio.get_spectrogram_json()
+    socketio.emit('spectrogram', {'spectrogram': spec_json}, namespace=wut_namespace)
+    logger.info('Sent spectrogram for {}'.format(filename))
+
+    # Initialize other representations
+
+    # Compute and send the 2DFT, Asynchronously
+    logger.info('Computing and sending 2DFT for {}'.format(filename))
+    sess.ft2d.send_2dft_json(socketio, wut_namespace)
+
+    # Compute and send the AD histogram, Asynchronously
+    logger.info('Computing and sending AD histogram for {}'.format(filename))
+    sess.duet.send_ad_histogram_json(socketio, wut_namespace)
+
+    # Save the session
+    session['cur_session'] = sess.to_json()
+
+
+def check_file_upload(audio_file_data):
     mixture_file_key = 'audio_file'
 
     if mixture_file_key not in audio_file_data:
@@ -59,46 +105,15 @@ def initialize(audio_file_data):
 
     if not audio_file:
         logger.warn('No selected file')
-        return
+        return False
 
     # if user does not select file, browser also submit a empty part without filename
     if not audio_file['file_data']:
         flash('No selected file')
         logger.warn('No selected file')
-        return
+        return False
 
-    if allowed_file(audio_file['file_name']):
-
-        # The file is OKAY
-        logger.info('File OKAY!')
-        filename = secure_filename(audio_file['file_name'])
-
-        # Retrieve the session from memory
-        sess = separation_session.SeparationSession.from_json(session['cur_session'])
-        path = os.path.join(sess.user_original_file_folder, filename)
-        logger.info('Saving at {}'.format(path))
-
-        # Save the file
-        with open(path, 'wb') as f:
-            f.write(audio_file['file_data'])
-
-        # Initialize the session
-        sess.initialize(path)
-        socketio.emit('audio_upload_ok', namespace=wut_namespace)
-
-        # Compute and send the STFT
-        spec_json = sess.user_general_audio.get_spectrogram_json()
-        socketio.emit('spectrogram', {'spectrogram': spec_json}, namespace=wut_namespace)
-
-        # Compute and send the 2DFT
-        ft2d_json = sess.ft2d.get_2dft_json()
-        socketio.emit('ft2d', {'ft2d': ft2d_json}, namespace=wut_namespace)
-
-        # Compute and send the AD histogram
-        ad_hist_json = sess.duet.get_ad_histogram_json()
-        socketio.emit('ad_hist', {'ad_hist': ad_hist_json}, namespace=wut_namespace)
-
-        session['cur_session'] = sess.to_json()
+    return allowed_file(audio_file['file_name'])
 
 
 def allowed_file(filename):
@@ -163,11 +178,11 @@ def survey_results():
     logger.info('Getting survey results')
 
     if request.method == 'POST':
-        survey_results = request.json['survey_data']
+        results = request.json['survey_data']
 
         sess = separation_session.SeparationSession.from_json(session['cur_session'])
         logger.info('session awake {}'.format(sess.session_id))
-        sess.save_survey_data(survey_results)
+        sess.save_survey_data(results)
 
         session['cur_session'] = sess.to_json()
 
@@ -213,4 +228,3 @@ def process():
         response = make_response(send_file(file_path, file_mime_type))
 
         return response
-

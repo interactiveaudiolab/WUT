@@ -48,6 +48,11 @@ class FT2D(general_audio.GeneralAudio):
         ft2d = general_audio.GeneralAudio._prep_spectrogram(self.ft2d_preview)
         return json.dumps(ft2d.tolist())
 
+    def send_2dft_json(self, socket, namespace):
+        ft2d_json = self.get_2dft_json()
+        socket.emit('ft2d', {'ft2d': ft2d_json}, namespace=namespace)
+        logger.info('Sent 2DFT for {}'.format(self.audio_signal.file_name))
+
 
 class General2DFTException(Exception):
     pass
