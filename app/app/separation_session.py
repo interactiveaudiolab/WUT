@@ -148,84 +148,9 @@ class SeparationSession(object):
 
     def to_json(self):
         return jsonpickle.encode(self)
-        # self.to_json_times.append(time.asctime(time.localtime(time.time())))
-        # return json.dumps(self, default=self._to_json_helper)
-
-    def _to_json_helper(self, o):
-        if not isinstance(o, SeparationSession):
-            raise TypeError('Expected SeparationSession but got {} object'.format(type(o)))
-
-        d = copy.copy(o.__dict__)
-        for k, v in d.items():
-
-            if k in self._uses_jsonpickle and v is not None:
-                d[k] = jsonpickle.encode(v)
-
-            if v is not None and hasattr(v, 'to_json'):
-                d[k] = v.to_json()
-
-            elif isinstance(v, np.ndarray):
-                d[k] = nussl.json_ready_numpy_array(v)
-
-            elif isinstance(v, uuid.UUID):
-                d[k] = str(v)
-
-        d['__class__'] = o.__class__.__name__
-        d['__module__'] = o.__module__
-
-        return d
 
     @staticmethod
     def from_json(json_string):
         return jsonpickle.decode(json_string)
 
-        # return json.loads(json_string, object_hook=SeparationSession._from_json_helper)
 
-    @staticmethod
-    def _from_json_helper(json_dict):
-        if '__class__' in json_dict:
-            class_name = json_dict.pop('__class__')
-            module_ = json_dict.pop('__module__')
-            if class_name != SeparationSession.__name__ or module_ != SeparationSession.__module__:
-                raise TypeError
-
-            s = SeparationSession(from_json=True)
-            for k, v in json_dict.items():
-
-                if k not in s.__dict__:
-                    logger.error('Got something I don\'t understand: {}: {}'.format(k, v))
-                    continue
-
-                if v is not None and isinstance(v, basestring):  # TODO: python 3-ify
-
-                    if k == 'session_id':
-                        s.__dict__[k] = uuid.UUID(v)
-
-                    # elif k == 'ft2d':
-                    #     s.__dict__[k] = audio_processing.FT2D.from_json(v)
-
-                    elif audio_processing.GeneralAudio.__name__ in v:
-                        s.__dict__[k] = audio_processing.GeneralAudio.from_json(v)
-
-                    # elif any([cls.__name__ in v for cls in nussl.SeparationBase.__subclasses__()]):
-                    #     s.__dict__[k] = nussl.SeparationBase.from_json(v)
-                    #
-                    # elif isinstance(v, dict) and nussl.constants.NUMPY_JSON_KEY in v:
-                    #     s.__dict__[k] = nussl.json_numpy_obj_hook(v[nussl.constants.NUMPY_JSON_KEY])
-
-                    # elif v is not None and k in SeparationSession._needs_special_encoding:
-                    #     s.__dict__[k] = audio_processing.SourceSeparation.from_json(v)
-
-                    elif k in SeparationSession._uses_jsonpickle:
-                        s.__dict__[k] = jsonpickle.decode(v)
-
-                    else:
-                        s.__dict__[k] = v if not isinstance(v, unicode) else v.encode('ascii')
-
-                else:
-                    s.__dict__[k] = v
-
-            s.from_json_times.append(time.asctime(time.localtime(time.time())))
-            return s
-        else:
-            return json_dict

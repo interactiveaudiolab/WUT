@@ -7,7 +7,7 @@
     <meta name="description" content="Web Unmixing Toolbox from the Interactive Audio Lab at Northwestern University">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+{#    <link rel="apple-touch-icon" href="apple-touch-icon.png">#}
     <!-- Place favicon.ico in the root directory -->
 
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
@@ -19,8 +19,9 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 
 
-    <script type="text/javascript" src="js/vendor/modernizr-2.8.3.min.js"></script>
-    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.0.min.js"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/modernizr-2.8.3.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/jquery-3.2.0.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/plugins.js') }}"></script>
     <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="https://cdn.plot.ly/plotly-latest.js"></script>
@@ -40,9 +41,7 @@
                 Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
 
-<script src="js/vendor/jquery-3.2.0.js"></script>
 <script>window.jQuery || document.write('<script src="js/vendor/jquery-{{JQUERY_VERSION}}.min.js"><\/script>')</script>
-<script src="js/plugins.js"></script>
 {#        <script src="js/main.js"></script>#}
 
 <div id="wrapper">
@@ -232,12 +231,6 @@
 
                     <div class="col-md-2">
                         <div class="btn-group">
-{#                            <button id="undo" class="btn btn-primary spec-tool- disabled" title="Undo">#}
-{#                                Undo#}
-{#                            </button>#}
-{#                            <button id="redo" class="btn btn-primary spec-tool- disabled" title="Redo">#}
-{#                                Redo#}
-{#                            </button>#}
                         </div>
                     </div>
                 </div>
@@ -281,19 +274,10 @@
                                 Invert Selection
                             </button>
                         </div>
-{#                        <div class="btn-group">#}
-{#                            <button id="ft2d-delete-unselected" class="btn btn-primary ft2d-tool disabled" title="Remove selected regions">#}
-{#                                Delete Selected#}
-{#                            </button>#}
-{#                            <button id="ft2d-delete-selected" class="btn btn-primary ft2d-tool disabled" title="Remove everything outside selected regions">#}
-{#                                Delete Unselected#}
-{#                            </button>#}
-{#                        </div>#}
                     </div>
 
                 </div>
                 <div id="ft2d-container">
-{#                    <h5>2-Dimensional Fourier Transform</h5>#}
                     <div id="ft2d-heatmap">
                         <!-- 2DFT will be drawn in this div -->
                     </div>
@@ -331,19 +315,10 @@
                                 Invert Selection
                             </button>
                         </div>
-{#                        <div class="btn-group">#}
-{#                            <button id="duet-delete-unselected" class="btn btn-primary duet-tool disabled" title="Remove selected regions">#}
-{#                                Delete Selected#}
-{#                            </button>#}
-{#                            <button id="duet-delete-selected" class="btn btn-primary duet-tool disabled" title="Remove everything outside selected regions">#}
-{#                                Delete Unselected#}
-{#                            </button>#}
-{#                        </div>#}
                     </div>
 
                 </div>
                 <div id="duet-container">
-{#                    <h5>duet</h5>#}
                     <div id="duet-heatmap">
                         <!-- Attenuation/Delay Histogram will be drawn in this div -->
                     </div>

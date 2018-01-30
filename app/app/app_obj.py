@@ -8,7 +8,8 @@ from flask_socketio import SocketIO
 app_ = Flask(__name__)
 app_.wsgi_app = ProxyFix(app_.wsgi_app)
 
-SESSION_TYPE = 'redis'
+# SESSION_TYPE = 'redis'
+SESSION_TYPE = 'filesystem'
 app_.config.from_object(__name__)
 Session(app_)
 
