@@ -15,7 +15,6 @@ from config import ALLOWED_EXTENSIONS
 
 DEBUG = True
 
-
 logger = logging.getLogger()
 wut_namespace = '/wut'
 
@@ -76,19 +75,26 @@ def initialize(audio_file_data):
 
     # Compute and send the STFT, Synchronously (STFT data is needed for further calculations)
     logger.info('Computing and sending spectrogram for {}'.format(filename))
-    spec_json = sess.user_general_audio.get_spectrogram_json()
-    socketio.emit('spectrogram', {'spectrogram': spec_json}, namespace=wut_namespace)
+    # spec_json = sess.user_general_audio.get_spectrogram_json()
+    # socketio.emit('spectrogram', {'spectrogram': spec_json}, namespace=wut_namespace)
     logger.info('Sent spectrogram for {}'.format(filename))
+    session['cur_session'] = sess.to_json()
+
+    spec_image_path = sess.user_general_audio.spectrogram_image()
+    socketio.emit('spectrogram_image_ready', {'path': spec_image_path},  namespace=wut_namespace)
 
     # Initialize other representations
 
     # Compute and send the 2DFT, Asynchronously
     logger.info('Computing and sending 2DFT for {}'.format(filename))
-    sess.ft2d.send_2dft_json(socketio, wut_namespace)
+    # socketio.start_background_task(sess.ft2d.send_2dft_json, kwargs={'socket': socketio, 'namespace': wut_namespace})
+    # sess.ft2d.send_2dft_json(socketio, wut_namespace)
 
     # Compute and send the AD histogram, Asynchronously
     logger.info('Computing and sending AD histogram for {}'.format(filename))
-    sess.duet.send_ad_histogram_json(socketio, wut_namespace)
+    # socketio.start_background_task(sess.duet.send_ad_histogram_json,
+    #                                kwargs={'socket': socketio, 'namespace': wut_namespace})
+    # sess.duet.send_ad_histogram_json(socketio, wut_namespace)
 
     # Save the session
     session['cur_session'] = sess.to_json()
@@ -138,13 +144,15 @@ def spectrogram_image():
         sess = separation_session.SeparationSession.from_json(session['cur_session'])
         logger.info('session awake {}'.format(sess.session_id))
 
-        if not sess.initialized:
-            _exception('sess not initialized!')
+        # if not sess.initialized:
+        #     _exception('sess not initialized!')
 
-        file_name = sess.user_general_audio.spectrogram_image()
+        # path = sess.spectrogram_image_path
 
-        session['cur_session'] = sess.to_json()
-        return send_file(file_name, mimetype='image/png')
+        ### TODO: Remove the kludge of having it as a url parameter!!!
+        path = request.args.get('path', default='', type=str)
+
+        return send_file(path, mimetype='image/png')
 
 
 @app_.route('/reqs', methods=['GET'])

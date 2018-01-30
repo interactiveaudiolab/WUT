@@ -13,8 +13,6 @@ class PlotlyHeatmap {
         this.selections = [];
         this.selectionData = null;
 
-        this.selected_val = 25;
-
         this.DOMObject.on('plotly_selected', function(eventData) {
 
             if (arguments.length > 1 && arguments[1].hasOwnProperty("range")) {
@@ -121,8 +119,6 @@ class PlotlyHeatmap {
     }
 
     updatePlotWithSelection() {
-        // if (this.selections.length > 0) {
-        //     for (let sel of this.selections) {
         let sel = getLastItemInArray(this.selections);
         let rect = {
             'type': 'rect',
@@ -140,39 +136,13 @@ class PlotlyHeatmap {
             this.plotLayout.shapes = [];
         }
         this.plotLayout.shapes.push(rect);
-                // for (let y = sel.yStartIdx; y < sel.yEndIdx; y++) {
-                //     for (let x = sel.xStartIdx; x < sel.xEndIdx; x++) {
-                //         this.selectionData[y][x] = true;
-                //     }
-                // }
-
-            // }
-            // let dataWithSelections = $.extend(true, [], this.rawData); // deep copy
-            //
-            // for (let y = 0; y < dataWithSelections.length; y++) {
-            //     for (let x = 0; x < dataWithSelections[0].length; x++) {
-            //         if (this.selectionData[y][x]) {
-            //             dataWithSelections[y][x] += this.selected_val;
-            //         }
-            //     }
-            // }
-
-            // Plotly.restyle(this.divID, {z: [dataWithSelections]});
         Plotly.relayout(this.divID, this.plotLayout);
-        // }
     }
 
     resetSelections() {
         this.selections = [];
         this.plotLayout.shapes = [];
 
-        // for (let i=0; i < this.selectionData.length; i++) {
-        //     for (let j=0; j < this.selectionData[i].length; j++) {
-        //         this.selectionData[i][j] = false;
-        //     }
-        // }
-
-        // Plotly.restyle(this.divID, {z: [this.rawData]});
         Plotly.restyle(this.divID, this.plotLayout);
 
         $('#general-status').text('Ready...')

@@ -19,7 +19,6 @@ class AttenuationDelayHistogram extends PlotlyHeatmap {
         super(divID, yMax);
         this.min = -3.0;
         this.max = 3.0;
-        this.selected_val = 20;
 
         this.plotLayout = {
 

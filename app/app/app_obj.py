@@ -8,13 +8,11 @@ from flask_socketio import SocketIO
 app_ = Flask(__name__)
 app_.wsgi_app = ProxyFix(app_.wsgi_app)
 
-SESSION_TYPE = 'filesystem'
+SESSION_TYPE = 'redis'
 app_.config.from_object(__name__)
 Session(app_)
 
 socketio = SocketIO(app_)
-
-# app.config['SERVER_NAME'] = 'localhost'
 
 from config import UPLOAD_BASE_FOLDER, Config
 

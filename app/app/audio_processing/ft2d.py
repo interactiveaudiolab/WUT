@@ -7,15 +7,16 @@ import json
 
 import numpy as np
 import general_audio
+from . import audio_processing_base
 import scipy.ndimage
 
 logger = logging.getLogger()
 
 
-class FT2D(general_audio.GeneralAudio):
+class FT2D(audio_processing_base.AudioProcessingBase):
 
-    def __init__(self, audio_signal_object, storage_path):
-        super(FT2D, self).__init__(audio_signal_object, storage_path)
+    def __init__(self, audio_signal, storage_path):
+        super(FT2D, self).__init__(audio_signal, storage_path)
         # self.ft2d = nussl.FT2D(self.audio_signal_copy)
         self.stft = None
         self.ft2d = None
@@ -51,7 +52,7 @@ class FT2D(general_audio.GeneralAudio):
     def send_2dft_json(self, socket, namespace):
         ft2d_json = self.get_2dft_json()
         socket.emit('ft2d', {'ft2d': ft2d_json}, namespace=namespace)
-        logger.info('Sent 2DFT for {}'.format(self.audio_signal.file_name))
+        logger.info('Sent 2DFT for {}'.format(self.user_audio_signal.file_name))
 
 
 class General2DFTException(Exception):

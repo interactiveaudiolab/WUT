@@ -12,80 +12,71 @@ import numpy as np
 import librosa
 from .. import nussl
 
+from . import audio_processing_base
+
 logger = logging.getLogger()
 
 
-class GeneralAudio(object):
-    _needs_special_encoding = ['audio_signal', 'audio_signal_copy', 'preview_params', 'master_params',
-                               'audio_signal_view', 'FT2D']
+class GeneralAudio(audio_processing_base.AudioProcessingBase):
     PREVIEW = 'preview'
     MASTER = 'master'
 
-    def __init__(self, audio_signal_object, storage_path):
-
-        self.audio_signal = None
-        self.audio_signal_copy = None
-        self.audio_signal_view = None
-        self.storage_path = None
-
-        self.spec_csv_path = None
-        self.spec_json_path = None
-        self.freq_max = None
+    def __init__(self, audio_signal, storage_path):
+        super(GeneralAudio, self).__init__(audio_signal, storage_path)
 
         self.mode = self.MASTER
         self.master_params = None
         self.preview_params = None
         self.zoom_ratio = 0.75
 
-        if audio_signal_object is not None:
-            if not isinstance(audio_signal_object, nussl.AudioSignal):
-                raise GeneralAudioException('audio_signal_object is not nussl.AudioSignal object!')
-
-            if not audio_signal_object.has_audio_data:
-                raise GeneralAudioException('audio_signal_object is expected to have audio_data already!')
-
-            self.audio_signal = audio_signal_object  # Original audio data. Don't edit this.
-            self.audio_signal_copy = copy.copy(self.audio_signal)
-            self.audio_signal_view = copy.copy(self.audio_signal)
-            self.storage_path = storage_path
-
-            self.master_params = nussl.stft_utils.StftParams(self.audio_signal_copy.sample_rate)
-            self.preview_params = nussl.stft_utils.StftParams(self.audio_signal_copy.sample_rate,
-                                                              window_length=2048, n_fft_bins=1024)
+        self.master_params = nussl.stft_utils.StftParams(self.audio_signal_copy.sample_rate)
+        self.preview_params = nussl.stft_utils.StftParams(self.audio_signal_copy.sample_rate,
+                                                          window_length=2048, n_fft_bins=1024)
 
     @property
     def stft_done(self):
         return self.audio_signal_copy.has_stft_data
+
+    def do_spectrogram(self):
+        self.audio_signal_view.stft_params = self.preview_params
+        self.audio_signal_copy.to_mono(overwrite=True)
+        self.audio_signal_copy.stft()
+        self.audio_signal_view.stft()
+        return self._prep_spectrogram(self.audio_signal_view.get_power_spectrogram_channel(0))
 
     @staticmethod
     def _prep_spectrogram(spectrogram):
         return np.add(librosa.logamplitude(spectrogram, ref_power=np.max).astype('int8'), 80)
 
     def get_spectrogram_json(self):
-        self.audio_signal_view.stft_params = self.preview_params
-        self.audio_signal_copy.to_mono(overwrite=True)
-        self.audio_signal_copy.stft()  # TODO: put this in a worker thread
-        self.audio_signal_view.stft()
-        spec = self._prep_spectrogram(self.audio_signal_view.get_power_spectrogram_channel(0))
+        spec = self.do_spectrogram()
         return json.dumps(spec.tolist())
 
     def send_spectrogram_json(self, socket, namespace):
         spec_json = self.get_spectrogram_json()
         socket.emit('spectrogram', {'spectrogram': spec_json}, namespace=namespace)
-        logger.info('Sent spectrogram for {}'.format(self.audio_signal.file_name))
+        logger.info('Sent spectrogram for {}'.format(self.user_audio_signal.file_name))
 
     def spectrogram_image(self):
         file_name = '{}_spec.png'.format(self.audio_signal_copy.file_name.replace('.', '_'))
         file_path = os.path.join(self.storage_path, file_name)
+        self.spectrogram_image_path = file_path
 
-        self.audio_signal_copy.stft()
-        spec = self.audio_signal_view.get_power_spectrogram_channel(0)
-        spec = self._prep_spectrogram(spec)
+        spec = self.do_spectrogram()
 
-        img = plt.imshow(spec, interpolation='nearest')
+        w, h = 28, 12
+
+        fig = plt.figure(frameon=False)
+        fig.set_size_inches(w, h)
+
+        ax = plt.Axes(fig, [0., 0., 1., 1.])
+        ax.set_axis_off()
+        fig.add_axes(ax)
+
+        img = ax.imshow(spec, interpolation='nearest', aspect='normal')
         img.set_cmap('hot')
-        plt.axis('off')
-        plt.savefig(file_path, bbox_inches='tight')
+        ax.invert_yaxis()
+        fig.savefig(file_path, dpi=80)
 
         return file_path
 

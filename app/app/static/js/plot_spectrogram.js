@@ -18,6 +18,14 @@ function make_spectrogram(heatmap, results, audioLength) {
     status.text('Ready...');
 }
 
+function getSpectrogramAsImage(heatmap, path) {
+    let url = "./spec_image?path=" + path;
+    let duration = mixture_waveform.backend.getDuration();
+    let freqMax = 20000;
+
+    heatmap.drawImage(url, duration, freqMax);
+
+}
 
 class SpectrogramHeatmap extends PlotlyHeatmap {
 
@@ -86,5 +94,30 @@ class SpectrogramHeatmap extends PlotlyHeatmap {
         let update = { width: $(window).width() };
         Plotly.relayout(this.divID, update);
 
+    }
+
+    drawImage(url, duration, freqMax) {
+
+        let layout = this.plotLayout;
+        layout.xaxis.range = [0.0, duration];
+        layout.yaxis.range = [0.0, freqMax];
+        layout.yaxis.autorange = false;
+
+        layout.images = [{
+            "source": url,
+            "xref": "x",
+            "yref": "y",
+            "x": 0,
+            "y": 0,
+            "sizex": duration,
+            "sizey": freqMax,
+            "xanchor": "left",
+            "yanchor": "bottom",
+            "sizing": "stretch"
+        }];
+
+        this.plot = Plotly.newPlot(this.divID, [{ x: [], y: [] }], layout, this.plotOptions);
+        let update = { width: $(window).width() };
+        Plotly.relayout(this.divID, update);
     }
 }

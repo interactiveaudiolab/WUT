@@ -13,6 +13,7 @@ var ft2d_heatmap = new FT2DHeatmap('ft2d-heatmap', 1.0);
 var duet_histogram = new AttenuationDelayHistogram('duet-heatmap', 0.0);
 
 var socket;
+var time_to_graph = 0.0;
 
 //Colors
 var red = 'rgba(255, 0, 0, 0.5)';
@@ -58,6 +59,10 @@ $(document).ready(function() {
     socket.on('spectrogram', function (message) {
         var data = JSON.parse(message.spectrogram);
         make_spectrogram(mixture_spectrogram_heatmap, data, mixture_waveform.backend.getDuration());
+    });
+
+    socket.on('spectrogram_image_ready', function (message) {
+        getSpectrogramAsImage(mixture_spectrogram_heatmap, message.path);
     });
 
     socket.on('ft2d', function(message) {
@@ -222,6 +227,12 @@ $('#survey-done').click(function () {
     sendSurveyResults();
 });
 
+mixture_spectrogram_heatmap.DOMObject.on('plotly_afterplot', function() {
+    var time = new Date().getTime() - time_to_graph;
+    var elapsed = Math.floor(time / 100) / 10;
+    console.log(elapsed + 'sec');
+});
+
 function sendSurveyResults() {
     let extraction_goals = $('#extraction-goal option:selected').map(function() {
         return $(this).val();
@@ -241,27 +252,6 @@ function sendSurveyResults() {
             cache: false,
             data: JSON.stringify({survey_data: survey_data})
         })
-}
-
-function getSpectrogramAsImage() {
-    let url = window.location.protocol + "//" + window.location.host + "/spec_image?val=" + Math.random().toString(36).substring(7);
-
-    Plotly.plot(mixture_spectrogram_heatmap.divID, [{x:[], y:[]}], {
-        images: [
-            {
-                "source": url,
-                "xref": "x",
-                "yref": "y",
-                "x": 1,
-                "y": 3,
-                "sizex": 2,
-                "sizey": 2,
-                "sizing": "stretch",
-                "opacity": 1.0,
-                "layer": "below"
-            }
-        ]
-    });
 }
 
 function getReqs() {

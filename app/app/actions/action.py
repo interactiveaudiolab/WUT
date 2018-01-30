@@ -160,8 +160,8 @@ class SelectionBasedRemove(Action):
             for sel in self.selections:
                 mask = sel.make_mask(np.linspace(-3, 3, ad_hist.shape[1]), np.linspace(-3, 3, ad_hist.shape[0]))
                 applied_mask = ad_hist * mask
-                peaks = nussl.find_peak_indices(applied_mask, 1)
-                peaks.append(nussl.find_peak_indices(ad_hist * np.logical_not(mask), 1)[0])
+                peaks = nussl.utils.find_peak_indices(applied_mask, 1)
+                peaks.append(nussl.utils.find_peak_indices(ad_hist * np.logical_not(mask), 1)[0])
                 # peaks = zip(*np.where(mask))
                 # session.duet.duet.num_sources = 1
                 duet_mask = session.duet.duet.convert_peaks_to_masks(peak_indices=peaks)[1]

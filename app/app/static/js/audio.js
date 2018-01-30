@@ -19,6 +19,7 @@ audio.import_audio = function() {
 };
 
 $('#input_audio_file').change(function () {
+    time_to_graph = new Date().getTime();
     mixture_audio_file.file = this.files[0];
     mixture_audio_file.url = URL.createObjectURL(mixture_audio_file.file);
     if (DO_STFT_ON_CLIENT) {

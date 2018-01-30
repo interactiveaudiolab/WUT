@@ -5,21 +5,20 @@ DUET tasks in here
 import json
 import logging
 
-import numpy as np
-import general_audio
+from . import audio_processing_base
 from .. import nussl
 
 logger = logging.getLogger()
 
 
-class Duet(general_audio.GeneralAudio):
+class Duet(audio_processing_base.AudioProcessingBase):
     """
 
     """
 
-    def __init__(self, audio_signal_object, storage_path):
-        super(Duet, self).__init__(audio_signal_object, storage_path)
-        self.duet = nussl.Duet(audio_signal_object, 2)
+    def __init__(self, audio_signal, storage_path):
+        super(Duet, self).__init__(audio_signal, storage_path)
+        self.duet = nussl.Duet(audio_signal, 2)
         self.atn_delay_hist = None
 
     def get_ad_histogram_json(self):
@@ -31,4 +30,4 @@ class Duet(general_audio.GeneralAudio):
     def send_ad_histogram_json(self, socket, namespace):
         ad_hist_json = self.get_ad_histogram_json()
         socket.emit('ad_hist', {'ad_hist': ad_hist_json}, namespace=namespace)
-        logger.info('Sent AD histogram for {}'.format(self.audio_signal.file_name))
+        logger.info('Sent AD histogram for {}'.format(self.user_audio_signal.file_name))
