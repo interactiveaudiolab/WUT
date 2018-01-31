@@ -75,25 +75,24 @@ def initialize(audio_file_data):
 
     # Compute and send the STFT, Synchronously (STFT data is needed for further calculations)
     logger.info('Computing and sending spectrogram for {}'.format(filename))
-    # spec_json = sess.user_general_audio.get_spectrogram_json()
-    # socketio.emit('spectrogram', {'spectrogram': spec_json}, namespace=wut_namespace)
-    logger.info('Sent spectrogram for {}'.format(filename))
-    session['cur_session'] = sess.to_json()
-
     spec_image_path = sess.user_general_audio.spectrogram_image()
-    socketio.emit('spectrogram_image_ready', {'path': spec_image_path},  namespace=wut_namespace)
+    socketio.emit('spectrogram_image_ready',
+                  {'path': spec_image_path,
+                   'max_freq': sess.user_general_audio.max_frequency_displayed },
+                  namespace=wut_namespace)
+    logger.info('Sent spectrogram for {}'.format(filename))
 
     # Initialize other representations
 
     # Compute and send the 2DFT, Asynchronously
-    logger.info('Computing and sending 2DFT for {}'.format(filename))
+    # logger.info('Computing and sending 2DFT for {}'.format(filename))
     # socketio.start_background_task(sess.ft2d.send_2dft_json, kwargs={'socket': socketio, 'namespace': wut_namespace})
     # sess.ft2d.send_2dft_json(socketio, wut_namespace)
 
     # Compute and send the AD histogram, Asynchronously
     logger.info('Computing and sending AD histogram for {}'.format(filename))
-    # socketio.start_background_task(sess.duet.send_ad_histogram_json,
-    #                                kwargs={'socket': socketio, 'namespace': wut_namespace})
+    socketio.start_background_task(sess.duet.send_ad_histogram_json,
+                                   **{'socket': socketio, 'namespace': wut_namespace})
     # sess.duet.send_ad_histogram_json(socketio, wut_namespace)
 
     # Save the session

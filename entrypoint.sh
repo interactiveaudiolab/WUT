@@ -1,5 +1,5 @@
 #!/bin/sh
 
-redis-server
+#redis-server
 
 exec /usr/bin/supervisord

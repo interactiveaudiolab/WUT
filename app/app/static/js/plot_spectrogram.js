@@ -18,10 +18,10 @@ function make_spectrogram(heatmap, results, audioLength) {
     status.text('Ready...');
 }
 
-function getSpectrogramAsImage(heatmap, path) {
+function getSpectrogramAsImage(heatmap, path, freqMax) {
     let url = "./spec_image?path=" + path;
     let duration = mixture_waveform.backend.getDuration();
-    let freqMax = 20000;
+    // let freqMax = 20000;
 
     heatmap.drawImage(url, duration, freqMax);
 
