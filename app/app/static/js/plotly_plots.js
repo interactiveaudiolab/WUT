@@ -128,9 +128,9 @@ class PlotlyHeatmap {
             'y1': sel.yEnd,
             'line': {
                 'color': 'rgba(245, 245, 245, 1)',
-                'width': 2,
+                'width': 1,
             },
-            'fillcolor': 'rgba(255, 255, 255, 0.5)',
+            'fillcolor': 'rgba(255, 255, 255, 0.35)',
         };
         if (!this.plotLayout.hasOwnProperty('shapes')) {
             this.plotLayout.shapes = [];

@@ -62,7 +62,7 @@ $(document).ready(function() {
     });
 
     socket.on('spectrogram_image_ready', function (message) {
-        getSpectrogramAsImage(mixture_spectrogram_heatmap, message.path);
+        getSpectrogramAsImage(mixture_spectrogram_heatmap, message.path, message.max_freq);
     });
 
     socket.on('ft2d', function(message) {
