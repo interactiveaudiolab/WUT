@@ -8,6 +8,7 @@ import json
 import numpy as np
 import general_audio
 from . import audio_processing_base
+from .. import nussl
 import scipy.ndimage
 
 logger = logging.getLogger()
@@ -53,6 +54,44 @@ class FT2D(audio_processing_base.AudioProcessingBase):
         ft2d_json = self.get_2dft_json()
         socket.emit('ft2d', {'ft2d': ft2d_json}, namespace=namespace)
         logger.info('Sent 2DFT for {}'.format(self.user_audio_signal.file_name))
+
+    def make_mask(self, selections):
+
+        if not self._mask_sanity_check(selections):
+            return nussl.separation.BinaryMask.ones(self.audio_signal_copy.stft_data.shape)
+
+        final_mask = np.zeros_like(self.ft2d).astype('float')
+
+        for sel in selections:
+            mask = sel.make_mask(np.arange(self.ft2d_preview.shape[1]), np.arange(self.ft2d_preview.shape[0]))
+            mask = scipy.ndimage.zoom(mask, zoom=1.0 / self.zoom_ratio)
+            mask = np.vstack([np.flipud(mask)[1:, :], mask])
+            mask = np.hstack([np.fliplr(mask)[:, 1:], mask])
+            mask = np.fft.ifftshift(mask)
+            final_mask += mask
+
+        return self._mask_post_processing(final_mask)
+
+    def apply_masks(self, masks):
+
+        mask = masks[0].get_channel(0)
+
+        fg_inverted = np.fft.ifft2(np.multiply(mask, self.ft2d))
+        bg_inverted = np.fft.ifft2(np.multiply(1 - mask, self.ft2d))
+
+        bg_mask = bg_inverted > fg_inverted  # hard mask
+        fg_mask = 1 - bg_mask
+
+        fg_stft = np.multiply(fg_mask, self.audio_signal_copy.get_stft_channel(0))
+        bg_stft = np.multiply(bg_mask, self.audio_signal_copy.get_stft_channel(0))
+
+        # if type(self) != RemoveAllButSelections:
+        if True:
+            stft = fg_stft
+        else:
+            stft = bg_stft
+
+        return self.audio_signal_copy.make_copy_with_stft_data(np.expand_dims(stft, axis=-1))
 
 
 class General2DFTException(Exception):

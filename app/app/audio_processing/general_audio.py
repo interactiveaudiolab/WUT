@@ -2,7 +2,6 @@
 """
 General audio tasks in here
 """
-import copy
 import json
 import logging
 import os
@@ -27,23 +26,18 @@ class GeneralAudio(audio_processing_base.AudioProcessingBase):
         super(GeneralAudio, self).__init__(audio_signal, storage_path)
 
         self.mode = self.MASTER
-        self.master_params = None
-        self.preview_params = None
         self.max_frequency_displayed = None
+        self.spectrogram_image_path = None
 
         self.master_params = nussl.stft_utils.StftParams(self.audio_signal_copy.sample_rate)
-        self.preview_params = nussl.stft_utils.StftParams(self.audio_signal_copy.sample_rate,
-                                                          window_length=2048, n_fft_bins=1024)
 
     @property
     def stft_done(self):
         return self.audio_signal_copy.has_stft_data
 
     def do_spectrogram(self):
-        # self.audio_signal_view.stft_params = self.preview_params
         self.audio_signal_copy.to_mono(overwrite=True)
         self.audio_signal_copy.stft()
-        # self.audio_signal_view.stft()
         return self._prep_spectrogram(self.audio_signal_copy.get_power_spectrogram_channel(0))
 
     @staticmethod
@@ -60,10 +54,20 @@ class GeneralAudio(audio_processing_base.AudioProcessingBase):
         logger.info('Sent spectrogram for {}'.format(self.user_audio_signal.file_name))
 
     def find_peak_freq(self, freq_min=10000, bump=10):
+        """
+        Finds the maximum relevant frequency in a signal. If it's an mp3
+        :param freq_min:
+        :param bump:
+        :return:
+        """
         if not self.stft_done:
-            return 20000
+            self.max_frequency_displayed = 20000
+            return -1
+
         elif self.audio_signal_copy.file_name.endswith('wav'):
-            return self.audio_signal_copy.sample_rate // 2
+            self.max_frequency_displayed = self.audio_signal_copy.sample_rate // 2
+            return -1
+
         else:
             freqs = self.audio_signal_copy.freq_vector
             psd = self.audio_signal_copy.get_power_spectrogram_channel(0)
@@ -82,7 +86,7 @@ class GeneralAudio(audio_processing_base.AudioProcessingBase):
             self.max_frequency_displayed = freqs[idx]
             return idx
 
-    def spectrogram_image(self):
+    def spectrogram_image(self, img_width=28, img_height=12, dpi=80, cmap='plasma'):
         file_name = '{}_spec.png'.format(self.audio_signal_copy.file_name.replace('.', '_'))
         file_path = os.path.join(self.storage_path, file_name)
         self.spectrogram_image_path = file_path
@@ -91,26 +95,21 @@ class GeneralAudio(audio_processing_base.AudioProcessingBase):
         max_idx = self.find_peak_freq()
         spec = spec[:max_idx, :]
 
-        w, h = 28, 12
-
         fig = plt.figure(frameon=False)
-        fig.set_size_inches(w, h)
+        fig.set_size_inches(img_width, img_height)
 
         ax = plt.Axes(fig, [0., 0., 1., 1.])
         ax.set_axis_off()
         fig.add_axes(ax)
 
         img = ax.imshow(spec, interpolation='nearest', aspect='auto')
-        img.set_cmap('plasma')
+        img.set_cmap(cmap)
         ax.invert_yaxis()
-        fig.savefig(file_path, dpi=80)
-
-        return file_path
+        fig.savefig(file_path, dpi=dpi)
 
     def make_wav_file(self):
         self.audio_signal_copy.istft(overwrite=True)
-        self.audio_signal_copy.plot_spectrogram(os.path.join(self.storage_path, 'result.png'))
-        self.audio_signal_view.audio_data = self.audio_signal_copy.audio_data
+        # self.audio_signal_copy.plot_spectrogram(os.path.join(self.storage_path, 'result.png'))
         file_name_stem = self.audio_signal_copy.file_name.replace('.', '-')
 
         # create a new file name
@@ -128,6 +127,20 @@ class GeneralAudio(audio_processing_base.AudioProcessingBase):
         self.audio_signal_copy.write_audio_to_file(new_audio_file_path)
 
         return new_audio_file_path
+
+    def make_mask(self, selections):
+
+        if not self._mask_sanity_check(selections):
+            return nussl.separation.BinaryMask.ones(self.audio_signal_copy.stft_data.shape)
+
+        final_mask = np.zeros_like(self.audio_signal_copy.get_stft_channel(0), dtype=float)
+        for sel in selections:
+            mask = sel.make_mask(self.audio_signal_copy.time_bins_vector, self.audio_signal_copy.freq_vector)
+            final_mask += mask
+
+        final_mask = np.clip(final_mask, a_min=0.0, a_max=1.0)
+
+        return self._mask_post_processing(final_mask)
 
 
 class GeneralAudioException(Exception):

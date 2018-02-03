@@ -9,7 +9,7 @@ var defaultZoomStart;
 var zoomStepSize = 5;
 var mixture_spectrogram_heatmap = new SpectrogramHeatmap('spectrogram-heatmap', 20000);
 var result_spectrogram_heatmap = new SpectrogramHeatmap('result-spectrogram-heatmap', 20000);
-var ft2d_heatmap = new FT2DHeatmap('ft2d-heatmap', 1.0);
+// var ft2d_heatmap = new FT2DHeatmap('ft2d-heatmap', 1.0);
 var duet_histogram = new AttenuationDelayHistogram('duet-heatmap', 0.0);
 
 var socket;
@@ -62,7 +62,7 @@ $(document).ready(function() {
     });
 
     socket.on('spectrogram_image_ready', function (message) {
-        getSpectrogramAsImage(mixture_spectrogram_heatmap, message.path, message.max_freq);
+        getSpectrogramAsImage(mixture_spectrogram_heatmap, message.max_freq);
     });
 
     socket.on('ft2d', function(message) {
@@ -224,7 +224,11 @@ function openFileDialog() {
 }
 
 $('#survey-done').click(function () {
-    sendSurveyResults();
+    if (!$(this).hasClass('disabled')) {
+        $('#open-modal').modal('toggle');
+        sendSurveyResults();
+    }
+
 });
 
 mixture_spectrogram_heatmap.DOMObject.on('plotly_afterplot', function() {
