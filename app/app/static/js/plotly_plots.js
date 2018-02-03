@@ -7,6 +7,7 @@ class PlotlyHeatmap {
         var _this = this;
         this.divID = divID;
         this.DOMObject = $('#' + this.divID);
+        this.target = this.DOMObject.data('target-name');
 
         this.plot = null;
         this._rawData = null;
@@ -194,12 +195,12 @@ $('#mixture-spec-delete-unselected').click(function () {
 
 });
 
-$('#mixture-spec-delete-selected').click(function () {
+$('#selection-remove').click(function () {
     if( $(this).hasClass("disabled") ) {
         return;
     }
 
-    postActionAndProcess('RemoveSelections', mixture_spectrogram_heatmap.divID,
+    postActionAndProcess('RemoveSelections', mixture_spectrogram_heatmap.target,
         mixture_spectrogram_heatmap.selections);
 });
 

@@ -1351,7 +1351,7 @@ class AudioSignal(object):
         # np.array helps with duck typing
         return utils._get_axis(np.array(self.magnitude_spectrogram_data), constants.STFT_CHAN_INDEX, n)
 
-    def to_mono(self, overwrite=False, keep_dims=True):
+    def to_mono(self, overwrite=False, keep_dims=False):
         """ Converts :attr:`audio_data` to mono by averaging every sample.
 
         Warning:
@@ -1359,7 +1359,7 @@ class AudioSignal(object):
 
         Args:
             overwrite (bool): If `True` this function will overwrite :attr:`audio_data`.
-            keep_dims (bool): If `True` this function will return a 1D array,
+            keep_dims (bool): If `False` this function will return a 1D array,
             else will return array with shape `(1, n_samples)`.
         Returns:
             (:obj:`np.array`): Mono-ed version of :attr:`audio_data`.

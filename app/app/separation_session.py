@@ -11,7 +11,6 @@ import time
 import uuid
 from collections import deque
 
-import numpy as np
 import jsonpickle
 import jsonpickle.ext.numpy as jsonpickle_numpy
 
@@ -24,7 +23,6 @@ import utils
 # Set up logging
 logger = logging.getLogger()
 
-
 jsonpickle_numpy.register_handlers()
 
 
@@ -32,8 +30,6 @@ class SeparationSession(object):
     """
     Object for a single session, handles everything
     """
-    _needs_special_encoding = ['user_general_audio']
-    _uses_jsonpickle = ['_action_queue', 'ft2d', 'duet']
     _file_ext_that_need_converting = ['mp3', 'flac']
 
     def __init__(self, from_json=False):
@@ -46,12 +42,8 @@ class SeparationSession(object):
         self.user_original_file_folder = None
         self.time_of_birth = time.asctime(time.localtime(time.time()))
         self.time_of_init = None
-        self.to_json_times = []
-        self.from_json_times = []
         self._action_queue = deque()
-        self.audio_contains = []
         self.user_goals = []
-        self.save_user_data = False
 
         if not from_json:
             # Set up a session ID and store it
@@ -85,17 +77,25 @@ class SeparationSession(object):
 
         return self.user_general_audio.stft_done
 
+    @property
+    def target_name_dict(self):
+        """
+        This dictionary links the front end names to the back end objects
+        """
+        return {'mixture':  {'name': 'MixtureSpectrogram',  'object': self.user_general_audio},
+                'duet':     {'name': 'AtnDelayHistogram',   'object': self.duet},
+                'ft2d':     {'name': 'FT2D',                'object': self.ft2d},
+                'result':   {'name': 'ResultSpectrogram',   'object': None} }
+
+    @property
+    def _target_dict_name_to_object(self):
+        return {v['name']: v['object'] for v in self.target_name_dict.values()}
+
     def initialize(self, path_to_file):
-        # try:
         if not os.path.isfile(path_to_file):
             raise Exception('File path not a file! - {}'.format(path_to_file))
 
         self.user_original_file_location = path_to_file
-        # if os.path.splitext(path_to_file)[1] in self._file_ext_that_need_converting:
-        #     # TODO: Conversion
-        #     converted_path = None
-        #     self.user_converted_file_location = converted_path
-        #     self.file_needs_conversion = False
 
         user_signal = nussl.AudioSignal(self.user_original_file_location)
         self.user_general_audio = audio_processing.GeneralAudio(user_signal, self.user_original_file_folder)
@@ -107,15 +107,9 @@ class SeparationSession(object):
         self.initialized = True
         self.time_of_init = time.asctime(time.localtime(time.time()))
 
-        # except Exception as e:
-        #     logger.error('Got exception! - {}'.format(e.message))
-        #     raise e
-
     def save_survey_data(self, survey_data):
         try:
-            self.audio_contains = survey_data['mixture_contains']
             self.user_goals = survey_data['extraction_goals']
-            self.save_user_data = not survey_data['do_not_store']
         except Exception:
             logger.warning('Survey data: {}'.format(json.dumps(survey_data)))
             pass
@@ -140,11 +134,12 @@ class SeparationSession(object):
                                                                 action['action_id'],
                                                                 action['received']))
 
-            action_object.make_mask_for_action(self)
+            if action_object.target not in self._target_dict_name_to_object.keys():
+                raise actions.ActionException('Unknown target: {}!'.format(action_object.target))
 
-            self.user_general_audio.audio_signal_copy = action_object.apply_action(self)
-
-        # self.user_general_audio.audio_signal_copy.istft()
+            target = self._target_dict_name_to_object[action_object.target]
+            action_object.make_mask_for_action(target)
+            self.user_general_audio.audio_signal_copy = action_object.apply_action(target)
 
     def to_json(self):
         return jsonpickle.encode(self)
@@ -152,5 +147,3 @@ class SeparationSession(object):
     @staticmethod
     def from_json(json_string):
         return jsonpickle.decode(json_string)
-
-
