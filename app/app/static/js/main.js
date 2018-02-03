@@ -202,6 +202,7 @@ function enableTools(enabled, className) {
 
 $('#results-pill').click(function() {
     $(this).removeClass('result-ready');
+    result_waveform.drawBuffer();
 });
 
 $('#import-audio').click(function(){
