@@ -34,7 +34,6 @@ pyparsing==2.1.4
 python-dateutil==2.6.1
 pytz==2017.2
 PyYAML==3.12
-# redis==2.10.6
 resampy==0.2.0
 rsa==3.4.2
 s3transfer==0.1.10
