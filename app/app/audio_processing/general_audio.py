@@ -5,6 +5,7 @@ General audio tasks in here
 import json
 import logging
 import os
+import subprocess as sp
 
 import matplotlib
 matplotlib.use('Agg')
@@ -111,12 +112,7 @@ class GeneralAudio(audio_processing_base.AudioProcessingBase):
         self.audio_signal_copy.istft(overwrite=True)
         # self.audio_signal_copy.plot_spectrogram(os.path.join(self.storage_path, 'result.png'))
         file_name_stem = self.audio_signal_copy.file_name.replace('.', '-')
-
-        # create a new file name
-        i = 0
-        new_audio_file_name = '{}_{}.wav'.format(file_name_stem, i)
-        while os.path.isfile(new_audio_file_name):
-            new_audio_file_name = '{}_{}.wav'.format(file_name_stem, i)
+        new_audio_file_name = self._make_new_file_name(file_name_stem, 'wav')
 
         # write the metadata
         # new_metadata_path = os.path.join(self.storage_path, '{}_{}.json'.format(file_name_stem, i))
@@ -127,6 +123,43 @@ class GeneralAudio(audio_processing_base.AudioProcessingBase):
         self.audio_signal_copy.write_audio_to_file(new_audio_file_path)
 
         return new_audio_file_path
+
+    @staticmethod
+    def _make_new_file_name(file_name_stem, extension):
+        i = 0
+        new_name = '{}_{}.{}'.format(file_name_stem, i, extension)
+        while os.path.isfile(new_name):
+            i += 1
+            new_name = '{}_{}.{}'.format(file_name_stem, i, extension)
+
+        return new_name
+
+    def make_mp3_file(self):
+        """
+        UNTESTED
+        :return:
+        """
+        bit_rate = '256k'
+        file_name_stem = self.audio_signal_copy.file_name.replace('.', '-')
+        new_audio_file_name = self._make_new_file_name(file_name_stem, 'mp3')
+
+        LIBAV_BIN = 'libav'
+        pipe = sp.Popen([LIBAV_BIN,
+                         '-y',  # (optional) means overwrite the output file if it already exists.
+                         "-f", 's16le',  # means 16bit input
+                         "-acodec", "pcm_s16le",  # means raw 16bit input
+                         '-r', "44100",  # the input will have 44100 Hz
+                         '-ac', '2',  # the input will have 2 channels (stereo)
+                         '-i', '-',  # means that the input will arrive from the pipe
+                         '-vn',  # means "don't expect any video input"
+                         '-acodec', 'ibfdk_aac'  # output audio codec
+                         '-b', bit_rate,  # output bitrate (=quality). Here, 3000kb/second
+                         new_audio_file_name],
+                        stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE)
+
+        audio = self.audio_signal_copy.audio_data_as_ints()  # nussl does 16-bit by default
+        audio = audio.T
+        audio.astype('int16').tofile(pipe.stdin)
 
     def make_mask(self, selections):
 
