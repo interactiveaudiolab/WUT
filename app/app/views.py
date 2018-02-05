@@ -28,7 +28,7 @@ def index():
 
 
 @app_.errorhandler(404)
-def page_not_found():
+def page_not_found(e):
     logger.warn('404! {}'.format(request.full_path))
     return render_template('404.html')
 
