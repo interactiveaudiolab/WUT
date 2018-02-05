@@ -26,6 +26,11 @@ def index():
     save_session(separation_sess)
     return render_template('index.html', target_dict=separation_sess.target_name_dict)
 
+@app_.route('/test')
+def test():
+    new_sess = separation_session.SeparationSession()
+    session['cur_session'] = new_sess.to_json()
+    return render_template('test.html')
 
 @app_.errorhandler(404)
 def page_not_found(e):
