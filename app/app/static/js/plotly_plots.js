@@ -21,6 +21,9 @@ class PlotlyHeatmap {
                 let range = arguments[1].range;
 
                 let curSelection = new BoxSelection(_this.xTicks, _this.yTicks, range);
+                console.log(range)
+                console.log(`First Corner: (${range.x[0]}, ${range.y[0]})`)
+                console.log(`Opposite Corner: (${range.x[1]}, ${range.y[1]})`)
                 _this.selections.push(curSelection);
 
                 updateSelectionStatus(_this.selections.length);
