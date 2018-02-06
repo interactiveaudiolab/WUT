@@ -7,13 +7,12 @@ var result_waveform = Object.create(WaveSurfer);
 var all_waveforms = [mixture_waveform, result_waveform];
 var defaultZoomStart;
 var zoomStepSize = 5;
-var mixture_spectrogram_heatmap = new SpectrogramHeatmap('spectrogram-heatmap', 20000);
+// var mixture_spectrogram_heatmap = new SpectrogramHeatmap('spectrogram-heatmap', 20000);
 var result_spectrogram_heatmap = new SpectrogramHeatmap('result-spectrogram-heatmap', 20000);
+var pca = new PCAHeatmap('pca', 100);
 
 var socket;
 var time_to_graph = 0.0;
-var duet_color = pink;
-var ft2d_color = yellow;
 var spec_as_image = false;
 
 $(document).ready(function() {
@@ -33,19 +32,18 @@ $(document).ready(function() {
       $('#general-status').text('Audio uploaded to server.');
   });
 
-  socket.on('spectrogram', function (message) {
-      var data = JSON.parse(message.spectrogram);
-      make_spectrogram(mixture_spectrogram_heatmap, data, mixture_waveform.backend.getDuration());
-  });
-
-  socket.on('spectrogram_image_ready', function (message) {
-      getSpectrogramAsImage(mixture_spectrogram_heatmap, message.path, message.max_freq);
-  });
-
   socket.on('bad_file', function () {
       console.log('File rejected by server');
   });
+
+  // FAKING HEATMAP
+  make_pca(pca, randomMatrix(100, 100, 5))
 });
+
+randomMatrix = (height, width, max) => [...new Array(height)].map(
+    () => [... new Array(width)].map(() => Math.round(Math.random() * max))
+);
+
 
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -134,7 +132,3 @@ function openFileDialog() {
     audio.import_audio();
     $('#general-status').text('Uploading audio to server...');
 }
-
-$('#survey-done').click(function () {
-    sendSurveyResults();
-});
