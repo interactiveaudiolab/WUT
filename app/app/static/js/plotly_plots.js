@@ -119,8 +119,15 @@ class PlotlyHeatmap {
         Plotly.relayout(this.divID, update);
     }
 
+    getColor() {
+        let colorVal = $('#spec-color .active').children().prop('id');
+        return colorDict[colorVal];
+    }
+
     updatePlotWithSelection() {
         let sel = getLastItemInArray(this.selections);
+        let colors = this.getColor();
+
         let rect = {
             'type': 'rect',
             'x0': sel.xStart,
@@ -128,10 +135,10 @@ class PlotlyHeatmap {
             'x1': sel.xEnd,
             'y1': sel.yEnd,
             'line': {
-                'color': 'rgba(245, 245, 245, 1)',
+                'color': colors.line,
                 'width': 1,
             },
-            'fillcolor': 'rgba(255, 255, 255, 0.35)',
+            'fillcolor': colors.fill,
         };
         if (!this.plotLayout.hasOwnProperty('shapes')) {
             this.plotLayout.shapes = [];
@@ -159,7 +166,6 @@ $( window ).resize(function() {
     let update = { width: $(window).width() };
     Plotly.relayout("spectrogram-heatmap", update);
     Plotly.relayout("result-spectrogram-heatmap", update);
-    Plotly.relayout("ft2d-heatmap", update);
 });
 
 let undoSelections = [];

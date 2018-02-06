@@ -19,7 +19,7 @@ function make_spectrogram(heatmap, results, audioLength) {
 }
 
 function getSpectrogramAsImage(heatmap, freqMax) {
-    let url = "./spec_image";
+    let url = "./spec_image?val=" + Math.random().toString(36).substring(7);
     let duration = mixture_waveform.backend.getDuration();
 
     heatmap.drawImage(url, duration, freqMax);
