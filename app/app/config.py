@@ -38,3 +38,5 @@ INIT_FOLDERS = [UPLOAD_BASE_FOLDER, USER_AUDIO_FOLDER]
 ALLOWED_EXTENSIONS = {'wav', 'mp3', 'flac', 'aif'}
 
 HOST = '0.0.0.0'
+
+REDIS_URL = "redis://:@localhost:6379/0"

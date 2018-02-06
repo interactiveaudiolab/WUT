@@ -30,6 +30,14 @@ var burntSienna = 'rgba(138, 54, 12, 0.3)';
 var lightGreen = 'rgba(102, 255, 178, 0.3)';
 var gray = 'rgba(100, 100, 100, 0.3)';
 
+var whiteLine = 'rgba(245, 245, 245, 1)';
+var whiteFill = 'rgba(255, 255, 255, 0.35)';
+var greenLine = 'rgba(0, 255, 0, 1)';
+var greenFill = 'rgba(0, 255, 0, 0.35)';
+
+var colorDict = {'white': {'line': whiteLine, 'fill': whiteFill },
+                 'green': {'line': greenLine, 'fill': greenFill } };
+
 var duet_color = pink;
 var ft2d_color = yellow;
 var spec_as_image = false;
@@ -53,6 +61,7 @@ $(document).ready(function() {
     });
 
     socket.on('audio_upload_ok', function () {
+        console.log('Audio uploaded to server.');
         $('#general-status').text('Audio uploaded to server.');
     });
 

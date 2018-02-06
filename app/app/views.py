@@ -8,7 +8,7 @@ import numpy as np
 from flask import render_template, request, flash, session, abort, send_file, make_response
 from werkzeug.utils import secure_filename
 
-from .app_obj import app_, socketio
+from .app_obj import app_, socketio, redis_store
 import separation_session
 from config import ALLOWED_EXTENSIONS
 
@@ -22,9 +22,11 @@ CURRENT_SESSION = 'cur_session'
 @app_.route('/')
 @app_.route('/index')
 def index():
-    new_sess = separation_session.SeparationSession()
-    save_session(new_sess)
-    return render_template('index.html', target_dict=new_sess.target_name_dict)
+    separation_sess = separation_session.SeparationSession()
+    session['session_id'] = separation_sess.url_safe_id
+    session.modified = True
+    save_session(separation_sess)
+    return render_template('index.html', target_dict=separation_sess.target_name_dict)
 
 
 @app_.errorhandler(404)
@@ -59,8 +61,8 @@ def initialize(audio_file_data):
     filename = secure_filename(audio_file['file_name'])
 
     # Retrieve the session from memory
-    sess = awaken_session()
-    path = os.path.join(sess.user_original_file_folder, filename)
+    separation_sess = awaken_session()
+    path = os.path.join(separation_sess.user_original_file_folder, filename)
     logger.info('Saving at {}'.format(path))
 
     # Save the file
@@ -70,36 +72,38 @@ def initialize(audio_file_data):
 
     # Initialize the session
     logger.info('Initializing session for {}...'.format(filename))
-    sess.initialize(path)
+    separation_sess.initialize(path)
     socketio.emit('audio_upload_ok', namespace=WUT_SOCKET_NAMESPACE)
-    logger.info('Initialization successful for file {}!'.format(sess.user_original_file_location))
+    logger.info('Initialization successful for file {}!'.format(separation_sess.user_original_file_location))
+    save_session(separation_sess)
 
     # Compute and send the STFT, Synchronously (STFT data is needed for further calculations)
     logger.info('Computing spectrogram image for {}'.format(filename))
-    sess.user_general_audio.spectrogram_image()
-    socketio.emit('spectrogram_image_ready', {'max_freq': sess.user_general_audio.max_frequency_displayed },
+    separation_sess.user_general_audio.spectrogram_image()
+    socketio.emit('spectrogram_image_ready', {'max_freq': separation_sess.user_general_audio.max_frequency_displayed},
                   namespace=WUT_SOCKET_NAMESPACE)
     logger.info('Sent spectrogram image info for {}'.format(filename))
+    save_session(separation_sess)
 
     # Initialize other representations
     # Compute and send the AD histogram, Asynchronously
     logger.info('Computing and sending AD histogram for {}'.format(filename))
-    socketio.start_background_task(sess.duet.send_ad_histogram_json,
+    socketio.start_background_task(separation_sess.duet.send_ad_histogram_json,
                                    **{'socket': socketio, 'namespace': WUT_SOCKET_NAMESPACE})
-
     # Save the session
-    save_session(sess)
+    save_session(separation_sess)
 
 
-def save_session(separation_sess, session_key=CURRENT_SESSION):
-    session.modified = True
-    session[session_key] = separation_sess.to_json()
+def save_session(separation_sess):
+    session_id = separation_sess.url_safe_id
+    redis_store.set(session_id, separation_sess.to_json())
 
 
-def awaken_session(session_key=CURRENT_SESSION):
-    sess = separation_session.SeparationSession.from_json(session[session_key])
-    logger.info('session awake {}'.format(sess.session_id))
-    return sess
+def awaken_session():
+    separation_sess = redis_store.get(session['session_id'])
+    separation_sess = separation_session.SeparationSession.from_json(separation_sess)
+    logger.info('session awake {}'.format(separation_sess.session_id))
+    return separation_sess
 
 
 def check_file_upload(audio_file_data):
@@ -141,15 +145,13 @@ def _exception(error_msg):
 def spectrogram_image():
     logger.info('in /spec_image')
 
-    if request.method == 'GET':
-        sess = separation_session.SeparationSession.from_json(session[CURRENT_SESSION])
-        logger.info('session awake {}'.format(sess.session_id))
+    sess = awaken_session()
 
-        if not sess.initialized:
-            _exception('sess not initialized!')
+    if not sess.initialized:
+        _exception('sess not initialized!')
 
-        logger.info('Sending spectrogram file.')
-        return send_file(sess.user_general_audio.spectrogram_image_path, mimetype='image/png')
+    logger.info('Sending spectrogram file.')
+    return send_file(sess.user_general_audio.spectrogram_image_path, mimetype='image/png')
 
 
 @socketio.on('recommendations', namespace=WUT_SOCKET_NAMESPACE)
