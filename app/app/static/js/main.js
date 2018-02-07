@@ -14,6 +14,7 @@ var duet_histogram = new AttenuationDelayHistogram('duet-heatmap', 0.0);
 
 var socket;
 var time_to_graph = 0.0;
+var loader;
 
 //Colors
 var red = 'rgba(255, 0, 0, 0.5)';
@@ -45,6 +46,7 @@ var spec_as_image = false;
 $(document).ready(function() {
 	window.AudioContext = window.AudioContext || window.webkitAudioContext;
 	online = new AudioContext();
+	loader = new wavesLoaders.AudioBufferLoader();
 
 	context = online;
 

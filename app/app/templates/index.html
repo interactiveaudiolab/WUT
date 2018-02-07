@@ -34,6 +34,8 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/FileSaver.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/bootstrap-multiselect.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/socket.io.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/waves-loaders.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/waves-ui.min.js') }}"></script>
 </head>
 <body>
 <!--[if lt IE 8]>
@@ -75,7 +77,6 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-{#                    <button type="button" class="close" data-dismiss="modal">&times;</button>#}
                     <h3 class="modal-title">Welcome! Open a New Audio File</h3>
                 </div>
                 <div class="modal-body">
@@ -117,9 +118,6 @@
                                     </div>
                                 </div>
                             </div>
-{#                                <div class="checkbox">#}
-{#                                    <label><input type="checkbox" value="" id="do-not-store">Do not use my response to enable further recommendations.</label>#}
-{#                                </div>#}
                         </div>
                     </form>
                 </div>
@@ -132,7 +130,7 @@
                             Privacy
                         </a>
                     </span>
-                    <button id="survey-done" type="submit" class="btn btn-primary disabled" data-dismiss="modal">Start!</button>
+                    <button id="survey-done" type="submit" class="btn btn-primary disabled">Start!</button>
                 </div>
             </div>
         </div>
@@ -149,8 +147,8 @@
                 <div class="player-controls-inner" style="padding-left: 20px">
                     <div class="btn-group-vertical" {#  style="padding-bottom: 10px" #} >
 
-                        <button id="mixture-play" class="btn btn-primary result-controls"
-                                title="Play/Pause">
+                        <button id="mixture-play" class="btn btn-primary result-controls play-pause"
+                                title="Play">
                                 <i class="glyphicon glyphicon-play" title="Play Audio"></i>
                         </button>
 {#                    </div>#}
@@ -179,6 +177,7 @@
                 <li class="active"><a href="#spectrogram-tab">Spectrogram</a></li>
                 <li><a href="#duet-tab">Attenuation/Delay Histogram</a></li>
                 <li id="results-pill"><a href="#results-tab">Results</a></li>
+                <li><a href="#reqs-tab">Recommendations</a></li>
             </ul>
         </div>
 
@@ -326,6 +325,72 @@
 
                 </div>
             </div>
+
+            <div class="tab-pane" id="reqs-tab">
+                <div class="row">
+                    <div class="col-md-10 col-md-offset-1">
+                        <div class="btn-group btn-group-sm">
+                            <button id="req-stop" class="btn btn-primary" title="Stop">
+                                <i class="glyphicon glyphicon-stop"></i>
+                            </button>
+                            <button id="req-play" class="btn btn-primary play-pause" title="Play">
+                                <i class="glyphicon glyphicon-play"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="track-container">
+                    <div class="row track-and-controls">
+                        <div class="col-md-1 col-md-offset-1 track-controls">
+                            <h5>Repet</h5>
+                            <div class="btn-group btn-group-xs">
+                                <button id="repet-solo" class="btn btn-primary" title="Solo">
+                                    S
+                                </button>
+                                <button id="repet-mute" class="btn btn-primary" title="Mute">
+                                    M
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-10 waves-ui-container">
+                            <div class="waves-ui-track" id="track-1-waves-ui" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    <div class="row track-and-controls">
+                        <div class="col-md-1 col-md-offset-1 track-controls">
+                            <h5>Melodia</h5>
+                            <div class="btn-group btn-group-xs">
+                                <button id="melodia-solo" class="btn btn-primary" title="Solo">
+                                    S
+                                </button>
+                                <button id="melodia-mute" class="btn btn-primary" title="Mute">
+                                    M
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-10 waves-ui-container">
+                            <div class="waves-ui-track" id="track-2-waves-ui" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    <div class="row track-and-controls">
+                        <div class="col-md-1 col-md-offset-1 track-controls">
+                            <h5>Projet</h5>
+                            <div class="btn-group btn-group-xs">
+                                <button id="projet-solo" class="btn btn-primary" title="Solo">
+                                    S
+                                </button>
+                                <button id="projet-mute" class="btn btn-primary" title="Mute">
+                                    M
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-10 waves-ui-container">
+                            <div class="waves-ui-track" id="track-3-waves-ui" style="width: 100%"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
         </div>
 
     <div id="footer">
@@ -344,15 +409,19 @@
                 </div>
                 <div class="modal-body">
                     <p>
-                        The Web Unmixing Toolbox (WUT) only stores your raw audio data for 7 days
-                        after your last session, after which your raw audio data will be deleted. WUT necessarily
-                        needs a copy of your raw audio data in order to do the server-side processing that enables
-                        the interactions WUT provides. The only remnants of your audio that are stored on our servers
-                        after the 7 day grace period are high-level statistics and non-invertable high-dimensional
-                        audio representations (i.e., representations of your audio that cannot be turned back
-                        into sound). These statistics and high-dimensional representations are used to power the
-                        recommendation engine in WUT. WUT also uses information about how you use WUT (i.e.,
-                        what tools you use) to power these recommendations.
+{#                        The Web Unmixing Toolbox (WUT) only stores your raw audio data for 7 days#}
+{#                        after your last session, after which your raw audio data will be deleted. WUT necessarily#}
+{#                        needs a copy of your raw audio data in order to do the server-side processing that enables#}
+{#                        the interactions WUT provides. The only remnants of your audio that are stored on our servers#}
+{#                        after the 7 day grace period are high-level statistics and non-invertable high-dimensional#}
+{#                        audio representations (i.e., representations of your audio that cannot be turned back#}
+{#                        into sound). These statistics and high-dimensional representations are used to power the#}
+{#                        recommendation engine in WUT. WUT also uses information about how you use WUT (i.e.,#}
+{#                        what tools you use) to power these recommendations.#}
+                        The Web Unmixing Toolbox (WUT) is currently under active development. If you stumble upon
+                        it, you should assume any audio that you upload to it can be used as training data for
+                        future releases of WUT. That being said, future releases of WUT will have a very strict
+                        adherence to privacy principles and will assert that your audio and audio data are
                     </p>
                 </div>
 
@@ -374,6 +443,7 @@
 <script type="text/javascript" src="{{ url_for('static', filename='js/csv_parse.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/audio.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/selection.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/waves-ui.js') }}"></script>
 
 <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
 <!--<script>-->

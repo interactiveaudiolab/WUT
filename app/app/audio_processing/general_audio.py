@@ -137,6 +137,7 @@ class GeneralAudio(audio_processing_base.AudioProcessingBase):
     def make_mp3_file(self):
         """
         UNTESTED
+        From: http://zulko.github.io/blog/2013/10/04/read-and-write-audio-files-in-python-using-ffmpeg/
         :return:
         """
         bit_rate = '256k'

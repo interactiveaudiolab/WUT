@@ -218,92 +218,6 @@ audio {
     stroke: #fff;
 }
 
-/*#volume_slider {*/
-    /*width: 350px;*/
-    /*height: 50px;*/
-    /*position: relative;*/
-    /*margin: 0 auto;*/
-    /*!*top: 80px;*!*/
-/*}*/
-
-/*#volume_slider span {*/
-    /*position: absolute;*/
-    /*margin-top: -6px;*/
-    /*color: #666;*/
-/*}*/
-
-/*#volume_slider span.glyphicon-volume-down {*/
-    /*margin-left: -8px;*/
-/*}*/
-
-/*#volume_slider span.glyphicon-volume-up {*/
-    /*margin-right: -8px;*/
-    /*right: 0;*/
-/*}*/
-
-/*#volume {*/
-    /*position: absolute;*/
-    /*left: 24px;*/
-    /*margin: 0 auto;*/
-    /*height: 5px;*/
-    /*width: 300px;*/
-    /*background: #555;*/
-    /*border-radius: 15px;*/
-/*}*/
-
-/*#volume .ui-slider-range-min {*/
-    /*height: 5px;*/
-    /*width: 300px;*/
-    /*position: absolute;*/
-    /*background: #2ecc71;*/
-    /*border: none;*/
-    /*border-radius: 10px;*/
-    /*outline: none;*/
-/*}*/
-
-/*#volume .ui-slider-handle {*/
-    /*width: 20px;*/
-    /*height: 20px;*/
-    /*border-radius: 20px;*/
-    /*background: #FFF;*/
-    /*position: absolute;*/
-    /*margin-left: -8px;*/
-    /*margin-top: -8px;*/
-    /*cursor: pointer;*/
-    /*outline: none;*/
-/*}*/
-
-/*!*input[type="range"][orient="vertical"] {*!*/
-    /*!*writing-mode: bt-lr; !* IE *!*!*/
-    /*!*-webkit-appearance: slider-vertical; !* WebKit *!*!*/
-    /*!*width: 8px;*!*/
-    /*!*height: 175px;*!*/
-    /*!*padding: 0 5px;*!*/
-/*!*}*!*/
-
-/*input[type="range"] {*/
-    /*width: 8px;*/
-    /*height: 175px;*/
-    /*position: absolute;*/
-    /*top: 40%;*/
-    /*transform: rotate(270deg);*/
-/*}*/
-
-/*#beat_spectrum_container {*/
-        /*position: relative;*/
-        /*font-family: Arial, Helvetica, sans-serif;*/
-/*}*/
-/*#beat_spectrum_graph {*/
-        /*position: relative;*/
-        /*left: 40px;*/
-/*}*/
-/*#beat_spectrum_y_axis {*/
-        /*position: absolute;*/
-        /*top: 0;*/
-        /*bottom: 0;*/
-        /*width: 40px;*/
-/*}*/
-
 .navbar-default {
   background-color: #64d1ff;
   border-color: #00b3ff;
@@ -520,6 +434,19 @@ audio {
 #mixture-player {
     padding-bottom: 10px;
     margin-top: -18px;
+}
+
+.track-and-controls {
+    margin: 5px;
+    background: rgba(94, 196, 239, 0.13);
+}
+
+.waves-ui-container {
+    background: rgba(235, 234, 239, 0.99);
+}
+
+.waves-ui-track {
+    margin: 5px 0;
 }
 
 /* ==========================================================================
