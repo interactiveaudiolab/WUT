@@ -15,7 +15,6 @@ audio.import_audio = function() {
         this.playPause();
     }
     $('input[type=file]').click();
-    // buffer_loader_load(mixture_audio_file.url);
 };
 
 $('#input_audio_file').change(function () {
@@ -25,6 +24,22 @@ $('#input_audio_file').change(function () {
     if (DO_STFT_ON_CLIENT) {
         buffer_loader_load(mixture_audio_file.url);
     }
+
+    loader.load(mixture_audio_file.url).then(function(buffer) {
+        let tracks = $('.waves-ui-track');
+        $.each(tracks, function(k, t) {
+            // Fake data
+            var data = [];
+            let n = 7;
+            for (i=0; i <= n; ++i) {
+                data.push({ x: i * buffer.duration / n, y: Math.random() });
+            }
+
+            drawWaveform(buffer, t, data);
+        });
+    }).catch(function(err) {
+        console.error(err.stack);
+    });
 
     $("#filename").text(mixture_audio_file.file.name);
     $('#extraction-goal').multiselect('enable');
@@ -61,33 +76,6 @@ audio.isPlaying = function () {
     return playing;
 };
 
-function togglePlayPauseIcon() {
-    if (!audio.isPlaying()) {
-        // Audio is paused
-        $('#play_icon').removeClass('glyphicon glyphicon-play').addClass('glyphicon glyphicon-pause');
-        $('#play_button').attr('title', 'Pause audio');
-    } else {
-        // Audio is playing
-        $('#play_icon').removeClass('glyphicon glyphicon-pause').addClass('glyphicon glyphicon-play');
-        $('#play_button').attr('title', 'Play audio');
-    }
-}
-
-function playPauseButton() {
-    if (mixture_audio_file.file !== null) {
-        audio.playPause();
-    }
-}
-
-function stopButton() {
-    if (audio.isPlaying()) {
-        togglePlayPauseIcon();
-        mixture_waveform.stop();
-    } else {
-        mixture_waveform.seekTo(0);
-    }
-}
-
 $('#result-play').click(function() {
     if (!result_waveform.backend.buffer) {
         return;
@@ -109,18 +97,24 @@ $('#mixture-play').click(function() {
     if (!mixture_waveform.backend.buffer) {
         return;
     }
+    togglePlayPauseIcon(this);
 
-    if (!mixture_waveform.isPlaying()) {
-        // Audio is paused
-        $('#mixture-play').find("i").removeClass('glyphicon glyphicon-play').addClass('glyphicon glyphicon-pause')
-            .attr('title', 'Pause audio');
-    } else {
-        // Audio is playing
-        $('#mixture-play').find("i").removeClass('glyphicon glyphicon-pause').addClass('glyphicon glyphicon-play')
-            .attr('title', 'Play audio');
-    }
     mixture_waveform.playPause();
 });
+
+$('#req-play').click(function () {
+    togglePlayPauseIcon(this);
+});
+
+function togglePlayPauseIcon(obj) {
+    if ($(obj).find('i').hasClass('glyphicon-play')) {
+        $(obj).find('i').removeClass('glyphicon glyphicon-play').addClass('glyphicon glyphicon-pause')
+            .attr('title', 'Pause audio');
+    } else {
+        $(obj).find('i').removeClass('glyphicon glyphicon-pause').addClass('glyphicon glyphicon-play')
+            .attr('title', 'Play audio');
+    }
+}
 
 $('#mixture-stop').click(function() {
     if (!mixture_waveform.backend.buffer) {
