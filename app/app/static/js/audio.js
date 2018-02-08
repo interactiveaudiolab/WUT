@@ -1,20 +1,35 @@
-var audio = {waveforms: all_waveforms, progress: 0, start_time: -1};
+var audio = {waveforms: all_waveforms};
 var mixture_audio_file = {file:null, url:null};
 var AUDIOFILES;
 var BUFFERS;
 var context;
 
 var bufferLoader;
-var bufferList;
 var spec_data;
 
+var trackList = [];
+
 var DO_STFT_ON_CLIENT = false;
+
 
 audio.import_audio = function() {
     if (this.isPlaying()) {
         this.playPause();
     }
     $('input[type=file]').click();
+};
+
+audio.playPause = function () {
+    togglePlayPauseIcon();
+    mixture_waveform.playPause();
+};
+
+audio.isPlaying = function () {
+    var playing = true;
+    this.waveforms.forEach( function (w) {
+        playing = playing && w.isPlaying();
+    });
+    return playing;
 };
 
 $('#input_audio_file').change(function () {
@@ -35,7 +50,10 @@ $('#input_audio_file').change(function () {
                 data.push({ x: i * buffer.duration / n, y: Math.random() });
             }
 
-            drawWaveform(buffer, t, data);
+            let new_track = new Track(buffer, t, data);
+            new_track.drawWaveform(buffer, t, data);
+            trackList.push(new_track);
+
         });
     }).catch(function(err) {
         console.error(err.stack);
@@ -61,19 +79,6 @@ mixture_audio_file.upload_to_server = function (obj) {
     else {
         socket.emit('audio_upload', {'audio_file': null});
     }
-};
-
-audio.playPause = function () {
-    togglePlayPauseIcon();
-    mixture_waveform.playPause();
-};
-
-audio.isPlaying = function () {
-    var playing = true;
-    this.waveforms.forEach( function (w) {
-        playing = playing && w.isPlaying();
-    });
-    return playing;
 };
 
 $('#result-play').click(function() {
@@ -104,6 +109,13 @@ $('#mixture-play').click(function() {
 
 $('#req-play').click(function () {
     togglePlayPauseIcon(this);
+
+    // if ($(this).find('i').hasClass('glyphicon-pause')){ }
+
+    $.each(trackList, function(v, t) {
+        t.togglePlayPause();
+    });
+
 });
 
 function togglePlayPauseIcon(obj) {
