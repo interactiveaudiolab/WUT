@@ -15,6 +15,43 @@ var socket;
 var time_to_graph = 0.0;
 var spec_as_image = false;
 
+// MATRIX OPERATIONS
+
+// generate n x m matrix with values given by function
+makeMatrix = (height, width) => (gen) => 
+    [...new Array(height)].map(() => [... new Array(width)].map(gen))
+
+// generate n x m matrix with random values having a non-inclusive max
+randomMatrix = (height, width, max) => 
+    makeMatrix(height, width)(() => Math.floor(Math.random() * max))
+
+// takes TF x 2 array with values in range [0, max]
+// returns max x max matrix
+
+tfToMatrix = (tfArray, max) => {
+    pca = makeMatrix(max, max)(() => [])
+    // console.log(tfArray)
+    tfArray.forEach(([x, y], tfIndex) => {
+        pca[x][y] = pca[x][y].concat([tfIndex])
+    });
+
+    return pca
+}
+
+pcaToHistrogram = (pca) => {
+    max = Math.max(...pca.map(row => Math.max(...row.map(inds => inds.length))))
+    console.log(max)
+
+    console.log(pca.map(row => row.map(inds => inds.length)))
+    return pca.map(row => row.map(inds => inds.length/max))
+}
+
+tf = randomMatrix(100, 2, 5)
+
+pca = tfToMatrix(tf, 5)
+
+hist = pcaToHistrogram(pca)
+
 $(document).ready(function() {
 	window.AudioContext = window.AudioContext || window.webkitAudioContext;
 	online = new AudioContext();
@@ -39,12 +76,6 @@ $(document).ready(function() {
   // FAKING HEATMAP
   make_pca(pca, randomMatrix(100, 100, 5))
 });
-
-randomMatrix = (height, width, max) => [...new Array(height)].map(
-    () => [... new Array(width)].map(() => Math.round(Math.random() * max))
-);
-
-
 
 document.addEventListener('DOMContentLoaded', function () {
 
