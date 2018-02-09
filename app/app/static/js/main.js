@@ -44,11 +44,11 @@ var ft2d_color = yellow;
 var spec_as_image = false;
 
 $(document).ready(function() {
-	window.AudioContext = window.AudioContext || window.webkitAudioContext;
-	online = new AudioContext();
+	// window.AudioContext = window.AudioContext || window.webkitAudioContext;
+	// online = new AudioContext();
 	loader = new wavesLoaders.AudioBufferLoader();
 
-	context = online;
+	// context = online;
 
     $("#mainTabs").find("a").click(function(e){
         e.preventDefault();
@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', function () {
         audioRate: 1.0
     };
 
-    result_waveform.init(resultOptions);
+    // result_waveform.init(resultOptions);
 
 
     //  ~~~~~~~~~~~~~   MODAL STUFF   ~~~~~~~~~~~~~~~~

@@ -165,42 +165,35 @@ def recommendations():
 def recommendations():
     logger.info('Sending recommendations')
 
-    if request.method == 'GET':
-        sess = separation_session.SeparationSession.from_json(session[CURRENT_SESSION])
-        logger.info('session awake {}'.format(sess.session_id))
+    sess = awaken_session()
 
-        if not sess.initialized:
-            _exception('sess not initialized')
+    if not sess.initialized:
+        _exception('sess not initialized')
 
-        sig_length = sess.user_general_audio.audio_signal.signal_duration
-        num_segments = 5
-        offset = 0.5
+    sig_length = sess.user_general_audio.audio_signal.signal_duration
+    num_segments = 5
+    offset = 0.5
 
-        reqs = []
-        for i, val in enumerate(np.linspace(0.0, sig_length, num_segments, endpoint=False)):
-            if i % 2 == 0:
-                reqs.append({'type': 'duet', 'time': {'start': val, 'end': val + offset + np.random.rand()}})
-            else:
-                reqs.append({'type': 'ft2d', 'time': {'start': val, 'end': val + offset + np.random.rand()}})
+    reqs = []
+    for i, val in enumerate(np.linspace(0.0, sig_length, num_segments, endpoint=False)):
+        if i % 2 == 0:
+            reqs.append({'type': 'duet', 'time': {'start': val, 'end': val + offset + np.random.rand()}})
+        else:
+            reqs.append({'type': 'ft2d', 'time': {'start': val, 'end': val + offset + np.random.rand()}})
 
-        return json.dumps(reqs)
-    return abort(405)
+    return json.dumps(reqs)
 
 
 @app_.route('/survey_results', methods=['POST'])
 def survey_results():
     logger.info('Getting survey results')
 
-    if request.method == 'POST':
-        results = request.json['survey_data']
+    results = request.json['survey_data']
+    sess = awaken_session()
+    sess.save_survey_data(results)
+    save_session(sess)
 
-        sess = separation_session.SeparationSession.from_json(session[CURRENT_SESSION])
-        logger.info('session awake {}'.format(sess.session_id))
-        sess.save_survey_data(results)
-
-        session[CURRENT_SESSION] = sess.to_json()
-
-        return json.dumps(True)
+    return json.dumps(True)
 
 
 @socketio.on('survey_results', namespace=WUT_SOCKET_NAMESPACE)
@@ -209,7 +202,6 @@ def get_survey_results(message):
 
     sess = awaken_session()
     sess.save_survey_data(message['survey_data'])
-
     save_session(sess)
 
 
@@ -231,38 +223,31 @@ def get_action(action):
 def action():
     logger.info('receiving action')
 
-    if request.method == 'POST':
-        action_dict = request.json['actionData']
-        sess = separation_session.SeparationSession.from_json(session[CURRENT_SESSION])
-        logger.info('session awake {}'.format(sess.session_id))
+    action_dict = request.json['actionData']
+    sess = awaken_session()
 
-        if not sess.initialized or not sess.stft_done:
-            _exception('sess not initialized or STFT not done!')
+    if not sess.initialized or not sess.stft_done:
+        _exception('sess not initialized or STFT not done!')
 
-        sess.push_action(action_dict)
-        session[CURRENT_SESSION] = sess.to_json()
+    sess.push_action(action_dict)
+    save_session(sess)
 
-        return json.dumps(True)
+    return json.dumps(True)
 
 
 @app_.route('/process', methods=['GET'])
 def process():
     logger.info('got process request!')
 
-    if request.method == 'GET':
-        sess = separation_session.SeparationSession.from_json(session[CURRENT_SESSION])
-        logger.info('session awake {}'.format(sess.session_id))
+    sess = awaken_session()
 
-        if not sess.initialized or not sess.stft_done:
-            _exception('sess not initialized or STFT not done!')
+    if not sess.initialized or not sess.stft_done:
+        _exception('sess not initialized or STFT not done!')
 
-        sess.apply_actions_in_queue()
+    sess.apply_actions_in_queue()
+    save_session(sess)
 
-        file_mime_type = 'audio/wav'
-        file_path = sess.user_general_audio.make_wav_file()
+    file_mime_type = 'audio/wav'
+    file_path = sess.user_general_audio.make_wav_file()
 
-        session[CURRENT_SESSION] = sess.to_json()
-
-        response = make_response(send_file(file_path, file_mime_type))
-
-        return response
+    return make_response(send_file(file_path, file_mime_type))
