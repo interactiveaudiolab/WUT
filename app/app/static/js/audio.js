@@ -51,7 +51,6 @@ $('#input_audio_file').change(function () {
             }
 
             let new_track = new Track(buffer, t, data);
-            new_track.drawWaveform(buffer, t, data);
             trackList.push(new_track);
 
         });

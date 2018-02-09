@@ -1,36 +1,51 @@
 
+const PLAY_STATUS = {
+    PLAYING: "PLAYING",
+    STOPPED: "STOPPED",
+    PAUSED: "PAUSED"
+};
+
 
 class Track {
 
     constructor(buffer, trackID, envelopeData) {
-        this.buffer = buffer;
-        this.trackID = trackID;
-        this.envelopeData = envelopeData;
-        this.timeline = null;
-        this.cursorData = { currentPosition: 0, timeStart: null };
-        this.playing = false;
-        this.cursorLayer = null;
+        this._buffer = buffer;
+        this._trackID = trackID;
+        this._envelopeData = envelopeData;
+        this._timeline = null;
+        this._cursorData = { currentPosition: 0, timeStart: null };
+        this._status = PLAY_STATUS.STOPPED;
+        this._cursorLayer = null;
 
         this.isMuted = false;
+        this._context = new (window.AudioContext || window.webkitAudioContext)();
+        this._sourceNode = null;
+        this._gainNode = null;
+        this._transportPosition = 0;
+
+        this._drawWaveform();
+
     }
 
-    drawWaveform() {
+    _drawWaveform() {
 
         var width = 1000; // TODO: get width of hidden div
         var height = 100;
-        var pixelsPerSecond = width / this.buffer.duration;
+        var pixelsPerSecond = width / this._buffer.duration;
 
-        this.timeline = new wavesUI.core.Timeline(pixelsPerSecond, width);
-        var track_ = new wavesUI.core.Track(this.trackID, height);
+        this._timeline = new wavesUI.core.Timeline(pixelsPerSecond, width);
+        var track_ = new wavesUI.core.Track(this._trackID, height);
 
-        // WAVEFORM
-        var waveformLayer = new wavesUI.core.Layer('entity', this.buffer.getChannelData(0), {
+
+        /////////////////////  WAVEFORM  \\\\\\\\\\\\\\\\\\\\
+
+        var waveformLayer = new wavesUI.core.Layer('entity', this._buffer.getChannelData(0), {
             height: height,
             yDomain: [-1.05, 1.05]
         });
 
-        var timeContext = new wavesUI.core.LayerTimeContext(this.timeline.timeContext);
-        timeContext.duration = this.buffer.duration;
+        var timeContext = new wavesUI.core.LayerTimeContext(this._timeline.timeContext);
+        timeContext.duration = this._buffer.duration;
         timeContext.start = 0.0;
 
         waveformLayer.setTimeContext(timeContext);
@@ -44,10 +59,10 @@ class Track {
         // as the waveform is an `entity` layer, we have to edit the context directly
         waveformLayer.setContextEditable(true);
 
-        // timeline.state = new wavesUI.states.ContextEditionState(timeline);
 
-        // 'BREAKPOINT' (aka automation lines)
-        var breakpointLayer = new wavesUI.core.Layer('collection', this.envelopeData, {
+        /////////////// 'BREAKPOINT' (aka envelope lines) \\\\\\\\\\\\\
+
+        var breakpointLayer = new wavesUI.core.Layer('collection', this._envelopeData, {
             height: height
         });
 
@@ -74,19 +89,20 @@ class Track {
         breakpointLayer.configureShape(wavesUI.shapes.Dot, accessors);
         breakpointLayer.setBehavior(new wavesUI.behaviors.BreakpointBehavior());
 
-        this.timeline.state = new wavesUI.states.BreakpointState(this.timeline, function (x, y) {
+        this._timeline.state = new wavesUI.states.BreakpointState(this._timeline, function (x, y) {
             // this callback allow to create a datum from values represented by the new dot
             return {x: x, y: y};
         });
 
 
-        // CURSOR
-        this.cursorLayer = new wavesUI.core.Layer('entity', this.cursorData, {
+        //////////////////// CURSOR \\\\\\\\\\\\\\\\\\\\
+
+        this._cursorLayer = new wavesUI.core.Layer('entity', this._cursorData, {
             height: height
         });
 
-        this.cursorLayer.setTimeContext(timeContext);
-        this.cursorLayer.configureShape(wavesUI.shapes.Cursor, {
+        this._cursorLayer.setTimeContext(timeContext);
+        this._cursorLayer.configureShape(wavesUI.shapes.Cursor, {
             x: function (d) {
                 return d.currentPosition;
             }
@@ -96,68 +112,132 @@ class Track {
 
         // Add everything to the track
         track_.add(waveformLayer);
-        track_.add(this.cursorLayer);
+        track_.add(this._cursorLayer);
         track_.add(breakpointLayer);
-        this.timeline.add(track_);
+        this._timeline.add(track_);
 
-        this.timeline.tracks.render();
-        this.timeline.tracks.update();
+        this._timeline.tracks.render();
+        this._timeline.tracks.update();
     }
 
-    progressCursor() {
+    _animateCursor() {
 
-        if (this.playing) {
+        if (this.isPlaying()) {
             var currentTime = new Date().getTime() / 1000;
-            // var inc = ;
 
-            this.cursorData.currentPosition = currentTime % this.buffer.duration;
+            this._cursorData.currentPosition = currentTime % this._buffer.duration;
 
-            if (this.cursorData.currentPosition >= this.buffer.duration) {
+            if (this._cursorData.currentPosition >= this._buffer.duration) {
                 this.stop();
-                this.cursorData.currentPosition = 0;
+                this._cursorData.currentPosition = 0;
                 return;
             }
 
-            this.timeline.tracks.update(this.cursorLayer);
+            this._timeline.tracks.update(this._cursorLayer);
 
             requestAnimationFrame($.proxy(function () {
-                this.progressCursor()
+                this._animateCursor()
             }, this));
         }
     }
 
     togglePlayPause() {
-        this.playing = !this.playing;
-        if (this.playing) {
-
-            this.progressCursor()
+        if (this.isPlaying()) {
+            this.pause();
 
         } else {
-
+            this.play();
         }
     }
 
-    stop() {
-        this.playing = false;
+    play() {
+        this._status = PLAY_STATUS.PLAYING;
+        this._playAudio();
+        this._animateCursor();
     }
 
-    prepAudio() {
-        var source = window.AudioContext.createBufferSource();
-        source.buffer = this.buffer;
+    pause() {
+        this._status = PLAY_STATUS.PAUSED;
+        this._pauseAudio();
+    }
 
-        var gainNode = window.AudioContext.createGain();
+    stop() {
+        this._status = PLAY_STATUS.STOPPED;
+        this._stopAudio();
+    }
+
+    isPlaying() {
+        return this._status === PLAY_STATUS.PLAYING;
+    }
+
+    isPaused() {
+        return this._status === PLAY_STATUS.PAUSED;
+    }
+
+    isStopped() {
+        return this._status === PLAY_STATUS.STOPPED;
+    }
+
+    mute() {
+
+    }
+
+    _prepAudio() {
+        this._sourceNode = this._context.createBufferSource();
+        this._sourceNode.buffer = this._buffer;
+        this._sourceNode.onended = this._audioEnded();
+
+        if (!this._context.createGain)
+            this._context.createGain = this._context.createGainNode;
+
+        this._gainNode = this._context.createGain();
 
         // Source --> Gain Node --> Destination (output)
-        source.connect(gainNode);
-        gainNode.connect(window.AudioContext.destination);
+        this._sourceNode.connect(this._gainNode);
+        this._gainNode.connect(this._context.destination);
+
+        this._setGains();
 
     }
 
-    playAudio() {
+    _setGains() {
+        let envelopeData = this._timeline.tracks[0].layers[2].data;
+
+        if (envelopeData[0].x <= 0.1 ) {
+            this._gainNode.gain.value = envelopeData[0].y;
+        }
+
+        var this_ = this;
+        $.each(envelopeData, function(k, v) {
+            this_._gainNode.gain.linearRampToValueAtTime(v.y, this_._context.currentTime + v.x);
+        });
+    }
+
+    _playAudio() {
+        this._prepAudio();
+
+        this._startPlayTime = this._context.currentTime;
+        if (!this._sourceNode.start) {
+            this._sourceNode.noteOn(0);
+        } else {
+            this._sourceNode.start(0, this._transportPosition);
+        }
+
 
     }
 
-    stopAudio() {
+    _pauseAudio() {
+        // this._sourceNode.stop();
+        this._sourceNode.disconnect();
+
+    }
+
+    _stopAudio() {
+        this._pauseAudio();
+
+    }
+
+    _audioEnded() {
 
     }
 }
