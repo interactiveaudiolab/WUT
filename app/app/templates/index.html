@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap-multiselect.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/font-awesome.min.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.0.0/css/bootstrap-slider.min.css">
 
 
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/modernizr-2.8.3.min.js') }}"></script>
@@ -24,6 +25,7 @@
     <script src="{{ url_for('static', filename='js/plugins.js') }}"></script>
     <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.0.0/bootstrap-slider.min.js"></script>
     <script type="text/javascript" src="https://cdn.plot.ly/plotly-latest.js"></script>
 {#    <script data-main="scripts/main" src="scripts/require.js"></script>#}
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/wavesurfer.min.js') }}"></script>
@@ -340,54 +342,67 @@
                     </div>
                 </div>
                 <div class="row" id="track-container">
+                    <div class="row">
+                        <div class="col-md-10 col-md-offset-2">
+{#                            <div id="transport-slider"></div>#}
+                            <input id="transport-slider" type="text"
+                                   data-slider-handle="custom"
+                                   data-slider-min="0.0"
+                                   data-slider-step="0.01"
+                                   data-slider-value="0.0"
+{#                                   data-slider-tooltip="hide"#}
+
+                            />
+                        </div>
+                    </div>
                     <div class="row track-and-controls">
                         <div class="col-md-1 col-md-offset-1 track-controls">
                             <h5>Repet</h5>
                             <div class="btn-group btn-group-xs">
-                                <button id="repet-solo" class="btn btn-primary" title="Solo">
+                                <button id="repet-solo" class="btn btn-primary solo-track" title="Solo">
                                     S
                                 </button>
-                                <button id="repet-mute" class="btn btn-primary" title="Mute">
+                                <button id="repet-mute" class="btn btn-primary mute-track" title="Mute">
                                     M
                                 </button>
                             </div>
                         </div>
                         <div class="col-md-10 waves-ui-container">
-                            <div class="waves-ui-track" id="track-1-waves-ui" style="width: 100%"></div>
+                            <div class="waves-ui-track" id="track-1-waves-ui" data-color="SkyBlue" style="width: 100%"></div>
                         </div>
                     </div>
-{#                    <div class="row track-and-controls">#}
-{#                        <div class="col-md-1 col-md-offset-1 track-controls">#}
-{#                            <h5>Melodia</h5>#}
-{#                            <div class="btn-group btn-group-xs">#}
-{#                                <button id="melodia-solo" class="btn btn-primary" title="Solo">#}
-{#                                    S#}
-{#                                </button>#}
-{#                                <button id="melodia-mute" class="btn btn-primary" title="Mute">#}
-{#                                    M#}
-{#                                </button>#}
-{#                            </div>#}
-{#                        </div>#}
-{#                        <div class="col-md-10 waves-ui-container">#}
-{#                            <div class="waves-ui-track" id="track-2-waves-ui" style="width: 100%"></div>#}
-{#                        </div>#}
-{#                    </div>#}
-{#                    <div class="row track-and-controls">#}
-{#                        <div class="col-md-1 col-md-offset-1 track-controls">#}
-{#                            <h5>Projet</h5>#}
-{#                            <div class="btn-group btn-group-xs">#}
-{#                                <button id="projet-solo" class="btn btn-primary" title="Solo">#}
-{#                                    S#}
-{#                                </button>#}
-{#                                <button id="projet-mute" class="btn btn-primary" title="Mute">#}
-{#                                    M#}
-{#                                </button>#}
-{#                            </div>#}
-{#                        </div>#}
-{#                        <div class="col-md-10 waves-ui-container">#}
-{#                            <div class="waves-ui-track" id="track-3-waves-ui" style="width: 100%"></div>#}
-{#                        </div>#}
-{#                    </div>#}
+                    <div class="row track-and-controls">
+                        <div class="col-md-1 col-md-offset-1 track-controls">
+                            <h5>Melodia</h5>
+                            <div class="btn-group btn-group-xs">
+                                <button id="melodia-solo" class="btn btn-primary solo-track" title="Solo">
+                                    S
+                                </button>
+                                <button id="melodia-mute" class="btn btn-primary mute-track" title="Mute">
+                                    M
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-10 waves-ui-container">
+                            <div class="waves-ui-track" id="track-2-waves-ui" data-color="Tomato" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    <div class="row track-and-controls">
+                        <div class="col-md-1 col-md-offset-1 track-controls">
+                            <h5>Projet</h5>
+                            <div class="btn-group btn-group-xs">
+                                <button id="projet-solo" class="btn btn-primary solo-track" title="Solo">
+                                    S
+                                </button>
+                                <button id="projet-mute" class="btn btn-primary mute-track" title="Mute">
+                                    M
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-10 waves-ui-container">
+                            <div class="waves-ui-track" id="track-3-waves-ui" data-color="MediumSeaGreen" style="width: 100%"></div>
+                        </div>
+                    </div>
                 </div>
 
             </div>
@@ -444,6 +459,7 @@
 <script type="text/javascript" src="{{ url_for('static', filename='js/audio.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/selection.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/track.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/multitrack.js') }}"></script>
 
 <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
 <!--<script>-->

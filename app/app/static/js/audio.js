@@ -7,8 +7,6 @@ var context;
 var bufferLoader;
 var spec_data;
 
-var trackList = [];
-
 var DO_STFT_ON_CLIENT = false;
 
 
@@ -40,23 +38,7 @@ $('#input_audio_file').change(function () {
         buffer_loader_load(mixture_audio_file.url);
     }
 
-    loader.load(mixture_audio_file.url).then(function(buffer) {
-        let tracks = $('.waves-ui-track');
-        $.each(tracks, function(k, t) {
-            // Fake data
-            var data = [];
-            let n = 7;
-            for (i=0; i <= n; ++i) {
-                data.push({ x: i * buffer.duration / n, y: Math.random() });
-            }
-
-            let new_track = new Track(buffer, t, data);
-            trackList.push(new_track);
-
-        });
-    }).catch(function(err) {
-        console.error(err.stack);
-    });
+    initMultiTrackWithRandom(mixture_audio_file.url);
 
     $("#filename").text(mixture_audio_file.file.name);
     $('#extraction-goal').multiselect('enable');
@@ -104,17 +86,6 @@ $('#mixture-play').click(function() {
     togglePlayPauseIcon(this);
 
     mixture_waveform.playPause();
-});
-
-$('#req-play').click(function () {
-    togglePlayPauseIcon(this);
-
-    // if ($(this).find('i').hasClass('glyphicon-pause')){ }
-
-    $.each(trackList, function(v, t) {
-        t.togglePlayPause();
-    });
-
 });
 
 function togglePlayPauseIcon(obj) {

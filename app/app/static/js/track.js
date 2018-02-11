@@ -8,9 +8,10 @@ const PLAY_STATUS = {
 
 class Track {
 
-    constructor(buffer, trackID, envelopeData) {
+    constructor(buffer, trackID, envelopeData, slider, audioEndCallback) {
         this._buffer = buffer;
         this._trackID = trackID;
+        this._color = $(this._trackID).data('color');
         this._envelopeData = envelopeData;
         this._timeline = null;
         this._cursorData = { currentPosition: 0, timeStart: null };
@@ -21,7 +22,11 @@ class Track {
         this._context = new (window.AudioContext || window.webkitAudioContext)();
         this._sourceNode = null;
         this._gainNode = null;
-        this._transportPosition = 0;
+        this._pausedPosition = 0;
+        this._slider = slider;
+
+        this._startPlayTime = null;
+        this.audioEndCallback = audioEndCallback;
 
         this._drawWaveform();
 
@@ -54,7 +59,7 @@ class Track {
                 return d;
             },
         }, {
-            color: 'steelblue'
+            color: this._color
         });
         // as the waveform is an `entity` layer, we have to edit the context directly
         waveformLayer.setContextEditable(true);
@@ -98,7 +103,8 @@ class Track {
         //////////////////// CURSOR \\\\\\\\\\\\\\\\\\\\
 
         this._cursorLayer = new wavesUI.core.Layer('entity', this._cursorData, {
-            height: height
+            height: height,
+            width: 3
         });
 
         this._cursorLayer.setTimeContext(timeContext);
@@ -123,22 +129,38 @@ class Track {
     _animateCursor() {
 
         if (this.isPlaying()) {
-            var currentTime = new Date().getTime() / 1000;
+            this.cursorPosition = this.elapsedTime() + this._pausedPosition;
 
-            this._cursorData.currentPosition = currentTime % this._buffer.duration;
-
-            if (this._cursorData.currentPosition >= this._buffer.duration) {
+            if (this.cursorPosition >= this._buffer.duration) {
                 this.stop();
-                this._cursorData.currentPosition = 0;
                 return;
             }
-
-            this._timeline.tracks.update(this._cursorLayer);
 
             requestAnimationFrame($.proxy(function () {
                 this._animateCursor()
             }, this));
         }
+    }
+
+    set cursorPosition(value) {
+        if (value >= this._buffer.duration) {
+            value = this._buffer.duration;
+        }
+
+        this._cursorData.currentPosition = value;
+        this._timeline.tracks.update(this._cursorLayer);
+
+        if (this._slider.bootstrapSlider('getValue') !== value) {
+            this._slider.bootstrapSlider('setValue', value);
+        }
+    }
+
+    get cursorPosition() {
+        return this._cursorData.currentPosition;
+    }
+
+    clearAllEnvelopeData() {
+        this._timeline.tracks[0].layers[2].data = [];
     }
 
     togglePlayPause() {
@@ -179,13 +201,31 @@ class Track {
     }
 
     mute() {
-
+        this.isMuted = true;
+        this._gainNode.gain.setValueAtTime(0.0, this._context.currentTime);
     }
 
-    _prepAudio() {
+    unmute() {
+        this.isMuted = false;
+        this._setGains();
+    }
+
+    toggleMuteUnmute() {
+        if (this.isMuted) {
+            this.unmute();
+        } else {
+            this.mute();
+        }
+    }
+
+    _prepAudioAPI() {
         this._sourceNode = this._context.createBufferSource();
         this._sourceNode.buffer = this._buffer;
-        this._sourceNode.onended = this._audioEnded();
+
+        let this_ = this;
+        this._sourceNode.onended = function() {
+            this_._audioEnded();
+        };
 
         if (!this._context.createGain)
             this._context.createGain = this._context.createGainNode;
@@ -208,36 +248,52 @@ class Track {
         }
 
         var this_ = this;
-        $.each(envelopeData, function(k, v) {
+        $.each(envelopeData, function(_, v) {
             this_._gainNode.gain.linearRampToValueAtTime(v.y, this_._context.currentTime + v.x);
         });
     }
 
     _playAudio() {
-        this._prepAudio();
+        this._prepAudioAPI();
 
         this._startPlayTime = this._context.currentTime;
         if (!this._sourceNode.start) {
             this._sourceNode.noteOn(0);
         } else {
-            this._sourceNode.start(0, this._transportPosition);
+            this._sourceNode.start(0, this._pausedPosition);
         }
 
 
     }
 
+    elapsedTime() {
+        return this._context.currentTime - this._startPlayTime;
+    }
+
     _pauseAudio() {
-        // this._sourceNode.stop();
-        this._sourceNode.disconnect();
+        if (this._sourceNode) {
+            this._sourceNode.disconnect();
+            this._sourceNode.stop();
+            this._sourceNode = null;
+        }
+
+        if (this._gainNode) {
+            this._gainNode.disconnect();
+            this._gainNode = null;
+        }
+
+        this._pausedPosition = this.elapsedTime();
 
     }
 
     _stopAudio() {
         this._pauseAudio();
-
+        this._pausedPosition = 0;
+        this.cursorPosition = 0;
     }
 
     _audioEnded() {
-
+        this.stop();
+        this.audioEndCallback();
     }
 }
