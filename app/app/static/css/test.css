@@ -1,0 +1,81 @@
+@import url('https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.css');
+
+/* REMOVE THIS LATER, JUST WHILE LAYING STUFF OUT */
+
+/* div, header, footer {
+	text-align: center;
+	font-size: 1.3em;
+	color: white;
+} */
+
+/* SERIOUSLY THOUGH */
+
+body {
+	min-height: 100vh;
+	min-width: 100%;
+	background-color: black;
+
+	display: grid;
+	grid-template-rows: 75px 1fr 75px;
+	grid-template-columns: 1fr;
+	grid-template-areas: 	"header"
+												"main"
+												"footer";
+}
+
+header {
+	grid-area: header;
+	background-color: mediumslateblue;
+
+	display: flex;
+	justify-content: space-around;
+}
+
+main {
+	grid-area: main;
+	background-color: lightseagreen;
+
+	display: flex;
+	flex-flow: column nowrap;
+}
+
+main > .waveform-cont {
+	background-color: mediumvioletred;
+	flex: 0 0 15%;
+	display: flex;
+}
+
+main > .waveform-cont > .controls {
+	background-color: lightgreen;
+	
+	display: flex;
+	flex-flow: column;
+	flex: 0 0 90px;
+}
+
+main > .waveform-cont > .waveform {
+	flex: 1 0 auto;
+}
+
+main > .interaction {
+	background-color: lightcoral;
+	flex: 1 0 auto;
+
+	display: flex;
+	justify-content: space-between;
+	align-items: stretch;
+}
+
+main > .interaction > div {
+	flex: 1 0 0;
+}
+
+footer {
+	grid-area: footer;
+	background-color: dodgerblue;
+	text-align: center;
+}
+
+footer p {
+	margin: 5px;
+}
