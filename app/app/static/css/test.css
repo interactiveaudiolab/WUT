@@ -1,19 +1,11 @@
 @import url('https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.css');
-
-/* REMOVE THIS LATER, JUST WHILE LAYING STUFF OUT */
-
-/* div, header, footer {
-	text-align: center;
-	font-size: 1.3em;
-	color: white;
-} */
-
-/* SERIOUSLY THOUGH */
+@import url('https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css');
 
 body {
+	color: black;
+
 	min-height: 100vh;
 	min-width: 100%;
-	background-color: black;
 
 	display: grid;
 	grid-template-rows: 75px 1fr 75px;
@@ -25,57 +17,134 @@ body {
 
 header {
 	grid-area: header;
-	background-color: mediumslateblue;
 
 	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 0 30px 0 20px;
+	border-bottom: black 2px solid;
+}
+
+header #status-cont p {
+	margin: 2px 0 2px 0;
+}
+
+header > :first-child {
+	font-size: 2.5em;
+	flex: 0 0 auto;
+}
+
+header .header-elements {
+	display: flex;
+	flex: 0 0 40%;
+	justify-content: space-between;
+	font-size: .8em;
+}
+
+header .header-elements > .upload {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	flex: 0 0 auto;
+}
+
+header .header-elements > .upload div:nth-child(2) {
+	margin: 30px;
+}
+
+.vertical-divider {
+	border-left: 1px solid whitesmoke; 
+	width: 1px;
+	height: 70px;
+}
+
+header #status-cont {
+	display: flex;
+	flex-flow: column nowrap;
 	justify-content: space-around;
+	align-items: flex-start;
+	flex: 0 0 75%;
+	height: 75px;
+	padding: 10px 5px 5px 5px;
+}
+
+header #status-cont :first-child {
+	flex: 0 0 25px;
+}
+
+header #status {
+	flex: 1 1 auto;
+	width: 100%;
+	border: solid 1px whitesmoke;
+	padding: 5px 0 0 5px;
 }
 
 main {
 	grid-area: main;
-	background-color: lightseagreen;
 
 	display: flex;
 	flex-flow: column nowrap;
+	margin: 10px 0 0 0;
 }
 
 main > .waveform-cont {
-	background-color: mediumvioletred;
-	flex: 0 0 15%;
+	flex: 0 0 100px;
 	display: flex;
+	align-items: stretch;
+	padding: 10px 20px;
 }
 
 main > .waveform-cont > .controls {
-	background-color: lightgreen;
-	
+	flex: 0 0 40px;
+	margin: 0 20px 0 20px;
+
 	display: flex;
 	flex-flow: column;
-	flex: 0 0 90px;
+	justify-content: space-around;
 }
 
-main > .waveform-cont > .waveform {
-	flex: 1 0 auto;
+main > .waveform-cont > .controls div {
+	padding: 10px 0;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+main > .waveform-cont > #waveform {
+	flex: 1;
 }
 
 main > .interaction {
-	background-color: lightcoral;
 	flex: 1 0 auto;
 
 	display: flex;
-	justify-content: space-between;
-	align-items: stretch;
+	justify-content: space-around;
+	align-items: center;
+	padding: 0 0 10px 0;
 }
 
 main > .interaction > div {
-	flex: 1 0 0;
+	flex: 0 0 46%;
+	display: flex;
+	align-items: center;
+	/* padding: 5px; */
 }
 
 footer {
 	grid-area: footer;
-	background-color: dodgerblue;
+	background-color: #fff2fa;
 	text-align: center;
+	padding: 5px;
 }
 
 footer p {
-	margin: 5px;
+	margin: 3px;
+	font-size: .8em;
+}
+
+@media screen and (max-width: 1150px) {
+	main > .interaction {
+		flex-flow: column;
+	}
 }

@@ -69,6 +69,7 @@ class FT2DHeatmap extends PlotlyHeatmap {
     }
 }
 
-$( window ).resize(function() {
-    let update = { width: $(window).width() };
-});
+// $( window ).resize(function() {
+//     let update = { width: $(window).width() };
+//     Plotly.relayout("ft2d-heatmap", update);
+// });

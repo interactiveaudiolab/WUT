@@ -7,8 +7,7 @@ var result_waveform = Object.create(WaveSurfer);
 var all_waveforms = [mixture_waveform, result_waveform];
 var defaultZoomStart;
 var zoomStepSize = 5;
-// var mixture_spectrogram_heatmap = new SpectrogramHeatmap('spectrogram-heatmap', 20000);
-var result_spectrogram_heatmap = new SpectrogramHeatmap('result-spectrogram-heatmap', 20000);
+var spectrogram = new PCAHeatmap('spectrogram', 100);
 var pca = new PCAHeatmap('pca', 100);
 
 var socket;
@@ -29,7 +28,7 @@ randomMatrix = (height, width, max) =>
 // returns max x max matrix
 
 tfToMatrix = (tfArray, max) => {
-    pca = makeMatrix(max, max)(() => [])
+    let pca = makeMatrix(max, max)(() => [])
     // console.log(tfArray)
     tfArray.forEach(([x, y], tfIndex) => {
         pca[x][y] = pca[x][y].concat([tfIndex])
@@ -48,9 +47,9 @@ pcaToHistrogram = (pca) => {
 
 tf = randomMatrix(100, 2, 5)
 
-pca = tfToMatrix(tf, 5)
+pca_data = tfToMatrix(tf, 5)
 
-hist = pcaToHistrogram(pca)
+hist = pcaToHistrogram(pca_data)
 
 $(document).ready(function() {
 	window.AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -66,7 +65,7 @@ $(document).ready(function() {
   });
 
   socket.on('audio_upload_ok', function () {
-      $('#general-status').text('Audio uploaded to server.');
+      $('#status').text('Audio uploaded to server.');
   });
 
   socket.on('bad_file', function () {
@@ -74,16 +73,19 @@ $(document).ready(function() {
   });
 
   // FAKING HEATMAP
+  console.log('PCA')
+  console.log(pca)
+  make_pca(spectrogram, randomMatrix(100, 100, 5))
   make_pca(pca, randomMatrix(100, 100, 5))
 });
 
 document.addEventListener('DOMContentLoaded', function () {
 
     var mixtureOptions = {
-        container: document.querySelector('#mixture-waveform'),
-        waveColor: 'blue',
-        progressColor: 'navy',
-        cursorColor: 'black',
+        container: '#waveform',
+        waveColor: 'grey',
+        progressColor: 'black',
+        cursorColor: 'pink',
         scrollParent: false,
         height: 80,
         normalize: true,
@@ -94,19 +96,17 @@ document.addEventListener('DOMContentLoaded', function () {
     mixture_waveform.init(mixtureOptions);
     defaulZoomStart = mixture_waveform.params.minPxPerSec;
 
-    // Init result_waveform
-    var resultOptions = {
-        container: document.querySelector('#result-waveform'),
-        waveColor: 'blue',
-        progressColor: 'navy',
-        cursorColor: 'black',
-        scrollParent: false,
-        height: 120,
-        normalize: true,
-        audioRate: 1.0
-    };
+    $('#open-modal').modal({
+        backdrop: 'static',
+        keyboard: false
+    });    
+});
 
-    result_waveform.init(resultOptions);
+
+$( window ).resize(function() {
+    let update = { width: $('pca').width() };
+    Plotly.relayout("pca", update);
+    Plotly.relayout("spectrogram", update);
 });
 
 mixture_waveform.on('ready', function () {
@@ -114,38 +114,13 @@ mixture_waveform.on('ready', function () {
 
   timeline.init({
     wavesurfer: mixture_waveform,
-    container: '#waveform-timeline'
+    container: '#waveform'
   });
 });
 
-$('#privacy-policy-link').click(function(){
-    $('#privacy-modal').modal({
-        backdrop: 'static'
-    });
-});
+//  ~~~~~~~~~~~~~   MODAL STUFF   ~~~~~~~~~~~~~~~~
 
-$('#mixture-zoom-in').click(function(){
-    mixture_waveform.zoom(mixture_waveform.params.minPxPerSec + zoomStepSize);
-});
-
-$('#mixture-zoom-out').click(function(){
-    mixture_waveform.zoom(mixture_waveform.params.minPxPerSec - zoomStepSize);
-});
-
-function enableTools(enabled, className) {
-    if (enabled === true) {
-        $(className).removeClass('disabled');
-    }
-    else if (enabled === false) {
-        $(className).addClass('disabled');
-    }
-}
-
-$('#results-pill').click(function() {
-    $(this).removeClass('result-ready');
-});
-
-$('#import-audio').click(function(){
+$('.upload').click(function(){
     $('#open-modal').modal({
         backdrop: 'static',
         keyboard: false
@@ -158,8 +133,84 @@ $('#open-button-modal').click(function () {
 });
 
 function openFileDialog() {
-    $('#survey')[0].reset();
-    $('#extraction-goal').multiselect('deselectAll', false);
+    // $('#survey')[0].reset();
+    // $('#extraction-goal').multiselect('deselectAll', false);
     audio.import_audio();
-    $('#general-status').text('Uploading audio to server...');
+    $('#status').text('Uploading audio to server...');
 }
+
+
+
+// ~~~~~~~~~~~~~~~ AUDIO ~~~~~~~~~~~~~~~~~~
+
+// $('#mixture-play').click(function() {
+//     if (!mixture_waveform.backend.buffer) {
+//         return;
+//     }
+
+//     if (!mixture_waveform.isPlaying()) {
+//         // Audio is paused
+//         $('#mixture-play').find("i").removeClass('glyphicon glyphicon-play').addClass('glyphicon glyphicon-pause')
+//             .attr('title', 'Pause audio');
+//     } else {
+//         // Audio is playing
+//         $('#mixture-play').find("i").removeClass('glyphicon glyphicon-pause').addClass('glyphicon glyphicon-play')
+//             .attr('title', 'Play audio');
+//     }
+//     mixture_waveform.playPause();
+// });
+
+// $('#mixture-stop').click(function() {
+//     if (!mixture_waveform.backend.buffer) {
+//         return;
+//     }
+
+//     if (mixture_waveform.isPlaying()) {
+//         $('#mixture-play').find("i").removeClass('glyphicon glyphicon-pause').addClass('glyphicon glyphicon-play')
+//             .attr('title', 'Play audio');
+//         mixture_waveform.stop();
+//     }
+
+//     mixture_waveform.seekTo(0);
+// });
+
+
+// audio.playPause = function () {
+//     togglePlayPauseIcon();
+//     mixture_waveform.playPause();
+// };
+
+// audio.isPlaying = function () {
+//     var playing = true;
+//     this.waveforms.forEach( function (w) {
+//         playing = playing && w.isPlaying();
+//     });
+//     return playing;
+// };
+
+// function togglePlayPauseIcon() {
+//     if (!audio.isPlaying()) {
+//         // Audio is paused
+//         $('#play_icon').removeClass('glyphicon glyphicon-play').addClass('glyphicon glyphicon-pause');
+//         $('#play_button').attr('title', 'Pause audio');
+//     } else {
+//         // Audio is playing
+//         $('#play_icon').removeClass('glyphicon glyphicon-pause').addClass('glyphicon glyphicon-play');
+//         $('#play_button').attr('title', 'Play audio');
+//     }
+// }
+
+// function playPauseButton() {
+//     if (mixture_audio_file.file !== null) {
+//         audio.playPause();
+//     }
+// }
+
+// function stopButton() {
+//     if (audio.isPlaying()) {
+//         togglePlayPauseIcon();
+//         mixture_waveform.stop();
+//     } else {
+//         mixture_waveform.seekTo(0);
+//     }
+// }
