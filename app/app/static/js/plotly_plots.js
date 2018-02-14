@@ -80,8 +80,10 @@ class PlotlyHeatmap {
             shapes: [],
 
             // Cosmetics
-            paper_bgcolor: '#f8f8f8', // 'rgb(0,0,0,0); doesn't work :(
-            plot_bgcolor: '#f8f8f8',
+            // paper_bgcolor: '#E3F0FB', // 'rgb(0,0,0,0); doesn't work :(
+            // plot_bgcolor: '#E3F0FB',
+            // width: 500,
+            // height: 500,
             margin: this.plotMargins,
             autosize: true,
         };
@@ -108,8 +110,8 @@ class PlotlyHeatmap {
         this.plotLayout.yaxis.autorange = false;
 
         this.plot = Plotly.newPlot(this.divID, data, this.plotLayout, this.plotOptions);
-        let update = { width: $(window).width() };
-        Plotly.relayout(this.divID, update);
+        // let update = { width: $(window).width() };
+        // Plotly.relayout(this.divID, update);
     }
 
     static getColor() {
@@ -155,11 +157,12 @@ class PlotlyHeatmap {
 
 }
 
-$( window ).resize(function() {
-    let update = { width: $(window).width() };
-    Plotly.relayout("spectrogram-heatmap", update);
-    Plotly.relayout("result-spectrogram-heatmap", update);
-});
+// $( window ).resize(function() {
+//     let update = { width: $(window).width() };
+//     Plotly.relayout("spectrogram-heatmap", update);
+//     Plotly.relayout("result-spectrogram-heatmap", update);
+//     Plotly.relayout("ft2d-heatmap", update);
+// });
 
 let undoSelections = [];
 let redoSelections = [];
