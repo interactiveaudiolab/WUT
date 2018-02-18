@@ -13,14 +13,14 @@ from .. import nussl
 logger = logging.getLogger()
 
 
-class Duet(audio_processing_base.AudioProcessingBase):
+class Duet(audio_processing_base.InteractiveAudioProcessingBase):
     """
 
     """
 
-    def __init__(self, audio_signal, storage_path):
-        super(Duet, self).__init__(audio_signal, storage_path)
-        self.duet = nussl.Duet(audio_signal, 2)
+    def __init__(self, mixture_signal, storage_path):
+        super(Duet, self).__init__(mixture_signal, storage_path)
+        self.duet = nussl.Duet(mixture_signal, 2)
         self.atn_delay_hist = None
 
     def get_ad_histogram_json(self):

@@ -19,6 +19,7 @@ class Track {
         this._cursorLayer = null;
 
         this.isMuted = false;
+        this.isSoloed = false;
         this._context = new (window.AudioContext || window.webkitAudioContext)();
         this._sourceNode = null;
         this._gainNode = null;
@@ -27,6 +28,9 @@ class Track {
 
         this._startPlayTime = null;
         this.audioEndCallback = audioEndCallback;
+
+        this._startedAt = 0;
+        this._pausedAt = 0;
 
         this._drawWaveform();
 
@@ -129,7 +133,7 @@ class Track {
     _animateCursor() {
 
         if (this.isPlaying()) {
-            this.cursorPosition = this.elapsedTime() + this._pausedPosition;
+            this.cursorPosition = this.getCurrentTime() + this._pausedAt;
 
             if (this.cursorPosition >= this._buffer.duration) {
                 this.stop();
@@ -150,6 +154,8 @@ class Track {
         this._cursorData.currentPosition = value;
         this._timeline.tracks.update(this._cursorLayer);
 
+        // Only set the slider if there's a new number
+        // otherwise all of the tracks will set the slider redundantly
         if (this._slider.bootstrapSlider('getValue') !== value) {
             this._slider.bootstrapSlider('setValue', value);
         }
@@ -202,12 +208,17 @@ class Track {
 
     mute() {
         this.isMuted = true;
-        this._gainNode.gain.setValueAtTime(0.0, this._context.currentTime);
+        if (this._gainNode) {
+            this._gainNode.gain.cancelScheduledValues(this._context.currentTime);
+            this._gainNode.gain.setValueAtTime(0.0, this._context.currentTime);
+        }
     }
 
     unmute() {
         this.isMuted = false;
-        this._setGains();
+        if (this._gainNode) {
+            this._setGains();
+        }
     }
 
     toggleMuteUnmute() {
@@ -243,8 +254,17 @@ class Track {
     _setGains() {
         let envelopeData = this._timeline.tracks[0].layers[2].data;
 
+        if (!this._gainNode) {
+            return;
+        }
+
+        if (this.isMuted) {
+            this._gainNode.gain.setValueAtTime(0, this._context.currentTime);
+            return;
+        }
+
         if (envelopeData[0].x <= 0.1 ) {
-            this._gainNode.gain.value = envelopeData[0].y;
+            this._gainNode.gain.setValueAtTime(envelopeData[0].y, this._context.currentTime);
         }
 
         var this_ = this;
@@ -256,21 +276,31 @@ class Track {
     _playAudio() {
         this._prepAudioAPI();
 
-        this._startPlayTime = this._context.currentTime;
+        let offset = this._pausedAt;
         if (!this._sourceNode.start) {
             this._sourceNode.noteOn(0);
+            console.log('Cannot use SourceNode.start()!')
         } else {
-            this._sourceNode.start(0, this._pausedPosition);
+            this._sourceNode.start(0, this.cursorPosition);
         }
 
+        this._startedAt = this._context.currentTime - offset;
+        this._pausedAt = 0;
 
     }
 
-    elapsedTime() {
-        return this._context.currentTime - this._startPlayTime;
+    getCurrentTime() {
+        if(this._pausedAt) {
+            return this._pausedAt;
+        }
+        if(this._startedAt) {
+            return this._context.currentTime - this._startedAt;
+        }
+        return 0;
     }
 
     _pauseAudio() {
+        let elapsed = this._context.currentTime - this._startedAt;
         if (this._sourceNode) {
             this._sourceNode.disconnect();
             this._sourceNode.stop();
@@ -282,13 +312,14 @@ class Track {
             this._gainNode = null;
         }
 
-        this._pausedPosition = this.elapsedTime();
+        this._pausedAt = elapsed;
 
     }
 
     _stopAudio() {
         this._pauseAudio();
-        this._pausedPosition = 0;
+        this._startedAt = 0;
+        this._pausedAt = 0;
         this.cursorPosition = 0;
     }
 

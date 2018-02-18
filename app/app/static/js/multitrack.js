@@ -90,15 +90,32 @@ $('.mute-track').click(function () {
     let idx = parseInt($(this).parent().parent().siblings().children()[0].id.split('-')[1]) - 1;
 
     trackList[idx].toggleMuteUnmute();
+    togglePrimaryBtn(this);
 });
 
 $('.solo-track').click(function () {
     let idx = parseInt($(this).parent().parent().siblings().children()[0].id.split('-')[1]) - 1;
 
+    trackList[idx].isSoloed = !trackList[idx].isSoloed;
+
     $.each(trackList, function(i, t) {
-        if (i !== idx) {
-            t.mute();
+        if (i !== idx && !t.isSoloed) {
+            if (trackList[idx].isSoloed) {
+                t.mute();
+            } else {
+                t.unmute();
+            }
         }
     });
 
+    togglePrimaryBtn(this);
 });
+
+function togglePrimaryBtn(obj) {
+    $.each(trackList, function(_, t) { console.log({'soloed': t.isSoloed, 'muted': t.isMuted}); });
+    if (!$(obj).hasClass('btn-primary')) {
+        $(obj).addClass('btn-primary');
+    } else {
+        $(obj).removeClass('btn-primary');
+    }
+}

@@ -5,6 +5,7 @@ from . import config
 from . import separation_session
 from . import utils
 from . import app_obj
+from . import recommendations
 
 # Set folders up
 from config import INIT_FOLDERS

@@ -15,6 +15,7 @@ import jsonpickle
 import jsonpickle.ext.numpy as jsonpickle_numpy
 
 import audio_processing
+import recommendations
 import config
 import nussl
 import actions
@@ -62,6 +63,8 @@ class SeparationSession(object):
         self.ft2d = None
         self.duet = None
 
+        self.algorithm_picker = None
+
         self.undo_list = []
         self.initialized = False
 
@@ -104,15 +107,23 @@ class SeparationSession(object):
         if user_signal.is_stereo:
             self.duet = audio_processing.Duet(user_signal, self.user_original_file_folder)
 
+
+
         self.initialized = True
         self.time_of_init = time.asctime(time.localtime(time.time()))
 
-    def save_survey_data(self, survey_data):
+    def receive_survey_response(self, survey_data):
         try:
             self.user_goals = survey_data['extraction_goals']
+            self.algorithm_picker = recommendations.SDRPredictor(self.user_general_audio.audio_signal_copy,
+                                                                 self.user_goals, self.base_audio_path, {})
         except Exception:
             logger.warning('Survey data: {}'.format(json.dumps(survey_data)))
             pass
+
+    @property
+    def algorithms_run_yet(self):
+        return self.algorithm_picker.algorithms_run_yet
 
     def push_action(self, action_dict):
         action_id = len(self._action_queue) + 1

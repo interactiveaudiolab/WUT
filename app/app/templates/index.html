@@ -7,9 +7,6 @@
     <meta name="description" content="Web Unmixing Toolbox from the Interactive Audio Lab at Northwestern University">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-{#    <link rel="apple-touch-icon" href="apple-touch-icon.png">#}
-    <!-- Place favicon.ico in the root directory -->
-
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
           integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
@@ -27,12 +24,12 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.0.0/bootstrap-slider.min.js"></script>
     <script type="text/javascript" src="https://cdn.plot.ly/plotly-latest.js"></script>
-{#    <script data-main="scripts/main" src="scripts/require.js"></script>#}
+    {#    <script data-main="scripts/main" src="scripts/require.js"></script>#}
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/wavesurfer.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/wavesurfer.regions.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/wavesurfer.timeline.js') }}"></script>
-{#    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/buffer-loader.js') }}"></script>#}
-{#    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/dsp.js') }}"></script>#}
+    {#    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/buffer-loader.js') }}"></script>#}
+    {#    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/dsp.js') }}"></script>#}
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/FileSaver.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/bootstrap-multiselect.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/socket.io.js') }}"></script>
@@ -46,7 +43,6 @@
         <![endif]-->
 
 <script>window.jQuery || document.write('<script src="js/vendor/jquery-{{JQUERY_VERSION}}.min.js"><\/script>')</script>
-{#        <script src="js/main.js"></script>#}
 
 <div id="wrapper">
     <nav class="navbar navbar-default navbar-static-top" role="navigation">
@@ -147,17 +143,15 @@
         <div class="player-wrapper" id="mixture-player">
             <div class="player-controls" id="mixture-player-controls">
                 <div class="player-controls-inner" style="padding-left: 20px">
-                    <div class="btn-group-vertical" {#  style="padding-bottom: 10px" #} >
+                    <div class="btn-group-vertical">
 
                         <button id="mixture-play" class="btn btn-primary result-controls play-pause"
                                 title="Play">
-                                <i class="glyphicon glyphicon-play" title="Play Audio"></i>
+                            <i class="glyphicon glyphicon-play" title="Play Audio"></i>
                         </button>
-{#                    </div>#}
-{#                    <div>#}
                         <button id="mixture-stop" class="btn btn-primary result-controls"
                                 title="Stop">
-                                <i class="glyphicon glyphicon-stop" title="Stop Audio"></i>
+                            <i class="glyphicon glyphicon-stop" title="Stop Audio"></i>
                         </button>
                     </div>
                 </div>
@@ -165,9 +159,6 @@
             <div class="waveform-wrapper" id="mixture-waveform-wrapper">
                 <div class="waveform">
                     <div id="mixture-waveform" style="width: 100%">
-                        {# <div class="progress progress-striped active" id="progress-bar" style="display: none;">#}
-                        {# <div class="progress-bar progress-bar-info" style="width: 100%;"></div>#}
-                        {# </div>#}
                     </div>
                     <div id="waveform-timeline"></div>
                 </div>
@@ -291,19 +282,19 @@
                             <div style="padding-bottom: 5px">
                                 <button id="result-play" class="btn btn-primary result-controls disabled"
                                         title="Play/Pause">
-                                        <i class="glyphicon glyphicon-play" title="Play Audio"></i>
+                                    <i class="glyphicon glyphicon-play" title="Play Audio"></i>
                                 </button>
                             </div>
                             <div style="padding-bottom: 5px">
                                 <button id="result-stop" class="btn btn-primary result-controls disabled"
                                         title="Stop">
-                                        <i class="glyphicon glyphicon-stop" title="Stop Audio"></i>
+                                    <i class="glyphicon glyphicon-stop" title="Stop Audio"></i>
                                 </button>
                             </div>
                             <div>
                                 <button id="save-result" class="btn btn-primary result-controls disabled"
                                         title="Save Result">
-                                        Save
+                                    Save
                                 </button>
                             </div>
                         </div>
@@ -311,9 +302,6 @@
                     <div class="waveform-wrapper" id="result-waveform-wrapper">
                         <div class="waveform">
                             <div id="result-waveform" style="width: 100%">
-                                {# <div class="progress progress-striped active" id="progress-bar" style="display: none;">#}
-                                {# <div class="progress-bar progress-bar-info" style="width: 100%;"></div>#}
-                                {# </div>#}
                             </div>
                             <div id="result-waveform-timeline"></div>
                         </div>
@@ -344,13 +332,12 @@
                 <div class="row" id="track-container">
                     <div class="row">
                         <div class="col-md-10 col-md-offset-2">
-{#                            <div id="transport-slider"></div>#}
                             <input id="transport-slider" type="text"
                                    data-slider-handle="custom"
                                    data-slider-min="0.0"
                                    data-slider-step="0.01"
                                    data-slider-value="0.0"
-{#                                   data-slider-tooltip="hide"#}
+                                    {# data-slider-tooltip="hide"#}
 
                             />
                         </div>
@@ -359,10 +346,10 @@
                         <div class="col-md-1 col-md-offset-1 track-controls">
                             <h5>Repet</h5>
                             <div class="btn-group btn-group-xs">
-                                <button id="repet-solo" class="btn btn-primary solo-track" title="Solo">
+                                <button id="repet-solo" class="btn solo-track" title="Solo">
                                     S
                                 </button>
-                                <button id="repet-mute" class="btn btn-primary mute-track" title="Mute">
+                                <button id="repet-mute" class="btn mute-track" title="Mute">
                                     M
                                 </button>
                             </div>
@@ -375,26 +362,26 @@
                         <div class="col-md-1 col-md-offset-1 track-controls">
                             <h5>Melodia</h5>
                             <div class="btn-group btn-group-xs">
-                                <button id="melodia-solo" class="btn btn-primary solo-track" title="Solo">
+                                <button id="melodia-solo" class="btn solo-track" title="Solo">
                                     S
                                 </button>
-                                <button id="melodia-mute" class="btn btn-primary mute-track" title="Mute">
+                                <button id="melodia-mute" class="btn mute-track" title="Mute">
                                     M
                                 </button>
                             </div>
                         </div>
                         <div class="col-md-10 waves-ui-container">
-                            <div class="waves-ui-track" id="track-2-waves-ui" data-color="Tomato" style="width: 100%"></div>
+                            <div class="waves-ui-track" id="track-2-waves-ui" data-color="PaleVioletRed" style="width: 100%"></div>
                         </div>
                     </div>
                     <div class="row track-and-controls">
                         <div class="col-md-1 col-md-offset-1 track-controls">
                             <h5>Projet</h5>
                             <div class="btn-group btn-group-xs">
-                                <button id="projet-solo" class="btn btn-primary solo-track" title="Solo">
+                                <button id="projet-solo" class="btn solo-track" title="Solo">
                                     S
                                 </button>
-                                <button id="projet-mute" class="btn btn-primary mute-track" title="Mute">
+                                <button id="projet-mute" class="btn mute-track" title="Mute">
                                     M
                                 </button>
                             </div>
@@ -408,40 +395,42 @@
             </div>
         </div>
 
-    <div id="footer">
-        <p>Ethan Manilow, Bryan Pardo, Darren Gergle
-            <br />This work supported in part by NSF Award
-            <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=1420971&HistoricalAwards=false">1420971</a>
-            <br />Northwestern University</p>
-        <a id="privacy-policy-link" href="">Privacy Policy</a>
-    </div>
-    <div id="privacy-modal" class="modal fade" role="dialog">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h3 class="modal-title">Privacy Policy</h3>
-                </div>
-                <div class="modal-body">
-                    <p>
-{#                        The Web Unmixing Toolbox (WUT) only stores your raw audio data for 7 days#}
-{#                        after your last session, after which your raw audio data will be deleted. WUT necessarily#}
-{#                        needs a copy of your raw audio data in order to do the server-side processing that enables#}
-{#                        the interactions WUT provides. The only remnants of your audio that are stored on our servers#}
-{#                        after the 7 day grace period are high-level statistics and non-invertable high-dimensional#}
-{#                        audio representations (i.e., representations of your audio that cannot be turned back#}
-{#                        into sound). These statistics and high-dimensional representations are used to power the#}
-{#                        recommendation engine in WUT. WUT also uses information about how you use WUT (i.e.,#}
-{#                        what tools you use) to power these recommendations.#}
-                        The Web Unmixing Toolbox (WUT) is currently under active development. If you stumble upon
-                        it, you should assume any audio that you upload to it can be used as training data for
-                        future releases of WUT. That being said, future releases of WUT will have a very strict
-                        adherence to privacy principles and will assert that your audio and audio data are
-                    </p>
-                </div>
+        <div id="footer">
+            <p>Ethan Manilow, Bryan Pardo, Darren Gergle
+                <br />This work supported in part by NSF Award
+                <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=1420971&HistoricalAwards=false">1420971</a>
+                <br />Northwestern University</p>
+            <a id="privacy-policy-link" href="">Privacy Policy</a>
+        </div>
+        <div id="privacy-modal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h3 class="modal-title">Privacy Policy</h3>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            {#                        The Web Unmixing Toolbox (WUT) only stores your raw audio data for 7 days#}
+                            {#                        after your last session, after which your raw audio data will be deleted. WUT necessarily#}
+                            {#                        needs a copy of your raw audio data in order to do the server-side processing that enables#}
+                            {#                        the interactions WUT provides. The only remnants of your audio that are stored on our servers#}
+                            {#                        after the 7 day grace period are high-level statistics and non-invertable high-dimensional#}
+                            {#                        audio representations (i.e., representations of your audio that cannot be turned back#}
+                            {#                        into sound). These statistics and high-dimensional representations are used to power the#}
+                            {#                        recommendation engine in WUT. WUT also uses information about how you use WUT (i.e.,#}
+                            {#                        what tools you use) to power these recommendations.#}
+                            The Web Unmixing Toolbox (WUT) is currently under active development. If you stumble upon
+                            it, you should assume any audio that you upload to it can be used as training data for
+                            future releases of WUT. That being said, future releases of WUT will have a very strict
+                            adherence to privacy principles and will assert that your audio and audio data are stored
+                            ephemerally.
+                        </p>
+                    </div>
 
-                <div class="modal-footer">
-                    <button class="btn btn-primary" data-dismiss="modal">Back</button>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" data-dismiss="modal">Back</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -461,14 +450,5 @@
 <script type="text/javascript" src="{{ url_for('static', filename='js/track.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/multitrack.js') }}"></script>
 
-<!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
-<!--<script>-->
-<!--(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=-->
-<!--function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;-->
-<!--e=o.createElement(i);r=o.getElementsByTagName(i)[0];-->
-<!--e.src='https://www.google-analytics.com/analytics.js';-->
-<!--r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));-->
-<!--ga('create','UA-XXXXX-X','auto');ga('send','pageview');-->
-<!--</script>-->
 </body>
 </html>
