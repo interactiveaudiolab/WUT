@@ -83,7 +83,9 @@ document.addEventListener('DOMContentLoaded', function () {
         scrollParent: false,
         height: 80,
         normalize: true,
-        audioRate: 1.0
+        audioRate: 1.0,
+        minPxPerSec: 0,
+        responsive: true
     };
 
     // Init mixture_waveform
@@ -103,6 +105,8 @@ $( window ).resize(function() {
     Plotly.relayout("spectrogram", update);
 });
 
+// ~~~~~~~~~~~~~ WAVEFORM ~~~~~~~~~~~~~
+
 mixture_waveform.on('ready', function () {
   var timeline = Object.create(WaveSurfer.Timeline);
 
@@ -112,7 +116,16 @@ mixture_waveform.on('ready', function () {
   });
 });
 
-//  ~~~~~~~~~~~~~   MODAL STUFF   ~~~~~~~~~~~~~~~~
+// resize with half second lag
+// kills audio, could have it pick up where left off later
+// also may want to write own debouncing function instead of
+// importing Lodash for it
+$(window).resize(_.debounce(function(){
+    mixture_waveform.empty();
+    mixture_waveform.drawBuffer();
+  }, 500));
+
+//  ~~~~~~~~~~~~~ MODAL ~~~~~~~~~~~~~
 
 $('.upload').click(function(){
     $('#open-modal').modal({
@@ -135,7 +148,7 @@ function openFileDialog() {
 
 
 
-// ~~~~~~~~~~~~~~~ AUDIO ~~~~~~~~~~~~~~~~~~
+// ~~~~~~~~~~~~~ AUDIO ~~~~~~~~~~~~~
 
 // $('#mixture-play').click(function() {
 //     if (!mixture_waveform.backend.buffer) {

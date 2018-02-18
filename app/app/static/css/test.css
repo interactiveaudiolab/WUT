@@ -56,7 +56,7 @@ main > .waveform-cont {
 	display: flex;
 	align-items: stretch;
 	padding: 10px 20px;
-	margin: 0 30px;
+	margin: 0 30px 20px 30px;
 }
 
 main > .waveform-cont > .controls {
@@ -86,7 +86,7 @@ main > .waveform-cont > .upload {
 	cursor: pointer;
 	justify-content: center;
 	align-items: center;
-	float: 0 0 80px;
+	flex: 0 0 80px;
 }
 
 main > .interaction {
@@ -157,21 +157,18 @@ footer p {
 	height: 100%;
 }
 
-/* body {
-	background: teal;
-} */
-
 /*
 	currently pretty ugly hardcoding between this and
 	min-width on spectrogram
 */
 @media screen and (max-width: 1280px) {
 	main > .interaction {
-		align-content: space-around;
+		align-content: center;
 	}
 
 	main > .interaction > .outer {
 		flex: 0 1 36%;
+		margin-bottom: 50px;
 	}
 
 	main > .interaction > #spectrogram {
