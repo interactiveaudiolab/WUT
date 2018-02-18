@@ -17,6 +17,9 @@
     <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="https://cdn.plot.ly/plotly-latest.js"></script>
+    <!-- expensive import for solely debounce, maybe just write our own? -->
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.5/lodash.min.js"></script>
+
 {#    <script data-main="scripts/main" src="scripts/require.js"></script>#}
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/wavesurfer.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/wavesurfer.regions.js') }}"></script>
