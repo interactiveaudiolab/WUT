@@ -102,9 +102,7 @@ document.addEventListener('DOMContentLoaded', function () {
         scrollParent: false,
         height: 80,
         normalize: true,
-        //backend: 'MediaElement'
         audioRate: 1.0
-//        splitChannels: true
     };
 
     // Init mixture_waveform
@@ -259,15 +257,8 @@ function sendSurveyResults() {
         // do_not_store: do_not_store
     };
 
-    let url = "/survey_results?val=" + Math.random().toString(36).substring(7);
-    $.ajax({
-            type: "POST",
-            url: url,
-            contentType: 'application/json',
-            dataType: 'json',
-            cache: false,
-            data: JSON.stringify({survey_data: survey_data})
-        })
+    socket.emit('survey_results', survey_data);
+
 }
 
 function getReqs() {

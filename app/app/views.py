@@ -190,7 +190,7 @@ def survey_results():
 
     results = request.json['survey_data']
     sess = awaken_session()
-    sess.save_survey_data(results)
+    sess.receive_survey_response(results)
     save_session(sess)
 
     return json.dumps(True)
@@ -201,7 +201,7 @@ def get_survey_results(message):
     logger.info('Getting survey results')
 
     sess = awaken_session()
-    sess.save_survey_data(message['survey_data'])
+    sess.receive_survey_response(message['survey_data'])
     save_session(sess)
 
 
@@ -217,6 +217,22 @@ def get_action(action):
     action_dict = action['actionData']
     sess.push_action(action_dict)
     save_session(sess)
+
+
+@app_.route('separated_source', methods=['GET'])
+def get_separated_source():
+    logger.info('getting separated source')
+
+    sess = awaken_session()
+
+    if not sess.initialized or not sess.stft_done:
+        _exception('sess not initialized or STFT not done!')
+
+    if 'method' not in request.args:
+        separation_method = 'repet_sim'
+    separation_method = request.args.get('method')
+
+
 
 
 @app_.route('/action', methods=['POST'])

@@ -11,21 +11,21 @@ from .. import nussl
 logger = logging.getLogger()
 
 
-class AudioProcessingBase(object):
+class InteractiveAudioProcessingBase(object):
 
-    def __init__(self, audio_signal, storage_path):
+    def __init__(self, mixture_signal, storage_path):
         self.storage_path = None
         self.user_audio_signal = None
         self.audio_signal_copy = None
 
-        if audio_signal is not None:
-            if not isinstance(audio_signal, nussl.AudioSignal):
+        if mixture_signal is not None:
+            if not isinstance(mixture_signal, nussl.AudioSignal):
                 raise AudioProcessingBaseException('audio_signal_object is not nussl.AudioSignal object!')
 
-            if not audio_signal.has_audio_data:
+            if not mixture_signal.has_audio_data:
                 raise AudioProcessingBaseException('audio_signal_object is expected to have audio_data already!')
 
-            self.user_audio_signal = audio_signal
+            self.user_audio_signal = mixture_signal
             self.storage_path = storage_path
 
             self.audio_signal_copy = copy.copy(self.user_audio_signal)

@@ -443,6 +443,7 @@ audio {
 
 .waves-ui-container {
     background: rgba(235, 234, 239, 0.99);
+    border-bottom: 1px solid black;
 }
 
 .waves-ui-track {

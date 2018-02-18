@@ -19,12 +19,12 @@ from . import audio_processing_base
 logger = logging.getLogger()
 
 
-class GeneralAudio(audio_processing_base.AudioProcessingBase):
+class GeneralAudio(audio_processing_base.InteractiveAudioProcessingBase):
     PREVIEW = 'preview'
     MASTER = 'master'
 
-    def __init__(self, audio_signal, storage_path):
-        super(GeneralAudio, self).__init__(audio_signal, storage_path)
+    def __init__(self, mixture_signal, storage_path):
+        super(GeneralAudio, self).__init__(mixture_signal, storage_path)
 
         self.mode = self.MASTER
         self.max_frequency_displayed = None

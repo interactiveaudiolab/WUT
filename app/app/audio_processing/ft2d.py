@@ -14,10 +14,10 @@ import scipy.ndimage
 logger = logging.getLogger()
 
 
-class FT2D(audio_processing_base.AudioProcessingBase):
+class FT2D(audio_processing_base.InteractiveAudioProcessingBase):
 
-    def __init__(self, audio_signal, storage_path):
-        super(FT2D, self).__init__(audio_signal, storage_path)
+    def __init__(self, mixture_signal, storage_path):
+        super(FT2D, self).__init__(mixture_signal, storage_path)
         # self.ft2d = nussl.FT2D(self.audio_signal_copy)
         self.stft = None
         self.ft2d = None
