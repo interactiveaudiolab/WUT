@@ -29,42 +29,46 @@
 </head>
 </head>
 <body>
-    
+
 <script>window.jQuery || document.write('<script src="js/vendor/jquery-{{JQUERY_VERSION}}.min.js"><\/script>')</script>
 {#        <script src="js/test.js"></script>#}
     <header>
         <div>Web Unmixing Toolbox</div>
-        <div class="header-elements">
-            <div class="upload">
-                <div class="vertical-divider"></div>
-                <div><i class="fas fa-upload fa-lg"></i></div>
-                <div class="vertical-divider"></div>
-            </div>
-            <div id="status-cont">
-                <p>Status:</p>
-                <p id="status">Ready...</p>
-            </div>
+        <div id="status-cont">
+            <p>Status: </p>
+            <p id="status">Ready...</p>
         </div>
     </header>
     <main>
         <div class="waveform-cont">
-        <div class="controls">
-            <button id="mixture-play" type="button" class="btn btn-primary">
-                <i class="fas fa-play"></i>
-            </button>
-            <button type="button" class="btn btn-primary">
-                <i class="fas fa-stop"></i>
-            </button>
-        </div>
 
-        <div id="waveform" style="text-align:center"></div>
+            <div class="controls">
+                <button id="mixture-play" type="button" class="btn btn-primary">
+                    <i class="fas fa-play"></i>
+                </button>
+                <button type="button" class="btn btn-primary">
+                    <i class="fas fa-stop"></i>
+                </button>
+            </div>
+
+            <div id="waveform"></div>
+
+            <div class='upload'><i class="fas fa-upload fa-lg"></i></div>
         </div>
 
         <div class="interaction">
-            <div id="pca"></div>
+
+            <div class="outer">
+                <div class="aspect-ratio-box">
+                    <div class="alignment" id="pca">
+                    </div>
+                </div>
+            </div>
+
             <div id="spectrogram"></div>
+
         </div>
-        
+
     </main>
     <footer>
         <p>Ethan Manilow, Bryan Pardo, Darren Gergle </p>
@@ -74,7 +78,7 @@
         <p>Northwestern University</p>
     </footer>
 
-    <div id="open-modal" class="modal fade" role="dialog">
+    <!-- <div id="open-modal" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -139,13 +143,12 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
 
-    <form action="audio_upload" style="display: none;" method="post" role="form"
-            enctype="multipart/form-data">
+    <form action="audio_upload" style="display: none;" method="post" role="form" enctype="multipart/form-data">
         <input id="input_audio_file" style="display: none" accept="audio/*" type="file" name="audio_file" />
     </form>
-    
+
 <script type="text/javascript" src="{{ url_for('static', filename='js/utils.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/plotly_plots.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/plot_spectrogram.js') }}"></script>

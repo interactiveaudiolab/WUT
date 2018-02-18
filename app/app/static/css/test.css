@@ -22,61 +22,25 @@ header {
 	justify-content: space-between;
 	align-items: center;
 	padding: 0 30px 0 20px;
-	border-bottom: black 2px solid;
-}
-
-header #status-cont p {
-	margin: 2px 0 2px 0;
+	border-bottom: whitesmoke 1px solid;
 }
 
 header > :first-child {
-	font-size: 2.5em;
+	font-size: 3em;
 	flex: 0 0 auto;
-}
-
-header .header-elements {
-	display: flex;
-	flex: 0 0 40%;
-	justify-content: space-between;
-	font-size: .8em;
-}
-
-header .header-elements > .upload {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	flex: 0 0 auto;
-}
-
-header .header-elements > .upload div:nth-child(2) {
-	margin: 30px;
-}
-
-.vertical-divider {
-	border-left: 1px solid whitesmoke; 
-	width: 1px;
-	height: 70px;
+	font-family: Arial, Helvetica, sans-serif;
 }
 
 header #status-cont {
 	display: flex;
-	flex-flow: column nowrap;
-	justify-content: space-around;
-	align-items: flex-start;
-	flex: 0 0 75%;
+	align-items: center;
+	flex: 0 0 25%;
 	height: 75px;
 	padding: 10px 5px 5px 5px;
 }
 
-header #status-cont :first-child {
-	flex: 0 0 25px;
-}
-
-header #status {
-	flex: 1 1 auto;
-	width: 100%;
-	border: solid 1px whitesmoke;
-	padding: 5px 0 0 5px;
+header #status-cont > p {
+	margin: 0 5px 0 5px;
 }
 
 main {
@@ -92,6 +56,7 @@ main > .waveform-cont {
 	display: flex;
 	align-items: stretch;
 	padding: 10px 20px;
+	margin: 0 30px;
 }
 
 main > .waveform-cont > .controls {
@@ -115,25 +80,46 @@ main > .waveform-cont > #waveform {
 	flex: 1;
 }
 
+main > .waveform-cont > .upload {
+	display: flex;
+
+	cursor: pointer;
+	justify-content: center;
+	align-items: center;
+	float: 0 0 80px;
+}
+
 main > .interaction {
 	flex: 1 0 auto;
 
 	display: flex;
+	flex-flow: row wrap;
 	justify-content: space-around;
 	align-items: center;
-	padding: 0 0 10px 0;
+	padding: 0 20px 10px 20px;
 }
 
-main > .interaction > div {
-	flex: 0 0 46%;
-	display: flex;
-	align-items: center;
-	/* padding: 5px; */
+main > .interaction > .outer {
+	flex: 0 1 29%;
+}
+
+main > .interaction > #spectrogram {
+	flex: 0 1 65%;
+
+	/*
+		set min-width manually (to anything) otherwise its automatically set
+		to initial size on load and then will refuse to shrink below
+		that
+
+		set to 850 specifically to enable wrapping of flex items before
+		plots become unusably small, corresponds to window width of 1280
+	*/
+	min-width: 850px;
 }
 
 footer {
 	grid-area: footer;
-	background-color: #fff2fa;
+	border-top: whitesmoke solid 1px;
 	text-align: center;
 	padding: 5px;
 }
@@ -143,8 +129,53 @@ footer p {
 	font-size: .8em;
 }
 
-@media screen and (max-width: 1150px) {
+.aspect-ratio-box {
+	/*
+		padding-top/bottom are calculated against
+		width of containing element. If height is set
+		to 0 (and there are no other padding rules) then
+		padding-top will make up the full vertical dimension.
+		100% therefore means padding is as tall as the width of
+		the containing block resulting in a square. 50% is a 2:1
+		width to height ratio and so on
+	*/
+	height: 0;
+	padding-top: 100%;
+	position: relative;
+}
+
+.alignment {
+	/* position absolutely to realign inner content */
+	position: absolute;
+
+	/* position at top left */
+	top: 0;
+	left: 0;
+
+	/* make same size as enclosing box */
+	width: 100%;
+	height: 100%;
+}
+
+/* body {
+	background: teal;
+} */
+
+/*
+	currently pretty ugly hardcoding between this and
+	min-width on spectrogram
+*/
+@media screen and (max-width: 1280px) {
 	main > .interaction {
-		flex-flow: column;
+		align-content: space-around;
+	}
+
+	main > .interaction > .outer {
+		flex: 0 1 36%;
+	}
+
+	main > .interaction > #spectrogram {
+		min-width: 0;
+		flex: 0 1 90%;
 	}
 }

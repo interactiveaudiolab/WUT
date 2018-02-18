@@ -17,11 +17,11 @@ var spec_as_image = false;
 // MATRIX OPERATIONS
 
 // generate n x m matrix with values given by function
-makeMatrix = (height, width) => (gen) => 
+makeMatrix = (height, width) => (gen) =>
     [...new Array(height)].map(() => [... new Array(width)].map(gen))
 
 // generate n x m matrix with random values having a non-inclusive max
-randomMatrix = (height, width, max) => 
+randomMatrix = (height, width, max) =>
     makeMatrix(height, width)(() => Math.floor(Math.random() * max))
 
 // takes TF x 2 array with values in range [0, max]
@@ -29,7 +29,6 @@ randomMatrix = (height, width, max) =>
 
 tfToMatrix = (tfArray, max) => {
     let pca = makeMatrix(max, max)(() => [])
-    // console.log(tfArray)
     tfArray.forEach(([x, y], tfIndex) => {
         pca[x][y] = pca[x][y].concat([tfIndex])
     });
@@ -39,9 +38,6 @@ tfToMatrix = (tfArray, max) => {
 
 pcaToHistrogram = (pca) => {
     max = Math.max(...pca.map(row => Math.max(...row.map(inds => inds.length))))
-    console.log(max)
-
-    console.log(pca.map(row => row.map(inds => inds.length)))
     return pca.map(row => row.map(inds => inds.length/max))
 }
 
@@ -73,8 +69,6 @@ $(document).ready(function() {
   });
 
   // FAKING HEATMAP
-  console.log('PCA')
-  console.log(pca)
   make_pca(spectrogram, randomMatrix(100, 100, 5))
   make_pca(pca, randomMatrix(100, 100, 5))
 });
@@ -99,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function () {
     $('#open-modal').modal({
         backdrop: 'static',
         keyboard: false
-    });    
+    });
 });
 
 

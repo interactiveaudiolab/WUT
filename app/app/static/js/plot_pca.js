@@ -1,10 +1,10 @@
 function make_pca(heatmap, rawData) {
   let status = $('#status');
   status.text('Drawing PCA');
-  
+
   heatmap.drawHeatmap(rawData)
   // enableTools(true, '.spec-tool')
-  
+
   status.text('Ready...');
 }
 
@@ -18,6 +18,13 @@ class PCAHeatmap extends PlotlyHeatmap {
     // might be better dynamic
     this.xBins = 100
     this.yBins = 100
+
+    this.plotMargins = {
+      l: 50,
+      r: 10,
+      b: 50,
+      t: 10
+    };
 
     this.plotLayout = {
       xaxis: {
@@ -34,10 +41,8 @@ class PCAHeatmap extends PlotlyHeatmap {
       // selectability
       dragmode: 'select',
       selectable: 'true',
-      
+
       // cosmetics
-      // paper_bgcolor: '#E3F0FB',
-      // plot_bgcolor: '#E3F0FB',
       margin: this.plotMargins,
       autosize: true,
     }
@@ -55,6 +60,5 @@ class PCAHeatmap extends PlotlyHeatmap {
     let layout = this.plotLayout;
 
     this.plot = Plotly.newPlot(this.divID, data, layout, this.plotOptions);
-    // Plotly.relayout(this.divID, { width: $('pca').width() });
   }
 }
