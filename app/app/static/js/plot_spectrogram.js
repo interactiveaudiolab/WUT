@@ -13,7 +13,7 @@ function make_spectrogram(heatmap, results, audioLength) {
 
     heatmap.rawData = results;
     heatmap.drawHeatmap(audioLength, freqMax, logY);
-    enableTools(true, '.spec-tool');
+    // enableTools(true, '.spec-tool');
 
     status.text('Ready...');
 }
@@ -67,8 +67,8 @@ class SpectrogramHeatmap extends PlotlyHeatmap {
         layout.yaxis.range = [0.0, this.freqMax / 2];
 
         this.plot = Plotly.newPlot(this.divID, data, layout, this.plotOptions);
-        let update = { width: $(window).width() };
-        Plotly.relayout(this.divID, update);
+        // let update = { width: $(window).width() };
+        // Plotly.relayout(this.divID, update);
 
     }
 
