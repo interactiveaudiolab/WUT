@@ -11,3 +11,7 @@ def safe_makedirs(path):
             return
         else:
             raise e
+
+
+def trunc(f):
+    return float("{0:.2f}".format(f))

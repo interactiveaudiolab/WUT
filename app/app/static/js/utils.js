@@ -13,9 +13,6 @@ function namespace(namespaceString) {
     return parent;
 }
 
-
-
-
 function truncateFloat(val, trunc) {
     return Number(val.toFixed(trunc));
 }

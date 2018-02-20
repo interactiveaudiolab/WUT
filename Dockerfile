@@ -3,8 +3,8 @@ FROM ubuntu:xenial
 ENV DEBIAN_FRONTEND noninteractive
 
 # Install required tools
-RUN apt-get update
-RUN apt-get install -y python python-pip python-virtualenv python-tk nginx gunicorn supervisor
+RUN apt-get update && apt-get install -y python python-pip python-virtualenv \
+ python-tk nginx gunicorn supervisor redis-server
 
 # Get libav-tools
 RUN apt-get update && apt-get install libav-tools -y --force-yes

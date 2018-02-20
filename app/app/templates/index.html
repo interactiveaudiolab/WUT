@@ -191,24 +191,22 @@
                         </div>
                     </div>
 
-
                     <div class="col-md-6">
                         <div class="btn-group">
-                            Selection Tools:
-                            <button id="selection-louder" class="btn btn-primary spec-tool disabled" title="Make selection louder">
-                                <i class="fa fa-volume-off fa-lg" aria-hidden="true"></i>
-                                <i class="fa fa-plus" aria-hidden="true"></i>
-                            </button>
-                            <button id="selection-softer" class="btn btn-primary spec-tool disabled" title="Make selection softer">
-                                <i class="fa fa-volume-off fa-lg" aria-hidden="true"></i>
-                                <i class="fa fa-minus" aria-hidden="true"></i>
-                            </button>
+{#                            <button id="selection-louder" class="btn btn-primary spec-tool disabled" title="Make selection louder">#}
+{#                                <i class="fa fa-volume-off fa-lg" aria-hidden="true"></i>#}
+{#                                <i class="fa fa-plus" aria-hidden="true"></i>#}
+{#                            </button>#}
+{#                            <button id="selection-softer" class="btn btn-primary spec-tool disabled" title="Make selection softer">#}
+{#                                <i class="fa fa-volume-off fa-lg" aria-hidden="true"></i>#}
+{#                                <i class="fa fa-minus" aria-hidden="true"></i>#}
+{#                            </button>#}
                             <button id="selection-remove" class="btn btn-primary spec-tool disabled" title="Delete selected regions">
                                 <i class="fa fa-eraser" aria-hidden="true"></i>
                             </button>
-                            <button id="selection-inverse" class="btn btn-primary spec-tool disabled" title="Invert selection">
-                                Invert Selection
-                            </button>
+{#                            <button id="selection-inverse" class="btn btn-primary spec-tool disabled" title="Invert selection">#}
+{#                                Invert Selection#}
+{#                            </button>#}
                         </div>
                     </div>
 
@@ -233,38 +231,38 @@
             </div>
 
             <div class="tab-pane" id="duet-tab">
-                <div class="row" id="duet-controls">
-                    <div class="col-md-1"></div>
-                    <div class="col-md-1" id="duet-zoom-buttons">
-                        <div class="btn-group">
-                            <button id="duet-zoom-in" class="btn btn-primary" title="Zoom in">
-                                <i class="glyphicon glyphicon-zoom-in"></i>
-                            </button>
-
-                            <button id="ft2d-zoom-out" class="btn btn-primary" title="Zoom out">
-                                <i class="glyphicon glyphicon-zoom-out"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="btn-group">
-                            <button id="selection-louder" class="btn btn-primary spec-tool disabled" title="Make selection louder">
-                                Make Selection Louder
-                            </button>
-                            <button id="selection-softer" class="btn btn-primary spec-tool disabled" title="Make selection softer">
-                                Make Selection Softer
-                            </button>
-                            <button id="selection-remove" class="btn btn-primary spec-tool disabled" title="Remove selection">
-                                Remove Selection
-                            </button>
-                            <button id="selection-inverse" class="btn btn-primary spec-tool disabled" title="Invert selection">
-                                Invert Selection
-                            </button>
-                        </div>
-                    </div>
-
-                </div>
+{#                <div class="row" id="duet-controls">#}
+{#                    <div class="col-md-1"></div>#}
+{#                    <div class="col-md-1" id="duet-zoom-buttons">#}
+{#                        <div class="btn-group">#}
+{#                            <button id="duet-zoom-in" class="btn btn-primary" title="Zoom in">#}
+{#                                <i class="glyphicon glyphicon-zoom-in"></i>#}
+{#                            </button>#}
+{##}
+{#                            <button id="ft2d-zoom-out" class="btn btn-primary" title="Zoom out">#}
+{#                                <i class="glyphicon glyphicon-zoom-out"></i>#}
+{#                            </button>#}
+{#                        </div>#}
+{#                    </div>#}
+{##}
+{#                    <div class="col-md-6">#}
+{#                        <div class="btn-group">#}
+{#                            <button id="selection-louder" class="btn btn-primary spec-tool disabled" title="Make selection louder">#}
+{#                                Make Selection Louder#}
+{#                            </button>#}
+{#                            <button id="selection-softer" class="btn btn-primary spec-tool disabled" title="Make selection softer">#}
+{#                                Make Selection Softer#}
+{#                            </button>#}
+{#                            <button id="selection-remove" class="btn btn-primary spec-tool disabled" title="Remove selection">#}
+{#                                Remove Selection#}
+{#                            </button>#}
+{#                            <button id="selection-inverse" class="btn btn-primary spec-tool disabled" title="Invert selection">#}
+{#                                Invert Selection#}
+{#                            </button>#}
+{#                        </div>#}
+{#                    </div>#}
+{##}
+{#                </div>#}
                 <div id="duet-container">
                     <div id="duet-heatmap" data-target-name="{{ target_dict['duet']['name'] }}">
                         <!-- Attenuation/Delay Histogram will be drawn in this div -->
@@ -355,7 +353,7 @@
                             </div>
                         </div>
                         <div class="col-md-10 waves-ui-container">
-                            <div class="waves-ui-track" id="track-1-waves-ui" data-color="SkyBlue" style="width: 100%"></div>
+                            <div class="waves-ui-track" id="repet_sim" data-color="SkyBlue" style="width: 100%"></div>
                         </div>
                     </div>
                     <div class="row track-and-controls">
@@ -371,7 +369,7 @@
                             </div>
                         </div>
                         <div class="col-md-10 waves-ui-container">
-                            <div class="waves-ui-track" id="track-2-waves-ui" data-color="PaleVioletRed" style="width: 100%"></div>
+                            <div class="waves-ui-track" id="melodia" data-color="PaleVioletRed" style="width: 100%"></div>
                         </div>
                     </div>
                     <div class="row track-and-controls">
@@ -387,7 +385,7 @@
                             </div>
                         </div>
                         <div class="col-md-10 waves-ui-container">
-                            <div class="waves-ui-track" id="track-3-waves-ui" data-color="MediumSeaGreen" style="width: 100%"></div>
+                            <div class="waves-ui-track" id="projet" data-color="MediumSeaGreen" style="width: 100%"></div>
                         </div>
                     </div>
                 </div>
