@@ -3,8 +3,6 @@ import logging
 import inspect
 import json
 
-import numpy as np
-
 from flask import render_template, request, flash, session, abort, send_file, make_response
 from werkzeug.utils import secure_filename
 
@@ -73,17 +71,17 @@ def initialize(audio_file_data):
     # Initialize the session
     logger.info('Initializing session for {}...'.format(filename))
     separation_sess.initialize(path)
-    socketio.emit('audio_upload_ok', namespace=WUT_SOCKET_NAMESPACE)
     logger.info('Initialization successful for file {}!'.format(separation_sess.user_original_file_location))
     save_session(separation_sess)
+    socketio.emit('audio_upload_ok', namespace=WUT_SOCKET_NAMESPACE)
 
     # Compute and send the STFT, Synchronously (STFT data is needed for further calculations)
     logger.info('Computing spectrogram image for {}'.format(filename))
     separation_sess.user_general_audio.spectrogram_image()
-    socketio.emit('spectrogram_image_ready', {'max_freq': separation_sess.user_general_audio.max_frequency_displayed},
-                  namespace=WUT_SOCKET_NAMESPACE)
     logger.info('Sent spectrogram image info for {}'.format(filename))
     save_session(separation_sess)
+    socketio.emit('spectrogram_image_ready', {'max_freq': separation_sess.user_general_audio.max_frequency_displayed},
+                  namespace=WUT_SOCKET_NAMESPACE)
 
     # Initialize other representations
     # Compute and send the AD histogram, Asynchronously
@@ -154,59 +152,63 @@ def spectrogram_image():
     return send_file(sess.user_general_audio.spectrogram_image_path, mimetype='image/png')
 
 
-@socketio.on('recommendations', namespace=WUT_SOCKET_NAMESPACE)
-def recommendations():
-    logger.info('Sending recommendations')
-
-    sess = awaken_session()
-
-
-@app_.route('/reqs', methods=['GET'])
-def recommendations():
-    logger.info('Sending recommendations')
-
-    sess = awaken_session()
-
-    if not sess.initialized:
-        _exception('sess not initialized')
-
-    sig_length = sess.user_general_audio.audio_signal.signal_duration
-    num_segments = 5
-    offset = 0.5
-
-    reqs = []
-    for i, val in enumerate(np.linspace(0.0, sig_length, num_segments, endpoint=False)):
-        if i % 2 == 0:
-            reqs.append({'type': 'duet', 'time': {'start': val, 'end': val + offset + np.random.rand()}})
-        else:
-            reqs.append({'type': 'ft2d', 'time': {'start': val, 'end': val + offset + np.random.rand()}})
-
-    return json.dumps(reqs)
-
-
-@app_.route('/survey_results', methods=['POST'])
-def survey_results():
-    logger.info('Getting survey results')
-
-    results = request.json['survey_data']
-    sess = awaken_session()
-    sess.receive_survey_response(results)
-    save_session(sess)
-
-    return json.dumps(True)
-
-
 @socketio.on('survey_results', namespace=WUT_SOCKET_NAMESPACE)
 def get_survey_results(message):
     logger.info('Getting survey results')
 
     sess = awaken_session()
-    sess.receive_survey_response(message['survey_data'])
+    sess.receive_survey_response(message)
     save_session(sess)
 
 
+@socketio.on('get_recommendations', namespace=WUT_SOCKET_NAMESPACE)
+def send_recommendations(message):
+
+    sess = awaken_session()
+    reqs = sess.sdr_predictor.dummy_recommendations()
+    algorithm = message['algorithm']
+    save_session(sess)
+
+    logger.info('Sending recommendation data for {}.'.format(algorithm))
+
+    socketio.emit('envelope_data', {'envelopeData': reqs[algorithm], 'algorithm': algorithm},
+                  namespace=WUT_SOCKET_NAMESPACE)
+
+
+@app_.route('/separated_source_demo', methods=['GET'])
+def get_separated_source():
+    logger.info('getting separated source')
+
+    # sess = awaken_session()
+    #
+    # if not sess.initialized:
+    #     _exception('sess not initialized!')
+
+    if 'method' not in request.args:
+        separation_method = 'repet_sim'
+    else:
+        separation_method = request.args.get('method')
+
+    # send_recommendations(separation_method)
+
+    mime_type = 'audio/mp3'
+    base_path = '/Users/ethanmanilow/Documents/School/Research/audio_representations/website/backend/output/'
+
+    if separation_method == 'repet_sim':
+        logger.info('Sending Repet!')
+        return send_file(os.path.join(base_path, 'repet_fg_est.mp3'), mimetype=mime_type)
+
+    elif separation_method == 'projet':
+        logger.info('Sending Projet!')
+        return send_file(os.path.join(base_path, 'projet_src0.mp3'), mimetype=mime_type)
+
+    elif separation_method == 'melodia':
+        logger.info('Sending Melodia!')
+        return send_file(os.path.join(base_path, 'melodia_fg.mp3'), mimetype=mime_type)
+
+
 @socketio.on('action', namespace=WUT_SOCKET_NAMESPACE)
-def get_action(action):
+def get_action(action_):
     logger.info('receiving action')
 
     sess = awaken_session()
@@ -214,25 +216,9 @@ def get_action(action):
     if not sess.initialized or not sess.stft_done:
         _exception('sess not initialized or STFT not done!')
 
-    action_dict = action['actionData']
+    action_dict = action_['actionData']
     sess.push_action(action_dict)
     save_session(sess)
-
-
-@app_.route('separated_source', methods=['GET'])
-def get_separated_source():
-    logger.info('getting separated source')
-
-    sess = awaken_session()
-
-    if not sess.initialized or not sess.stft_done:
-        _exception('sess not initialized or STFT not done!')
-
-    if 'method' not in request.args:
-        separation_method = 'repet_sim'
-    separation_method = request.args.get('method')
-
-
 
 
 @app_.route('/action', methods=['POST'])

@@ -4,6 +4,7 @@ Algorithm picker
 """
 import os
 import threading
+import numpy as np
 from .. import nussl
 
 from .. import utils
@@ -12,13 +13,14 @@ from .recommendation_base import RecommendationEngineBase, RecommendationExcepti
 
 class SDRPredictor(RecommendationEngineBase):
 
+    LABELS = ['repet_sim', 'projet', 'melodia']
+
     def __init__(self, mixture_signal, storage_path, goal, params):
         super(SDRPredictor, self).__init__(mixture_signal, storage_path, goal, params)
 
-
-
         # Set up RepetSIM
-        self.repet_sim = nussl.RepetSim(mixture_signal)
+        # self.repet_sim = nussl.RepetSim(mixture_signal)
+        self.repet_sim = None
         self.repet_masks = []
         self.repet_results = []
         self.repet_results_metadata = {}
@@ -26,7 +28,8 @@ class SDRPredictor(RecommendationEngineBase):
         utils.safe_makedirs(self.repet_dir)
 
         # Setup PROJET
-        self.projet = nussl.Projet(mixture_signal, 2)
+        # self.projet = nussl.Projet(mixture_signal, 2)
+        self.projet = None
         self.projet_results = []
         self.projet_results_metadata = {}
         self.projet_dir = os.path.join(storage_path, 'projet')
@@ -43,6 +46,7 @@ class SDRPredictor(RecommendationEngineBase):
         # Setup threads
         self.run_funcs = [self._run_repet_sim, self._run_projet]
         self.algorithms_run_yet = False
+        self.predictions = None
 
     def _run_repet_sim(self):
 
@@ -81,9 +85,34 @@ class SDRPredictor(RecommendationEngineBase):
 
         self._run_source_separation_algorithms()
 
+    def _prepare_data(self, predictions):
+        n_seconds = len(predictions)
+        eps = 0.9
 
+        timestamps = np.arange(n_seconds)
+        timestamps_ = timestamps + eps
+
+        timestamps = list(np.ravel(np.column_stack((timestamps, timestamps_))))  # interleave the two lists
+
+        predictions += 15
+        predictions /= 30
+        predictions = np.repeat(predictions, 2, 0)
+
+        data = {}
+        for i, label in enumerate(self.LABELS):
+            data[label] = [{ 'x': utils.trunc(timestamps[j]), 'y': utils.trunc(predictions[j, i]) }
+                           for j in range(n_seconds * 2)]
+
+        return data
 
     def dummy_recommendations(self):
-        self.run_funcs = [self._run_repet_sim]
+        dummy_file = '/Users/ethanmanilow/Documents/School/Research/audio_representations' \
+                     '/website/backend/output/sdr_predictions.npy'
 
-        self.compute_recommendations()
+        if self.predictions is None:
+            self.predictions = self._prepare_data(np.load(dummy_file))
+
+        return self.predictions
+
+
+

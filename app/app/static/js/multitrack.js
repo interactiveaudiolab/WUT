@@ -1,23 +1,11 @@
 
-var trackList = [];
+var trackList = {};
+// var trackList_ = {};
 
 function initMultiTrackWithRandom(url) {
     loader.load(url).then(function(buffer) {
-        let slider = $('#transport-slider');
-        // slider.attr('data-slider-max', buffer.duration);
-        let ticks = calculateTicks(buffer.duration, 4);
-        slider.bootstrapSlider({
-            max: buffer.duration,
-            ticks: ticks,
-            tick_labels: ticks.map(String),
-            formatter: function (value) {
-                let min = String(Math.floor(value / 60));
-                let sec = truncateFloat(value % 60, 2);
-                sec = sec < 10 ? "0" + String(sec) : String(sec);
-                return min + ":" + sec;
-            }
-        });
-        slider.on("change", setTransport);
+        makeSlider();
+        let context = mixture_waveform.backend.getAudioContext();
 
         let tracks = $('.waves-ui-track');
         $.each(tracks, function(k, t) {
@@ -28,13 +16,73 @@ function initMultiTrackWithRandom(url) {
                 data.push({ x: i * buffer.duration / n, y: Math.random() });
             }
 
-            let new_track = new Track(buffer, t, data, slider, audioEnded);
-            trackList.push(new_track);
+            let new_track = new Track(buffer, context, t, data, $('#transport-slider'), audioEnded);
+            let id = t.attr('id');
+            trackList[id] = new_track;
         });
 
     }).catch(function(err) {
         console.error(err.stack);
     });
+}
+
+function emptyMultiTrack() {
+
+    makeSlider();
+
+    let demoParams = ['repet_sim', 'projet', 'melodia'];
+    let context = mixture_waveform.backend.getAudioContext();
+    let sr = context.sampleRate;
+    let dur = mixture_waveform.backend.getDuration();
+
+    $.each(demoParams, function(_, algName) {
+        let buffer = context.createBuffer(1, sr * dur, sr);
+        let id = $('#' + algName)[0];
+        let initialData = [{x: 0, y: 0.8}, {x: buffer.duration, y: 0.8}];
+        trackList[algName] = new Track(buffer, context, id, initialData, $('#transport-slider'), audioEnded);
+    });
+
+}
+
+
+function initMultiTrack() {
+
+    let demoParams = ['repet_sim', 'projet', 'melodia'];
+    let demoUrl = '/separated_source_demo?method=';
+
+    $.each(demoParams, function(_, algName) {
+        let url = demoUrl + algName;
+        loader.load(url).then(function (buffer) {
+
+            trackList[algName].changeWaveformBuffer(buffer, 0);
+            socket.emit('get_recommendations', {'algorithm': algName});
+        });
+    });
+
+}
+
+function addEnvelopeData(envelopeData, trackID) {
+    trackList[trackID].setEnvelopeData(envelopeData);
+}
+
+function makeSlider() {
+    let duration = mixture_waveform.backend.getDuration();
+
+    let slider = $('#transport-slider');
+    let ticks = calculateTicks(duration, 4);
+    slider.bootstrapSlider({
+        max: duration,
+        ticks: ticks,
+        tick_labels: ticks.map(String),
+        formatter: function (value) {
+            let min = String(Math.floor(value / 60));
+            let sec = truncateFloat(value % 60, 2);
+            sec = sec < 10 ? "0" + String(sec) : String(sec);
+            return min + ":" + sec;
+        }
+    });
+    slider.on("change", setTransport);
+
 }
 
 function calculateTicks(duration, divisor) {
@@ -53,16 +101,16 @@ function calculateTicks(duration, divisor) {
 
 function setTransport(event) {
     stopAll();
-    $.each(trackList, function(_, t) {
-        t.cursorPosition = event.value.newValue;
+    $.each(trackList, function(_, track) {
+        track.cursorPosition = event.value.newValue;
     });
 }
 
 $('#req-play').click(function () {
     togglePlayPauseIcon(this);
 
-    $.each(trackList, function(_, t) {
-        t.togglePlayPause();
+    $.each(trackList, function(_, track) {
+        track.togglePlayPause();
     });
 
 });
@@ -72,8 +120,8 @@ function audioEnded() {
 }
 
 function stopAll() {
-    $.each(trackList, function (_, t) {
-        if (!t.isStopped()) t.stop();
+    $.each(trackList, function (_, track) {
+        if (!track.isStopped()) track.stop();
     });
 
     // Remove the play icon
@@ -87,23 +135,26 @@ $('#req-stop').click(function () {
 
 $('.mute-track').click(function () {
     // THIS IS A BIG OLE HACK!
-    let idx = parseInt($(this).parent().parent().siblings().children()[0].id.split('-')[1]) - 1;
+    let id = $(this).parent().parent().siblings().children()[0].id;
 
-    trackList[idx].toggleMuteUnmute();
+    trackList[id].toggleMuteUnmute();
+    trackList[id].toggleEnvelopeData();
     togglePrimaryBtn(this);
 });
 
 $('.solo-track').click(function () {
-    let idx = parseInt($(this).parent().parent().siblings().children()[0].id.split('-')[1]) - 1;
+    let id = $(this).parent().parent().siblings().children()[0].id;
 
-    trackList[idx].isSoloed = !trackList[idx].isSoloed;
+    trackList[id].isSoloed = !trackList[id].isSoloed;
 
-    $.each(trackList, function(i, t) {
-        if (i !== idx && !t.isSoloed) {
-            if (trackList[idx].isSoloed) {
-                t.mute();
+    $.each(trackList, function(key_id, track) {
+        if (key_id !== id && !track.isSoloed) {
+            if (trackList[id].isSoloed) {
+                track.mute();
+                track.hideEnvelopeData();
             } else {
-                t.unmute();
+                track.unmute();
+                track.showEnvelopeData();
             }
         }
     });
@@ -112,7 +163,7 @@ $('.solo-track').click(function () {
 });
 
 function togglePrimaryBtn(obj) {
-    $.each(trackList, function(_, t) { console.log({'soloed': t.isSoloed, 'muted': t.isMuted}); });
+    // $.each(trackList, function(_, t) { console.log({'soloed': t.isSoloed, 'muted': t.isMuted}); });
     if (!$(obj).hasClass('btn-primary')) {
         $(obj).addClass('btn-primary');
     } else {

@@ -44,16 +44,14 @@ var ft2d_color = yellow;
 var spec_as_image = false;
 
 $(document).ready(function() {
-	// window.AudioContext = window.AudioContext || window.webkitAudioContext;
-	// online = new AudioContext();
 	loader = new wavesLoaders.AudioBufferLoader();
-
-	// context = online;
 
     $("#mainTabs").find("a").click(function(e){
         e.preventDefault();
         $(this).tab('show');
     });
+
+    // Set up sockets
 
     socket_namespace = '/wut';
     socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + socket_namespace);
@@ -62,9 +60,14 @@ $(document).ready(function() {
         console.log('Socket connected.');
     });
 
+    socket.on('disconnect', function (reason) {
+        console.log('Socket disconnected: ' + reason)
+    });
+
     socket.on('audio_upload_ok', function () {
         console.log('Audio uploaded to server.');
         $('#general-status').text('Audio uploaded to server.');
+        initMultiTrack();
     });
 
     socket.on('spectrogram', function (message) {
@@ -89,6 +92,10 @@ $(document).ready(function() {
     socket.on('bad_file', function () {
         console.log('File rejected by server');
     });
+
+    socket.on('envelope_data', function (message) {
+        addEnvelopeData(message.envelopeData, message.algorithm);
+    });
 });
 
 
@@ -102,7 +109,7 @@ document.addEventListener('DOMContentLoaded', function () {
         scrollParent: false,
         height: 80,
         normalize: true,
-        audioRate: 1.0
+        audioRate: 1.0,
     };
 
     // Init mixture_waveform
@@ -164,6 +171,8 @@ mixture_waveform.on('ready', function () {
     wavesurfer: mixture_waveform,
     container: '#waveform-timeline'
   });
+
+  emptyMultiTrack();
 });
 
 result_waveform.on('ready', function () {
@@ -241,14 +250,8 @@ $('#survey-done').click(function () {
 
 });
 
-mixture_spectrogram_heatmap.DOMObject.on('plotly_afterplot', function() {
-    var time = new Date().getTime() - time_to_graph;
-    var elapsed = Math.floor(time / 100) / 10;
-    console.log(elapsed + 'sec');
-});
-
 function sendSurveyResults() {
-    let extraction_goals = $('#extraction-goal option:selected').map(function() {
+    let extraction_goals = $('#extraction-goal').find('option:selected').map(function() {
         return $(this).val();
     }).get();
 
@@ -259,23 +262,4 @@ function sendSurveyResults() {
 
     socket.emit('survey_results', survey_data);
 
-}
-
-function getReqs() {
-    var url = "/reqs?val=" + Math.random().toString(36).substring(7);
-    $.get(url, function( data ) {
-        let resp = JSON.parse(data);
-        for (var i = 0; i < resp.length; ++i) {
-            let current_req = resp[i];
-
-            // mixture_waveform.addRegion({
-            //     id: current_req.type + '_' +  i,
-            //     start: resp[i].time.start,
-            //     end: resp[i].time.end,
-            //     color: current_req.type === 'duet' ? duet_color : ft2d_color,
-            //     drag: false,
-            //     resize: false
-            // });
-        }
-    });
 }

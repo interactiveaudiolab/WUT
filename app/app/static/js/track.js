@@ -8,19 +8,22 @@ const PLAY_STATUS = {
 
 class Track {
 
-    constructor(buffer, trackID, envelopeData, slider, audioEndCallback) {
+    constructor(buffer, context, trackID, envelopeData, slider, audioEndCallback) {
         this._buffer = buffer;
         this._trackID = trackID;
         this._color = $(this._trackID).data('color');
         this._envelopeData = envelopeData;
+        this._envelopeDataHidden = false;
         this._timeline = null;
         this._cursorData = { currentPosition: 0, timeStart: null };
         this._status = PLAY_STATUS.STOPPED;
+        this._waveformLayer = null;
         this._cursorLayer = null;
+        this._breakpointLayer = null;
 
         this.isMuted = false;
         this.isSoloed = false;
-        this._context = new (window.AudioContext || window.webkitAudioContext)();
+        this._context = context;
         this._sourceNode = null;
         this._gainNode = null;
         this._pausedPosition = 0;
@@ -48,7 +51,7 @@ class Track {
 
         /////////////////////  WAVEFORM  \\\\\\\\\\\\\\\\\\\\
 
-        var waveformLayer = new wavesUI.core.Layer('entity', this._buffer.getChannelData(0), {
+        this._waveformLayer = new wavesUI.core.Layer('entity', this._buffer.getChannelData(0), {
             height: height,
             yDomain: [-1.05, 1.05]
         });
@@ -57,8 +60,8 @@ class Track {
         timeContext.duration = this._buffer.duration;
         timeContext.start = 0.0;
 
-        waveformLayer.setTimeContext(timeContext);
-        waveformLayer.configureShape(wavesUI.shapes.Waveform, {
+        this._waveformLayer.setTimeContext(timeContext);
+        this._waveformLayer.configureShape(wavesUI.shapes.Waveform, {
             y: function (d) {
                 return d;
             },
@@ -66,12 +69,12 @@ class Track {
             color: this._color
         });
         // as the waveform is an `entity` layer, we have to edit the context directly
-        waveformLayer.setContextEditable(true);
+        this._waveformLayer.setContextEditable(true);
 
 
         /////////////// 'BREAKPOINT' (aka envelope lines) \\\\\\\\\\\\\
 
-        var breakpointLayer = new wavesUI.core.Layer('collection', this._envelopeData, {
+        this._breakpointLayer = new wavesUI.core.Layer('collection', this._envelopeData, {
             height: height
         });
 
@@ -89,14 +92,14 @@ class Track {
                 return d.y;
             },
             color: function (d) {
-                return 'red'
+                return 'red';
             }
         };
 
-        breakpointLayer.setTimeContext(timeContext);
-        breakpointLayer.configureCommonShape(wavesUI.shapes.Line, accessors, {color: 'red'});
-        breakpointLayer.configureShape(wavesUI.shapes.Dot, accessors);
-        breakpointLayer.setBehavior(new wavesUI.behaviors.BreakpointBehavior());
+        this._breakpointLayer.setTimeContext(timeContext);
+        this._breakpointLayer.configureCommonShape(wavesUI.shapes.Line, accessors, {color: 'red'});
+        this._breakpointLayer.configureShape(wavesUI.shapes.Dot, accessors);
+        this._breakpointLayer.setBehavior(new wavesUI.behaviors.BreakpointBehavior());
 
         this._timeline.state = new wavesUI.states.BreakpointState(this._timeline, function (x, y) {
             // this callback allow to create a datum from values represented by the new dot
@@ -121,9 +124,9 @@ class Track {
         });
 
         // Add everything to the track
-        track_.add(waveformLayer);
+        track_.add(this._waveformLayer);
         track_.add(this._cursorLayer);
-        track_.add(breakpointLayer);
+        track_.add(this._breakpointLayer);
         this._timeline.add(track_);
 
         this._timeline.tracks.render();
@@ -165,8 +168,53 @@ class Track {
         return this._cursorData.currentPosition;
     }
 
+    setEnvelopeData(data) {
+        this.clearAllEnvelopeData();
+        this._breakpointLayer.data = data;
+        this._redrawBreakpointLayer();
+    }
+
+    _redrawBreakpointLayer() {
+        this._timeline.tracks.render(this._breakpointLayer);
+        this._timeline.tracks.update(this._breakpointLayer);
+    }
+
+    addEnvelopeDataPoint(x_, y_) {
+        this._breakpointLayer.data.push({x: x_, y: y_});
+        this._redrawBreakpointLayer();
+    }
+
     clearAllEnvelopeData() {
-        this._timeline.tracks[0].layers[2].data = [];
+        this._breakpointLayer.data = [];
+        this._redrawBreakpointLayer();
+    }
+
+    hideEnvelopeData() {
+        this._envelopeData = this._breakpointLayer.data;
+        this._breakpointLayer.data = [{x: 0.0, y: 0.05}, {x: this._buffer.duration, y: 0.05}];
+        this._envelopeDataHidden = true;
+        this._redrawBreakpointLayer();
+    }
+
+    showEnvelopeData() {
+        this._breakpointLayer.data = this._envelopeData;
+        this._envelopeDataHidden = false;
+        this._redrawBreakpointLayer();
+    }
+
+    toggleEnvelopeData() {
+        if (this._envelopeDataHidden) {
+            this.showEnvelopeData();
+        } else {
+            this.hideEnvelopeData();
+        }
+    }
+
+    changeWaveformBuffer(buffer, ch) {
+        this._buffer = buffer;
+        this._waveformLayer.data = buffer.getChannelData(ch);
+        this._timeline.tracks.render(this._waveformLayer);
+        this._timeline.tracks.update(this._waveformLayer);
     }
 
     togglePlayPause() {

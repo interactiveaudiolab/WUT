@@ -70,3 +70,6 @@ docs/_build/
 
 # PyBuilder
 target/
+
+# redis files
+*.rdb

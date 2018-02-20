@@ -38,8 +38,6 @@ $('#input_audio_file').change(function () {
         buffer_loader_load(mixture_audio_file.url);
     }
 
-    initMultiTrackWithRandom(mixture_audio_file.url);
-
     $("#filename").text(mixture_audio_file.file.name);
     $('#extraction-goal').multiselect('enable');
     mixture_waveform.load(mixture_audio_file.url);
@@ -55,7 +53,7 @@ mixture_audio_file.upload_to_server = function (obj) {
             'file_size': file.size,
             'file_type': file.type,
             'file_data': file };
-        socket.emit('audio_upload', {'audio_file': file_with_metadata});
+        socket.compress(true).emit('audio_upload', {'audio_file': file_with_metadata});
     }
     else {
         socket.emit('audio_upload', {'audio_file': null});
