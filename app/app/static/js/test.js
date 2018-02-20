@@ -7,7 +7,7 @@ var result_waveform = Object.create(WaveSurfer);
 var all_waveforms = [mixture_waveform, result_waveform];
 var defaultZoomStart;
 var zoomStepSize = 5;
-var spectrogram = new PCAHeatmap('spectrogram', 100);
+var spectrogram = new SpectrogramHeatmap('spectrogram', 20000)
 var pca = new PCAHeatmap('pca', 100);
 
 var socket;
@@ -36,16 +36,21 @@ tfToMatrix = (tfArray, max) => {
     return pca
 }
 
-pcaToHistrogram = (pca) => {
+pcaMatrixToHistogram = (pca) => {
     max = Math.max(...pca.map(row => Math.max(...row.map(inds => inds.length))))
     return pca.map(row => row.map(inds => inds.length/max))
 }
 
-tf = randomMatrix(100, 2, 5)
+// tf = randomMatrix(100, 2, 5)
 
-pca_data = tfToMatrix(tf, 5)
+// pca_data = tfToMatrix(tf, 5)
 
-hist = pcaToHistrogram(pca_data)
+// hist = pcaMatrixToHistogram(pca_data)
+
+var currTime = () => {
+    let time = new Date();
+    return time.getHours() + ":" + time.getMinutes() + ":" + time.getSeconds()
+}
 
 $(document).ready(function() {
 	window.AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -62,15 +67,47 @@ $(document).ready(function() {
 
   socket.on('audio_upload_ok', function () {
       $('#status').text('Audio uploaded to server.');
+      console.log(currTime())
   });
 
   socket.on('bad_file', function () {
       console.log('File rejected by server');
   });
 
+  socket.on('pca', function(message) {
+    console.log('Got PCA');
+    console.log(currTime())
+
+    let pca_data = JSON.parse(message)
+    console.log('Data: ')
+    console.log(pca_data.slice(0, 5))
+    console.log('\n\n')
+
+    let pca_matrix = tfToMatrix(pca_data, 100)
+    let hist = pcaMatrixToHistogram(pca_matrix)
+    make_pca(pca, hist)
+  });
+
+  socket.on('spec', function(message) {
+    console.log('Got SPECTROGRAM');
+    console.log(currTime())
+
+    spec_data = JSON.parse(message)
+    console.log('Data: ')
+    console.log(spec_data.slice(0, 5))
+    console.log('\n\n')
+
+    // console.log(data)
+    // data[0].z = spec;
+    // console.log(data)
+    make_spectrogram(spectrogram, spec_data, 10)
+    // Plotly.newPlot(spectrogram, data, layout, options);
+  });
+
+
   // FAKING HEATMAP
-  make_pca(spectrogram, randomMatrix(100, 100, 5))
-  make_pca(pca, randomMatrix(100, 100, 5))
+    // make_spectrogram(spectrogram, randomMatrix(100, 100, 5), 5)
+    // make_pca(spectrogram, randomMatrix(100, 100, 5))
 });
 
 document.addEventListener('DOMContentLoaded', function () {

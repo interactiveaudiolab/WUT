@@ -21,6 +21,8 @@ import nussl
 import actions
 import utils
 
+from pickle import Unpickler
+
 # Set up logging
 logger = logging.getLogger()
 

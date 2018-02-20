@@ -2,9 +2,15 @@ import os
 import logging
 import inspect
 import json
+import math
 
 from flask import render_template, request, flash, session, abort, send_file, make_response
 from werkzeug.utils import secure_filename
+<<<<<<< HEAD
+=======
+from flask_socketio import emit
+from pickle import Unpickler
+>>>>>>> fc9029b... Uploading spectrogram works, pca sort of
 
 from .app_obj import app_, socketio, redis_store
 import separation_session
@@ -87,6 +93,56 @@ def initialize(audio_file_data):
     save_session(separation_sess)
     socketio.emit('spectrogram_image_ready', {'max_freq': separation_sess.user_general_audio.max_frequency_displayed},
                   namespace=WUT_SOCKET_NAMESPACE)
+
+    # pca = data['pca']
+    # print 'PCA'
+    # print 'Dim 1: ', len(pca)
+    # print 'Dim 2: ', len(pca[0])
+    # print 'Data: '
+    # print pca
+
+    # print '\n'
+
+    # mel = data['mel_spectrogram']
+    # print 'Mel'
+    # print 'Dim 1: ', len(mel[0])
+    # print 'Dim 2: ', len(mel[0][0])
+    # print 'Data: '
+    # print mel[0]
+
+    logger.info('About to unpickle')
+    data = Unpickler(open('./app/toy_data.p')).load()
+
+    logger.info('About to send spectrogram')
+
+    def scaleNum(num, min, max, scaled_min, scaled_max):
+        return (((scaled_max - scaled_min) * (num - min)) / (max - min)) + scaled_min
+
+    def findPCAMinMax(pca):
+        x_edges = (pca[0][0], pca[0][0])
+        y_edges = (pca[0][1], pca[0][1])
+
+        for x, y in pca[1:]:
+            x_edges = (min(x_edges[0], x), max(x_edges[1], x))
+            y_edges = (min(y_edges[0], y), max(y_edges[1], y))
+
+        return (x_edges, y_edges)
+
+    def scalePCA(pca):
+        x_edges, y_edges = findPCAMinMax(pca)
+        x_min, x_max = x_edges
+        y_min, y_max = y_edges
+
+        scaling_factor = 99
+        return [[round(scaleNum(x, x_min, x_max, 0, scaling_factor)), round(scaleNum(y, y_min, y_max, 0, scaling_factor))] for x, y in pca]
+
+    scaled = scalePCA(data['pca'].tolist())
+    socketio.emit('pca', json.dumps(scaled), namespace=wut_namespace)
+    # socketio.emit('spec', json.dumps(data['mel_spectrogram'][0].T.tolist()), namespace=wut_namespace)
+
+    logger.info('Sent spectrogram')
+
+    # logger.info('Sent spectrogram for {}'.format(filename))
 
     # Initialize other representations
     # Compute and send the AD histogram, Asynchronously
