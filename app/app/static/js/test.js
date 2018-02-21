@@ -10,10 +10,13 @@ var zoomStepSize = 5;
 var spectrogram = new SpectrogramHeatmap('spectrogram', 20000)
 var pca = new PCAHeatmap('pca', 100);
 var pca_tf_indices;
+var spec_dims;
 
 var socket;
 var time_to_graph = 0.0;
 var spec_as_image = false;
+
+var TAKE_THIS_OUT_ONLY_FOR_KILLING_CODE_WHILE_TESTING = false
 
 pcaMatrixToHistogram = (pca) => {
     // max = Math.max(...pca.map(row => Math.max(...row.map(inds => inds.length))))
@@ -58,7 +61,9 @@ $(document).ready(function() {
   socket.on('spec', function(message) {
     console.log('Got SPECTROGRAM');
     console.log(currTime())
-    make_spectrogram(spectrogram, JSON.parse(message), 10)
+    spec_data = JSON.parse(message);
+    spec_dims = [spec_data.length, spec_data[0].length]
+    make_spectrogram(spectrogram, spec_data, 15)
   });
 });
 

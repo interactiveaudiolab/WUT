@@ -43,7 +43,7 @@ class BoxSelection extends Selection {
         this.yEndIdx = null;
 
         this.timeConvertedToIndices = false;
-        this._convertTimesToIndices(xTicks, yTicks);
+        // this._convertTimesToIndices(xTicks, yTicks);
     }
 
     get isEmpty() {
