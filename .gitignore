@@ -73,3 +73,5 @@ target/
 
 # redis files
 *.rdb
+# Nathan
+toy_data.p
