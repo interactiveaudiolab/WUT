@@ -9,43 +9,16 @@ var defaultZoomStart;
 var zoomStepSize = 5;
 var spectrogram = new SpectrogramHeatmap('spectrogram', 20000)
 var pca = new PCAHeatmap('pca', 100);
+var pca_tf_indices;
 
 var socket;
 var time_to_graph = 0.0;
 var spec_as_image = false;
 
-// MATRIX OPERATIONS
-
-// generate n x m matrix with values given by function
-makeMatrix = (height, width) => (gen) =>
-    [...new Array(height)].map(() => [... new Array(width)].map(gen))
-
-// generate n x m matrix with random values having a non-inclusive max
-randomMatrix = (height, width, max) =>
-    makeMatrix(height, width)(() => Math.floor(Math.random() * max))
-
-// takes TF x 2 array with values in range [0, max]
-// returns max x max matrix
-
-tfToMatrix = (tfArray, max) => {
-    let pca = makeMatrix(max, max)(() => [])
-    tfArray.forEach(([x, y], tfIndex) => {
-        pca[x][y] = pca[x][y].concat([tfIndex])
-    });
-
-    return pca
-}
-
 pcaMatrixToHistogram = (pca) => {
-    max = Math.max(...pca.map(row => Math.max(...row.map(inds => inds.length))))
-    return pca.map(row => row.map(inds => inds.length/max))
+    // max = Math.max(...pca.map(row => Math.max(...row.map(inds => inds.length))))
+    return pca.map(row => row.map(inds => Math.log(inds.length + 0.0000000001)))
 }
-
-// tf = randomMatrix(100, 2, 5)
-
-// pca_data = tfToMatrix(tf, 5)
-
-// hist = pcaMatrixToHistogram(pca_data)
 
 var currTime = () => {
     let time = new Date();
@@ -77,37 +50,16 @@ $(document).ready(function() {
   socket.on('pca', function(message) {
     console.log('Got PCA');
     console.log(currTime())
+    pca_tf_indices = JSON.parse(message)
 
-    let pca_data = JSON.parse(message)
-    console.log('Data: ')
-    console.log(pca_data.slice(0, 5))
-    console.log('\n\n')
-
-    let pca_matrix = tfToMatrix(pca_data, 100)
-    let hist = pcaMatrixToHistogram(pca_matrix)
-    make_pca(pca, hist)
+    make_pca(pca, pcaMatrixToHistogram(pca_tf_indices))
   });
 
   socket.on('spec', function(message) {
     console.log('Got SPECTROGRAM');
     console.log(currTime())
-
-    spec_data = JSON.parse(message)
-    console.log('Data: ')
-    console.log(spec_data.slice(0, 5))
-    console.log('\n\n')
-
-    // console.log(data)
-    // data[0].z = spec;
-    // console.log(data)
-    make_spectrogram(spectrogram, spec_data, 10)
-    // Plotly.newPlot(spectrogram, data, layout, options);
+    make_spectrogram(spectrogram, JSON.parse(message), 10)
   });
-
-
-  // FAKING HEATMAP
-    // make_spectrogram(spectrogram, randomMatrix(100, 100, 5), 5)
-    // make_pca(spectrogram, randomMatrix(100, 100, 5))
 });
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -158,8 +110,10 @@ mixture_waveform.on('ready', function () {
 // also may want to write own debouncing function instead of
 // importing Lodash for it
 $(window).resize(_.debounce(function(){
-    mixture_waveform.empty();
-    mixture_waveform.drawBuffer();
+    if(mixture_waveform) {
+        mixture_waveform.empty();
+        mixture_waveform.drawBuffer();
+    }
   }, 500));
 
 //  ~~~~~~~~~~~~~ MODAL ~~~~~~~~~~~~~

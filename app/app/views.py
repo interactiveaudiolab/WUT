@@ -94,51 +94,51 @@ def initialize(audio_file_data):
     socketio.emit('spectrogram_image_ready', {'max_freq': separation_sess.user_general_audio.max_frequency_displayed},
                   namespace=WUT_SOCKET_NAMESPACE)
 
-    # pca = data['pca']
-    # print 'PCA'
-    # print 'Dim 1: ', len(pca)
-    # print 'Dim 2: ', len(pca[0])
-    # print 'Data: '
-    # print pca
-
-    # print '\n'
-
-    # mel = data['mel_spectrogram']
-    # print 'Mel'
-    # print 'Dim 1: ', len(mel[0])
-    # print 'Dim 2: ', len(mel[0][0])
-    # print 'Data: '
-    # print mel[0]
-
     logger.info('About to unpickle')
     data = Unpickler(open('./app/toy_data.p')).load()
 
     logger.info('About to send spectrogram')
 
-    def scaleNum(num, min, max, scaled_min, scaled_max):
-        return (((scaled_max - scaled_min) * (num - min)) / (max - min)) + scaled_min
+    def scale_num(num, _min, _max, scaled_min, scaled_max):
+        return (((scaled_max - scaled_min) * (num - _min)) / (_max - _min)) + scaled_min
 
-    def findPCAMinMax(pca):
-        x_edges = (pca[0][0], pca[0][0])
-        y_edges = (pca[0][1], pca[0][1])
+    def clean_coordinates(coord, x_edges, y_edges, new_max = 99, new_min = 0):
+        return (int(round(scale_num(coord[0], x_edges[0], x_edges[1], new_min, new_max))),
+            int(round(scale_num(coord[1], y_edges[0], y_edges[1], new_min, new_max))))
 
-        for x, y in pca[1:]:
-            x_edges = (min(x_edges[0], x), max(x_edges[1], x))
-            y_edges = (min(y_edges[0], y), max(y_edges[1], y))
+    def find_pca_min_max(pca):
+        mins = np.amin(pca, 0)
+        maxes = np.amax(pca, 0)
+        return (mins[0], maxes[0]), (mins[1], maxes[1])
 
-        return (x_edges, y_edges)
+    def scale_pca(pca, new_max=99, new_min = 0):
+        x_edges, y_edges = find_pca_min_max(pca)
 
-    def scalePCA(pca):
-        x_edges, y_edges = findPCAMinMax(pca)
-        x_min, x_max = x_edges
-        y_min, y_max = y_edges
+        scale_and_clean = lambda coord: clean_coordinates(coord, x_edges, y_edges, new_max, new_min)
+        return np.apply_along_axis(scale_and_clean, 1, pca)
 
-        scaling_factor = 99
-        return [[round(scaleNum(x, x_min, x_max, 0, scaling_factor)), round(scaleNum(y, y_min, y_max, 0, scaling_factor))] for x, y in pca]
+    def make_square_matrix(dim=100):
+        return [[[] for x in range(dim)] for y in range(dim)]
 
-    scaled = scalePCA(data['pca'].tolist())
-    socketio.emit('pca', json.dumps(scaled), namespace=wut_namespace)
-    # socketio.emit('spec', json.dumps(data['mel_spectrogram'][0].T.tolist()), namespace=wut_namespace)
+    def bin_matrix(scaled_tf, matrix):
+        for index, (x, y) in enumerate(scaled_tf):
+            matrix[x][y].append(index)
+
+        return matrix
+
+    def make_hist(matrix):
+        for x in range(len(matrix)):
+            for y in range(len(matrix[0])):
+                matrix[x][y] = np.log(len(matrix[x][y]) + 0.00000000000000001)
+
+        return matrix
+
+    dim = 99
+    scaled = scale_pca(data['pca'], dim)
+    binned = bin_matrix(scaled, make_square_matrix(dim + 1))
+
+    socketio.emit('pca', json.dumps(binned), namespace=wut_namespace)
+    socketio.emit('spec', json.dumps(data['mel_spectrogram'][0].T.tolist()), namespace=wut_namespace)
 
     logger.info('Sent spectrogram')
 
