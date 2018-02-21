@@ -4,8 +4,8 @@
 function make_spectrogram(heatmap, results, audioLength) {
     // var logY = document.getElementById('yLogCheckbox').checked;
     // if (typeof(logY) === 'undefined') logY = false;
-    let logY = true;
-    let freqMax = 20000;
+    let logY = false;
+    let freqMax = 150;
 
     console.log('Got spectrogram from server!');
     let status = $('#general-status');
@@ -64,7 +64,8 @@ class SpectrogramHeatmap extends PlotlyHeatmap {
         layout.xaxis.range = [0.0, this.audioLength];
         layout.yaxis.type = this.logY ? "log" : "linear";
         layout.yaxis.autorange = this.logY;
-        layout.yaxis.range = [0.0, this.freqMax / 2];
+        // TODO: why divide by 2 here? also just how does this work in general
+        layout.yaxis.range = [0.0, this.freqMax];
 
         this.plot = Plotly.newPlot(this.divID, data, layout, this.plotOptions);
         // let update = { width: $(window).width() };
