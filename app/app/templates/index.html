@@ -35,6 +35,7 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/socket.io.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/waves-loaders.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/waves-ui.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/jquery.actual.min.js') }}"></script>
 </head>
 <body>
 <!--[if lt IE 8]>
@@ -64,7 +65,7 @@
 
                 <li class="divider-vertical"></li>
                 <li>
-                    <p class="control-text" style="display: inline; padding-left: 0.25em;"> Status:</p><p id="general-status">Ready...</p>
+                    <p class="control-text" id="status-text"> Status:</p><p id="general-status">Ready...</p>
                 </li>
 
             </ul>
@@ -86,7 +87,7 @@
                             <p id="filename"></p>
                         </div>
                         <div class="col-sm-2">
-                            <button type="button" class="btn btn-primary btn-sm" id="open-button-modal">
+                            <button type="button" class="btn btn-default btn-sm" id="open-button-modal">
                                 <i class="glyphicon glyphicon-folder-open icon text-center"></i>
                                 Open File
                             </button>
@@ -128,7 +129,7 @@
                             Privacy
                         </a>
                     </span>
-                    <button id="survey-done" type="submit" class="btn btn-primary disabled">Start!</button>
+                    <button id="survey-done" type="submit" class="btn btn-default disabled">Start!</button>
                 </div>
             </div>
         </div>
@@ -142,23 +143,22 @@
 
         <div class="player-wrapper" id="mixture-player">
             <div class="player-controls" id="mixture-player-controls">
-                <div class="player-controls-inner" style="padding-left: 20px">
+                <div class="player-controls-inner" id="mixture-player-control-wrapper">
                     <div class="btn-group-vertical">
-
-                        <button id="mixture-play" class="btn btn-primary result-controls play-pause"
+                        <button id="mixture-play" class="btn btn-default result-controls play-pause"
                                 title="Play">
                             <i class="glyphicon glyphicon-play" title="Play Audio"></i>
                         </button>
-                        <button id="mixture-stop" class="btn btn-primary result-controls"
+                        <button id="mixture-stop" class="btn btn-default result-controls"
                                 title="Stop">
                             <i class="glyphicon glyphicon-stop" title="Stop Audio"></i>
                         </button>
                     </div>
                 </div>
             </div>
-            <div class="waveform-wrapper" id="mixture-waveform-wrapper">
-                <div class="waveform">
-                    <div id="mixture-waveform" style="width: 100%">
+            <div class="waveform-outer-wrapper" id="mixture-waveform-wrapper">
+                <div class="waveform-inner-wrapper">
+                    <div class="waveform" id="mixture-waveform">
                     </div>
                     <div id="waveform-timeline"></div>
                 </div>
@@ -181,11 +181,11 @@
                     <div class="col-md-1"></div>
                     <div class="col-md-1" id="waveform-zoom-buttons">
                         <div class="btn-group">
-                            <button id="mixture-zoom-in" class="btn btn-primary" title="Zoom in">
+                            <button id="mixture-zoom-in" class="btn btn-default" title="Zoom in">
                                 <i class="glyphicon glyphicon-zoom-in" id="waveform"></i>
                             </button>
 
-                            <button id="mixture-zoom-out" class="btn btn-primary" title="Zoom out">
+                            <button id="mixture-zoom-out" class="btn btn-default" title="Zoom out">
                                 <i class="glyphicon glyphicon-zoom-out"></i>
                             </button>
                         </div>
@@ -193,18 +193,18 @@
 
                     <div class="col-md-6">
                         <div class="btn-group">
-{#                            <button id="selection-louder" class="btn btn-primary spec-tool disabled" title="Make selection louder">#}
+{#                            <button id="selection-louder" class="btn btn-default spec-tool disabled" title="Make selection louder">#}
 {#                                <i class="fa fa-volume-off fa-lg" aria-hidden="true"></i>#}
 {#                                <i class="fa fa-plus" aria-hidden="true"></i>#}
 {#                            </button>#}
-{#                            <button id="selection-softer" class="btn btn-primary spec-tool disabled" title="Make selection softer">#}
+{#                            <button id="selection-softer" class="btn btn-default spec-tool disabled" title="Make selection softer">#}
 {#                                <i class="fa fa-volume-off fa-lg" aria-hidden="true"></i>#}
 {#                                <i class="fa fa-minus" aria-hidden="true"></i>#}
 {#                            </button>#}
-                            <button id="selection-remove" class="btn btn-primary spec-tool disabled" title="Delete selected regions">
+                            <button id="selection-remove" class="btn btn-default spec-tool disabled" title="Delete selected regions">
                                 <i class="fa fa-eraser" aria-hidden="true"></i>
                             </button>
-{#                            <button id="selection-inverse" class="btn btn-primary spec-tool disabled" title="Invert selection">#}
+{#                            <button id="selection-inverse" class="btn btn-default spec-tool disabled" title="Invert selection">#}
 {#                                Invert Selection#}
 {#                            </button>#}
                         </div>
@@ -212,10 +212,10 @@
 
                     <div class="col-md-2">
                         <div id="spec-color" class="btn-group" data-toggle="buttons">
-                            <label class="btn btn-primary active">
+                            <label class="btn btn-default active">
                                 <input type="radio" name="options" id="white" autocomplete="off" checked> White
                             </label>
-                            <label class="btn btn-primary">
+                            <label class="btn btn-default">
                                 <input type="radio" name="options" id="green" autocomplete="off"> Green
                             </label>
                         </div>
@@ -235,11 +235,11 @@
 {#                    <div class="col-md-1"></div>#}
 {#                    <div class="col-md-1" id="duet-zoom-buttons">#}
 {#                        <div class="btn-group">#}
-{#                            <button id="duet-zoom-in" class="btn btn-primary" title="Zoom in">#}
+{#                            <button id="duet-zoom-in" class="btn btn-default" title="Zoom in">#}
 {#                                <i class="glyphicon glyphicon-zoom-in"></i>#}
 {#                            </button>#}
 {##}
-{#                            <button id="ft2d-zoom-out" class="btn btn-primary" title="Zoom out">#}
+{#                            <button id="ft2d-zoom-out" class="btn btn-default" title="Zoom out">#}
 {#                                <i class="glyphicon glyphicon-zoom-out"></i>#}
 {#                            </button>#}
 {#                        </div>#}
@@ -247,16 +247,16 @@
 {##}
 {#                    <div class="col-md-6">#}
 {#                        <div class="btn-group">#}
-{#                            <button id="selection-louder" class="btn btn-primary spec-tool disabled" title="Make selection louder">#}
+{#                            <button id="selection-louder" class="btn btn-default spec-tool disabled" title="Make selection louder">#}
 {#                                Make Selection Louder#}
 {#                            </button>#}
-{#                            <button id="selection-softer" class="btn btn-primary spec-tool disabled" title="Make selection softer">#}
+{#                            <button id="selection-softer" class="btn btn-default spec-tool disabled" title="Make selection softer">#}
 {#                                Make Selection Softer#}
 {#                            </button>#}
-{#                            <button id="selection-remove" class="btn btn-primary spec-tool disabled" title="Remove selection">#}
+{#                            <button id="selection-remove" class="btn btn-default spec-tool disabled" title="Remove selection">#}
 {#                                Remove Selection#}
 {#                            </button>#}
-{#                            <button id="selection-inverse" class="btn btn-primary spec-tool disabled" title="Invert selection">#}
+{#                            <button id="selection-inverse" class="btn btn-default spec-tool disabled" title="Invert selection">#}
 {#                                Invert Selection#}
 {#                            </button>#}
 {#                        </div>#}
@@ -278,28 +278,28 @@
                     <div class="player-controls" id="result-player-controls">
                         <div class="player-controls-inner">
                             <div style="padding-bottom: 5px">
-                                <button id="result-play" class="btn btn-primary result-controls disabled"
+                                <button id="result-play" class="btn btn-default result-controls disabled"
                                         title="Play/Pause">
                                     <i class="glyphicon glyphicon-play" title="Play Audio"></i>
                                 </button>
                             </div>
                             <div style="padding-bottom: 5px">
-                                <button id="result-stop" class="btn btn-primary result-controls disabled"
+                                <button id="result-stop" class="btn btn-default result-controls disabled"
                                         title="Stop">
                                     <i class="glyphicon glyphicon-stop" title="Stop Audio"></i>
                                 </button>
                             </div>
                             <div>
-                                <button id="save-result" class="btn btn-primary result-controls disabled"
+                                <button id="save-result" class="btn btn-default result-controls disabled"
                                         title="Save Result">
                                     Save
                                 </button>
                             </div>
                         </div>
                     </div>
-                    <div class="waveform-wrapper" id="result-waveform-wrapper">
-                        <div class="waveform">
-                            <div id="result-waveform" style="width: 100%">
+                    <div class="waveform-outer-wrapper" id="result-waveform-wrapper">
+                        <div class="waveform-inner-wrapper">
+                            <div class="waveform" id="result-waveform">
                             </div>
                             <div id="result-waveform-timeline"></div>
                         </div>
@@ -316,12 +316,12 @@
 
             <div class="tab-pane" id="reqs-tab">
                 <div class="row">
-                    <div class="col-md-10 col-md-offset-1">
+                    <div class="col-md-10">
                         <div class="btn-group btn-group-sm">
-                            <button id="req-stop" class="btn btn-primary" title="Stop">
+                            <button id="req-stop" class="btn btn-default" title="Stop">
                                 <i class="glyphicon glyphicon-stop"></i>
                             </button>
-                            <button id="req-play" class="btn btn-primary play-pause" title="Play">
+                            <button id="req-play" class="btn btn-default play-pause" title="Play">
                                 <i class="glyphicon glyphicon-play"></i>
                             </button>
                         </div>
@@ -329,7 +329,7 @@
                 </div>
                 <div class="row" id="track-container">
                     <div class="row">
-                        <div class="col-md-10 col-md-offset-2">
+                        <div class="col-md-10 col-md-offset-1">
                             <input id="transport-slider" type="text"
                                    data-slider-handle="custom"
                                    data-slider-min="0.0"
@@ -341,7 +341,7 @@
                         </div>
                     </div>
                     <div class="row track-and-controls">
-                        <div class="col-md-1 col-md-offset-1 track-controls">
+                        <div class="col-md-1 track-controls">
                             <h5>Repet</h5>
                             <div class="btn-group btn-group-xs">
                                 <button id="repet-solo" class="btn solo-track" title="Solo">
@@ -353,11 +353,11 @@
                             </div>
                         </div>
                         <div class="col-md-10 waves-ui-container">
-                            <div class="waves-ui-track" id="repet_sim" data-color="SkyBlue" style="width: 100%"></div>
+                            <div class="waves-ui-track" id="repet_sim" data-color="SkyBlue"></div>
                         </div>
                     </div>
                     <div class="row track-and-controls">
-                        <div class="col-md-1 col-md-offset-1 track-controls">
+                        <div class="col-md-1 track-controls">
                             <h5>Melodia</h5>
                             <div class="btn-group btn-group-xs">
                                 <button id="melodia-solo" class="btn solo-track" title="Solo">
@@ -369,11 +369,11 @@
                             </div>
                         </div>
                         <div class="col-md-10 waves-ui-container">
-                            <div class="waves-ui-track" id="melodia" data-color="PaleVioletRed" style="width: 100%"></div>
+                            <div class="waves-ui-track" id="melodia" data-color="PaleVioletRed"></div>
                         </div>
                     </div>
                     <div class="row track-and-controls">
-                        <div class="col-md-1 col-md-offset-1 track-controls">
+                        <div class="col-md-1 track-controls">
                             <h5>Projet</h5>
                             <div class="btn-group btn-group-xs">
                                 <button id="projet-solo" class="btn solo-track" title="Solo">
@@ -385,7 +385,7 @@
                             </div>
                         </div>
                         <div class="col-md-10 waves-ui-container">
-                            <div class="waves-ui-track" id="projet" data-color="MediumSeaGreen" style="width: 100%"></div>
+                            <div class="waves-ui-track" id="projet" data-color="MediumSeaGreen"></div>
                         </div>
                     </div>
                 </div>
@@ -427,7 +427,7 @@
                     </div>
 
                     <div class="modal-footer">
-                        <button class="btn btn-primary" data-dismiss="modal">Back</button>
+                        <button class="btn btn-default" data-dismiss="modal">Back</button>
                     </div>
                 </div>
             </div>

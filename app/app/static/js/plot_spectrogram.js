@@ -34,37 +34,18 @@ class SpectrogramHeatmap extends PlotlyHeatmap {
         this.audioLength = null;
         this.freqMax = null;
 
-        this.plotLayout = {
+        this.plotLayout.xaxis = {
+            title: "Time (s)",
+            type: "linear",
+            range: [0.0, 1.0],
+            rangeslider: [0.0, 1.0]
+        };
 
-            // Data
-            xaxis: {
-                title: "Time (s)",
-                // autorange: true,
-                type: "linear",
-                range: [0.0, 1.0],
-                // rangeslider: [0.0, 1.0]
-            },
-            yaxis: {
-                title: "Frequency (Hz)",
-                type: "linear",
-                autorange: true,
-                // ticks: yTicks
-                range: [0.0, 20000.0]
-            },
-            // type: 'heatmap',
-
-            // Interaction
-            dragmode: 'select',
-            selectable: true,
-
-            // Cosmetics
-            paper_bgcolor: '#E3F0FB', // 'rgb(0,0,0,0); doesn't work :(
-            plot_bgcolor: '#E3F0FB',
-            // width: 500,
-            // height: 500,
-            margin: this.plotMargins,
-            autosize: true,
-
+        this.plotLayout.yaxis = {
+            title: "Frequency (Hz)",
+            type: "linear",
+            autorange: true,
+            range: [0.0, 20000.0]
         };
 
         this.emptyHeatmap();
@@ -78,14 +59,11 @@ class SpectrogramHeatmap extends PlotlyHeatmap {
         this.yTicks = arange(0.0, this.freqMax, this.rawData.length);
         this.xTicks = arange(0.0, this.audioLength, this.rawData[0].length);
 
-        // let colorbarOpts = colorBarOptions;
-        // colorbarOpts.tickvals = [0, 20, 40, 60, 80];
-
         let data = [ { x: this.xTicks, y: this.yTicks, z: this.rawData, type: 'heatmap', showscale: false } ];
 
         let layout = this.plotLayout;
         layout.xaxis.range = [0.0, this.audioLength];
-        // layout.xaxis.rangeslider = selectedRange;
+        layout.xaxis.rangeslider = [0.0, this.audioLength];
         layout.yaxis.type = this.logY ? "log" : "linear";
         layout.yaxis.autorange = this.logY;
         layout.yaxis.range = [0.0, this.freqMax / 2];

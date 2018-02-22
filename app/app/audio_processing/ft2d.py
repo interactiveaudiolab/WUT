@@ -47,7 +47,7 @@ class FT2D(audio_processing_base.InteractiveAudioProcessingBase):
         ft2d_preview = ft2d_preview[freq_bins:, time_bins:]
 
         self.ft2d_preview = scipy.ndimage.zoom(ft2d_preview, zoom=self.zoom_ratio)
-        ft2d = general_audio.GeneralAudio._prep_spectrogram(self.ft2d_preview)
+        ft2d = general_audio.GeneralAudio._log_space_prepare(self.ft2d_preview)
         return json.dumps(ft2d.tolist())
 
     def send_2dft_json(self, socket, namespace):

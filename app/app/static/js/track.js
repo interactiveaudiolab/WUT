@@ -41,7 +41,7 @@ class Track {
 
     _drawWaveform() {
 
-        var width = 1000; // TODO: get width of hidden div
+        var width = $(this._trackID).actual( 'width' );
         var height = 100;
         var pixelsPerSecond = width / this._buffer.duration;
 

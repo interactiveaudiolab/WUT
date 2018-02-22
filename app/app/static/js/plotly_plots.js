@@ -62,12 +62,10 @@ class PlotlyHeatmap {
 
         this.plotLayout = {
             xaxis: {
-                // title: "Time (s)",
                 type: "linear",
                 range: [0.0, this.xMax],
             },
             yaxis: {
-                // title: "Frequency (Hz)",
                 type: "linear",
                 autorange: true,
                 range: [0.0, this.yMax]
@@ -76,23 +74,15 @@ class PlotlyHeatmap {
             // Interaction
             dragmode: 'select',
             selectable: true,
+            shapes: [],
 
             // Cosmetics
-            paper_bgcolor: '#E3F0FB', // 'rgb(0,0,0,0); doesn't work :(
-            plot_bgcolor: '#E3F0FB',
-            // width: 500,
-            // height: 500,
+            paper_bgcolor: '#f8f8f8', // 'rgb(0,0,0,0); doesn't work :(
+            plot_bgcolor: '#f8f8f8',
             margin: this.plotMargins,
             autosize: true,
-            shapes: new Array(),
         };
 
-        this.colorBarOptions = {
-            len: 0.81,
-            tickvals: [0, 1],
-            ticks: "inside",
-            showticklabels: false
-        };
     }
 
     get rawData() {
@@ -119,14 +109,14 @@ class PlotlyHeatmap {
         Plotly.relayout(this.divID, update);
     }
 
-    getColor() {
-        let colorVal = $('#spec-color .active').children().prop('id');
+    static getColor() {
+        let colorVal = $('#spec-color').find('.active').children().prop('id');
         return colorDict[colorVal];
     }
 
     updatePlotWithSelection() {
         let sel = getLastItemInArray(this.selections);
-        let colors = this.getColor();
+        let colors = PlotlyHeatmap.getColor();
 
         let rect = {
             'type': 'rect',

@@ -8,6 +8,7 @@ import logging
 import numpy as np
 
 from . import audio_processing_base
+from .. import utils
 from .. import nussl
 
 logger = logging.getLogger()
@@ -24,9 +25,13 @@ class Duet(audio_processing_base.InteractiveAudioProcessingBase):
         self.atn_delay_hist = None
 
     def get_ad_histogram_json(self):
-        self.atn_delay_hist = self.duet.get_atn_delay_histogram(recompute=True, normalized=True)
-        self.atn_delay_hist *= 80
-        self.atn_delay_hist = self.atn_delay_hist.T
+        atn_delay_hist = self.duet.get_atn_delay_histogram(recompute=True, normalized=True)
+        atn_delay_hist *= 80
+        atn_delay_hist = atn_delay_hist.T
+        self.atn_delay_hist = np.array([[utils.trunc(atn_delay_hist[i, j])
+                                         for i in range(atn_delay_hist.shape[0])]
+                                        for j in range(atn_delay_hist.shape[1])])
+
         return json.dumps(self.atn_delay_hist.tolist())
 
     def send_ad_histogram_json(self, socket, namespace):

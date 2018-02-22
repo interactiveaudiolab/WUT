@@ -5,6 +5,7 @@ AudioProcessingBase is the base class for adding backend audio processing module
 import logging
 import copy
 
+import librosa
 import numpy as np
 from .. import nussl
 
@@ -63,6 +64,10 @@ class InteractiveAudioProcessingBase(object):
             audio_signal = audio_signal.apply_mask(mask)
 
         return audio_signal
+
+    @staticmethod
+    def _log_space_prepare(array):
+        return np.add(librosa.logamplitude(array, ref_power=np.max).astype('int8'), 80)
 
 class AudioProcessingBaseException(Exception):
     pass

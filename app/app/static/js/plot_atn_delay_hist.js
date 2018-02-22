@@ -20,31 +20,17 @@ class AttenuationDelayHistogram extends PlotlyHeatmap {
         this.min = -3.0;
         this.max = 3.0;
 
-        this.plotLayout = {
+        this.plotLayout.xaxis = {
+            title: "Inter-channel Attenuation Difference",
+            type: "linear",
+            range: [this.min, this.max],
+        };
 
-            // Data Formatting
-            xaxis: {
-                title: "Inter-channel Attenuation Difference",
-                type: "linear",
-                range: [this.min, this.max],
-            },
-            yaxis: {
-                title: "Inter-channel Delay Difference",
-                type: "linear",
-                autorange: true,
-                range: [this.min, this.max]
-            },
-
-            // Interaction
-            dragmode: 'select',
-            selectable: true,
-
-            // Cosmetics
-            paper_bgcolor: '#E3F0FB', // 'rgb(0,0,0,0); doesn't work :(
-            plot_bgcolor: '#E3F0FB',
-            margin: this.plotMargins,
-            autosize: true,
-
+        this.plotLayout.yaxis = {
+            title: "Inter-channel Delay Difference",
+            type: "linear",
+            autorange: true,
+            range: [this.min, this.max]
         };
 
         this.emptyHeatmap();

@@ -94,8 +94,8 @@ class SDRPredictor(RecommendationEngineBase):
 
         timestamps = list(np.ravel(np.column_stack((timestamps, timestamps_))))  # interleave the two lists
 
-        predictions += 15
-        predictions /= 30
+        predictions -= 15
+        predictions = np.power(10, np.divide(predictions, 20))
         predictions = np.repeat(predictions, 2, 0)
 
         data = {}
