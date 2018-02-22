@@ -25,6 +25,13 @@ function getSpectrogramAsImage(heatmap, freqMax) {
     heatmap.drawImage(url, duration, freqMax);
     enableTools(true, '.spec-tool');
 
+function getMelSpectrogramAsImage(heatmap, path, freqMax) {
+    let url = "./mel_spec_image";
+    // let duration = mixture_waveform.backend.getDuration();
+    // let freqMax = 20000;
+
+    heatmap.drawImage(url, 15, 150);
+
 }
 
 class SpectrogramHeatmap extends PlotlyHeatmap {
@@ -96,7 +103,7 @@ class SpectrogramHeatmap extends PlotlyHeatmap {
         }];
 
         this.plot = Plotly.newPlot(this.divID, [{ x: [], y: [] }], layout, this.plotOptions);
-        let update = { width: $(window).width() };
-        Plotly.relayout(this.divID, update);
+        // let update = { width: $(window).width() };
+        // Plotly.relayout(this.divID, update);
     }
 }
