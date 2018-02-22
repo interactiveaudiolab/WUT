@@ -11,7 +11,6 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
-import librosa
 from .. import nussl
 
 from . import audio_processing_base
@@ -39,11 +38,7 @@ class GeneralAudio(audio_processing_base.InteractiveAudioProcessingBase):
     def do_spectrogram(self):
         self.audio_signal_copy.to_mono(overwrite=True)
         self.audio_signal_copy.stft()
-        return self._prep_spectrogram(self.audio_signal_copy.get_power_spectrogram_channel(0))
-
-    @staticmethod
-    def _prep_spectrogram(spectrogram):
-        return np.add(librosa.logamplitude(spectrogram, ref_power=np.max).astype('int8'), 80)
+        return self._log_space_prepare(self.audio_signal_copy.get_power_spectrogram_channel(0))
 
     def get_spectrogram_json(self):
         spec = self.do_spectrogram()
@@ -72,7 +67,7 @@ class GeneralAudio(audio_processing_base.InteractiveAudioProcessingBase):
         else:
             freqs = self.audio_signal_copy.freq_vector
             psd = self.audio_signal_copy.get_power_spectrogram_channel(0)
-            psd = np.add(librosa.logamplitude(psd, ref_power=np.max).astype('int8'), 80)
+            psd = self._log_space_prepare(psd)
 
             freq_bin = self.audio_signal_copy.get_closest_frequency_bin(freq_min)
             psd = psd[freq_bin:, :]

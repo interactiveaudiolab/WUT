@@ -12,8 +12,8 @@ html {
     color: #222;
     font-size: 1em;
     line-height: 1.4;
-    background-color: #E3F0FB;
-    font-family: Century Gothic, CenturyGothic, AppleGothic, sans-serif;
+    background-color: #f8f8f8;
+    font-family: Helvetica, sans-serif;
     font-weight: lighter;
 }
 
@@ -26,7 +26,7 @@ html {
  */
 
 ::selection {
-    background: #b3d4fc;
+    background: #f8f8f8;
     text-shadow: none;
 }
 
@@ -93,10 +93,10 @@ textarea {
 
 
 #wrapper {
-    background-color: #bde4ff;
+    background-color: #f8f8f8;
     border-radius: 0;
     padding: 0;
-    font-family: Century Gothic, CenturyGothic, AppleGothic, sans-serif;
+    font-family: Helvetica, sans-serif;
     font-weight: lighter;
 }
 
@@ -122,7 +122,7 @@ h1 {
 }
 
 #title-text {
-    font-family: 'Josefin Sans', sans-serif;
+    font-family: 'Helvetica Neue', sans-serif;
     font-size: 4em;
     padding-top: 30px;
 }
@@ -219,21 +219,21 @@ audio {
 }
 
 .navbar-default {
-  background-color: #64d1ff;
-  border-color: #00b3ff;
+  background-color: #f8f8f8;
+  border-color: #cac9ce;
 }
 .navbar-default .navbar-brand {
-  color: #005b99;
+  color: #000000;
 }
 .navbar-default .navbar-brand:hover,
 .navbar-default .navbar-brand:focus {
-  color: #005fff;
+  color: #000000;
 }
 .navbar-default .navbar-text {
-  color: #005b99;
+  color: #000000;
 }
 .navbar-default .navbar-nav > li > a {
-  color: #005b99;
+  color: #4a4a4a;
 }
 .navbar-default .navbar-nav > li > a:hover,
 .navbar-default .navbar-nav > li > a:focus {
@@ -318,7 +318,7 @@ audio {
 .navbar .divider-vertical {
     height: 70px;
     margin: 0 9px;
-    border-right: 1px solid #5ec5f0;
+    border-right: 1px solid #5b5b5b;
     /*border-left: 1px solid #0052ff;*/
 }
 
@@ -347,9 +347,9 @@ audio {
 }
 
 #general-status {
-    border: 1px solid #005b99;
+    border: 1px solid #5b5b5b;
     width: 400px;
-    background: #5ec5f0;
+    /*background: #dedde2;*/
     padding: 4px;
 }
 
@@ -358,20 +358,25 @@ audio {
     margin: 0;
 }
 
-.waveform {
-    background-color:#F0F0F0;
-    border-radius:2px;
-    border: 1px solid #303030;
+#status-text {
+    display: inline;
+    padding-left: 0.25em;
 }
 
-.waveform-wrapper {
+.waveform-inner-wrapper {
+    background-color: #ffffff;
+    border-radius:2px;
+    /*border: 1px solid #303030;*/
+}
+
+.waveform-outer-wrapper {
     margin-left: 95px;
     margin-right: 95px;
 }
 
-/*#waveform-zoom-buttons {*/
-    /*padding: 15px;*/
-/*}*/
+.waveform {
+    width: 100%;
+}
 
 #footer {
     margin-top: 100px;
@@ -395,7 +400,7 @@ audio {
 }
 
 .tab-content {
-    background: #E3F0FB;
+    background: #f8f8f8;
     padding: 15px 0;
 }
 
@@ -412,6 +417,10 @@ audio {
 
 .duet-heatmap {
     width: 500px;
+}
+
+.a #mainTabs {
+    color: #000;
 }
 
 #open-modal {
@@ -436,18 +445,24 @@ audio {
     margin-top: -18px;
 }
 
+#mixture-player-control-wrapper {
+    padding-left: 20px;
+}
+
 .track-and-controls {
     margin: 0 5px;
-    background: rgba(94, 196, 239, 0.13);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+}
+
+.track-and-controls:first-child {
+    border-top: 1px solid rgba(0, 0, 0, 0.25);
 }
 
 .waves-ui-container {
-    background: rgba(235, 234, 239, 0.99);
-    border-bottom: 1px solid black;
 }
 
 .waves-ui-track {
-    /*margin: 5px 0;*/
+    width: 100%
 }
 
 .slider-handle.custom::before {

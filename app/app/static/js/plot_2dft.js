@@ -40,8 +40,8 @@ class FT2DHeatmap extends PlotlyHeatmap {
             selectable: true,
 
             // Cosmetics
-            paper_bgcolor: '#E3F0FB', // 'rgb(0,0,0,0); doesn't work :(
-            plot_bgcolor: '#E3F0FB',
+            paper_bgcolor: '#f8f8f8', // 'rgb(0,0,0,0); doesn't work :(
+            plot_bgcolor: '#f8f8f8',
             // width: 500,
             // height: 575,
             margin: this.plotMargins,
