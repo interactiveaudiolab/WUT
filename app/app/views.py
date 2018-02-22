@@ -3,14 +3,12 @@ import logging
 import inspect
 import json
 import math
+import numpy as np
 
 from flask import render_template, request, flash, session, abort, send_file, make_response
 from werkzeug.utils import secure_filename
-<<<<<<< HEAD
-=======
 from flask_socketio import emit
 from pickle import Unpickler
->>>>>>> fc9029b... Uploading spectrogram works, pca sort of
 
 from .app_obj import app_, socketio, redis_store
 import separation_session
@@ -35,7 +33,9 @@ def index():
 @app_.route('/test')
 def test():
     new_sess = separation_session.SeparationSession()
-    session['cur_session'] = new_sess.to_json()
+    session['session_id'] = new_sess.url_safe_id
+    session.modified = True
+    save_session(new_sess)
     return render_template('test.html')
 
 @app_.errorhandler(404)
@@ -121,7 +121,9 @@ def initialize(audio_file_data):
         return [[[] for x in range(dim)] for y in range(dim)]
 
     def bin_matrix(scaled_tf, matrix):
-        for index, (x, y) in enumerate(scaled_tf):
+        # come back to this
+        # don't know why but x and y need to be swapped here
+        for index, (y, x) in enumerate(scaled_tf):
             matrix[x][y].append(index)
 
         return matrix
@@ -137,8 +139,8 @@ def initialize(audio_file_data):
     scaled = scale_pca(data['pca'], dim)
     binned = bin_matrix(scaled, make_square_matrix(dim + 1))
 
-    socketio.emit('pca', json.dumps(binned), namespace=wut_namespace)
-    socketio.emit('spec', json.dumps(data['mel_spectrogram'][0].T.tolist()), namespace=wut_namespace)
+    socketio.emit('pca', json.dumps(binned), namespace=WUT_SOCKET_NAMESPACE)
+    socketio.emit('spec', json.dumps(data['mel_spectrogram'][0].T.tolist()), namespace=WUT_SOCKET_NAMESPACE)
 
     logger.info('Sent spectrogram')
 

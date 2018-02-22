@@ -16,6 +16,14 @@ var socket;
 var time_to_graph = 0.0;
 var spec_as_image = false;
 
+var whiteLine = 'rgba(245, 245, 245, 1)';
+var whiteFill = 'rgba(255, 255, 255, 0.35)';
+var greenLine = 'rgba(0, 255, 0, 1)';
+var greenFill = 'rgba(0, 255, 0, 0.35)';
+
+var colorDict = {'white': {'line': whiteLine, 'fill': whiteFill },
+                 'green': {'line': greenLine, 'fill': greenFill } };
+
 var TAKE_THIS_OUT_ONLY_FOR_KILLING_CODE_WHILE_TESTING = false
 
 pcaMatrixToHistogram = (pca) => {
@@ -55,7 +63,11 @@ $(document).ready(function() {
     console.log(currTime())
     pca_tf_indices = JSON.parse(message)
 
-    make_pca(pca, pcaMatrixToHistogram(pca_tf_indices))
+    console.log(`Indices before: ${pca_tf_indices.slice(0, 5)}`)
+    let hist = pcaMatrixToHistogram(pca_tf_indices)
+    console.log(`Hist After: ${hist.slice(0, 5)}`)
+
+    make_pca(pca, hist)
   });
 
   socket.on('spec', function(message) {

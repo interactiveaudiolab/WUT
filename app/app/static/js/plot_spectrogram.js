@@ -38,6 +38,7 @@ class SpectrogramHeatmap extends PlotlyHeatmap {
             title: "Time (s)",
             type: "linear",
             range: [0.0, 1.0],
+            // rangeslider: [0.0, 1.0]
         };
 
         this.plotLayout.yaxis = {
@@ -62,6 +63,7 @@ class SpectrogramHeatmap extends PlotlyHeatmap {
 
         let layout = this.plotLayout;
         layout.xaxis.range = [0.0, this.audioLength];
+        // layout.xaxis.rangeslider = [0.0, this.audioLength];
         layout.yaxis.type = this.logY ? "log" : "linear";
         layout.yaxis.autorange = this.logY;
         // TODO: why divide by 2 here? also just how does this work in general

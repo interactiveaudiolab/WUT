@@ -23,7 +23,7 @@ app_.config.from_object(__name__)
 Session(app_)
 
 # SocketIO setup
-socketio = SocketIO(app_, logger=logging.getLogger(), engineio_logger=logging.getLogger(),
+socketio = SocketIO(app_, # logger=logging.getLogger(), engineio_logger=logging.getLogger(),
                     ping_timeout=300, ping_interval=60)
 socketio.manage_session = False
 
