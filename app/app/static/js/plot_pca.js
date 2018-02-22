@@ -78,7 +78,9 @@ class PCAHeatmap extends PlotlyHeatmap {
             for(let y of y_indices) {
               if(0 <= x && x < pca_tf_indices.length
               && 0 <= y && y < pca_tf_indices[0].length) {
-                let tf_indices = pca_tf_indices[x][y];
+                // Come back to this
+                // Don't know why, but need to swap x and y here
+                let tf_indices = pca_tf_indices[y][x];
                 for(let index of tf_indices) {
                   // let spec_x = 15*(Math.floor(index / y_dim)/x_dim)
                   let spec_x = 15 * ((index % x_dim) / x_dim);
