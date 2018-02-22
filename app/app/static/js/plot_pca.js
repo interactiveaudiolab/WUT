@@ -14,10 +14,9 @@ class PCAHeatmap extends PlotlyHeatmap {
   constructor(divID, yMax) {
     super(divID, yMax);
 
-    // currently hardcoding in x and y range
     // might be better dynamic
-    this.xBins = 100
-    this.yBins = 100
+    this.xBins = yMax;
+    this.yBins = yMax;
 
     this.plotMargins = {
       l: 50,

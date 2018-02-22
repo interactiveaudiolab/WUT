@@ -7,7 +7,7 @@ var result_waveform = Object.create(WaveSurfer);
 var all_waveforms = [mixture_waveform, result_waveform];
 var defaultZoomStart;
 var zoomStepSize = 5;
-var spectrogram = new SpectrogramHeatmap('spectrogram', 20000)
+var spectrogram = new SpectrogramHeatmap('spectrogram', 20000);
 var pca = new PCAHeatmap('pca', 100);
 var pca_tf_indices;
 var spec_dims;
@@ -63,9 +63,9 @@ $(document).ready(function() {
     console.log(currTime())
     pca_tf_indices = JSON.parse(message)
 
-    console.log(`Indices before: ${pca_tf_indices.slice(0, 5)}`)
+    // console.log(`Indices before: ${pca_tf_indices.slice(0, 5)}`)
     let hist = pcaMatrixToHistogram(pca_tf_indices)
-    console.log(`Hist After: ${hist.slice(0, 5)}`)
+    // console.log(`Hist After: ${hist.slice(0, 5)}`)
 
     make_pca(pca, hist)
   });
@@ -75,7 +75,10 @@ $(document).ready(function() {
     console.log(currTime())
     spec_data = JSON.parse(message);
     spec_dims = [spec_data.length, spec_data[0].length]
-    make_spectrogram(spectrogram, spec_data, 15)
+    console.log(`About to draw spectrogram: ${currTime()}`)
+    // make_spectrogram(spectrogram, spec_data, 15)
+    console.log(`Drew spectrogram: ${currTime()}`)
+    getMelSpectrogramAsImage(spectrogram, undefined, undefined);
   });
 });
 

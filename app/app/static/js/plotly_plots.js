@@ -142,6 +142,7 @@ class PlotlyHeatmap {
                 };
                 this.plotLayout.shapes.push(rect);
             }
+            console.log(`Number of shapes: ${this.plotLayout.shapes.length}`)
             console.log(`About to apply selections: ${currTime()}`)
             Plotly.relayout(this.divID, this.plotLayout);
         } else {

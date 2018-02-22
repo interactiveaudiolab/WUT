@@ -3,6 +3,10 @@ import logging
 import inspect
 import json
 import math
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
 import numpy as np
 
 from flask import render_template, request, flash, session, abort, send_file, make_response
@@ -201,6 +205,52 @@ def _exception(error_msg):
     else:
         abort(500)
 
+def save_image(data, file_path):
+    # spec = self.do_spectrogram()
+    # spectrogram data here - REMOVE THIS LATER
+    spec = data
+    # max_idx = self.find_peak_freq()
+    # spec = spec[:max_idx, :]
+
+    w, h = 28, 12
+
+    fig = plt.figure(frameon=False)
+    fig.set_size_inches(w, h)
+
+    ax = plt.Axes(fig, [0., 0., 1., 1.])
+    ax.set_axis_off()
+    fig.add_axes(ax)
+
+    img = ax.imshow(spec, interpolation='nearest', aspect='auto')
+    img.set_cmap('plasma')
+    ax.invert_yaxis()
+    fig.savefig(file_path, dpi=80)
+
+    return file_path
+
+
+@app_.route('/mel_spec_image', methods=['GET'])
+def mel_spectrogram_image():
+    logger.info('in /mel_spec_image')
+
+    if request.method == 'GET':
+        # sess = separation_session.SeparationSession.from_json(session['cur_session'])
+        # logger.info('session awake {}'.format(sess.session_id))
+
+        # if not sess.initialized:
+        #     _exception('sess not initialized!')
+
+        # path = sess.spectrogram_image_path
+
+        ### TODO: Remove the kludge of having it as a url parameter!!!
+        # path = request.args.get('path', default='', type=str)
+
+
+        data = Unpickler(open('./app/toy_data.p')).load()
+        spec_data = data['mel_spectrogram'][0].T
+        sess = awaken_session()
+        path = save_image(spec_data, )
+        return send_file(path, mimetype='image/png')
 
 @app_.route('/spec_image', methods=['GET'])
 def spectrogram_image():
