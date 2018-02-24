@@ -73,6 +73,10 @@ class PCAHeatmap extends PlotlyHeatmap {
 
           let y_dim = spec_dims[0]
           let x_dim = spec_dims[1]
+
+          let new_markers_x = []
+          let new_markers_y = []
+
           for(let x of x_indices) {
             for(let y of y_indices) {
               if(0 <= x && x < pca_tf_indices.length
@@ -82,7 +86,7 @@ class PCAHeatmap extends PlotlyHeatmap {
                 let tf_indices = pca_tf_indices[y][x];
                 for(let index of tf_indices) {
                   // let spec_x = 15*(Math.floor(index / y_dim)/x_dim)
-                  let spec_x = 15 * ((index % x_dim) / x_dim);
+                  let spec_x = (index % x_dim);
                   let spec_y = Math.floor(index / x_dim);
 
                   // REMOVE NASTY HARDCODING
@@ -91,18 +95,24 @@ class PCAHeatmap extends PlotlyHeatmap {
                     console.log(`Spec index: ${spec_x}, ${spec_y}`)
                   }
 
-                  let range = { x: [spec_x, spec_x + 1/x_dim], y: [spec_y, spec_y + 1] };
-                  let currSelection = new BoxSelection(undefined, undefined, range);
-                  spectrogram.selections.push(currSelection);
+                  new_markers_x.push(spec_x)
+                  new_markers_y.push(spec_y)
+                  // let range = { x: [spec_x, spec_x + 1/x_dim], y: [spec_y, spec_y + 1] };
+                  // let currSelection = new BoxSelection(undefined, undefined, range);
+                  // spectrogram.selections.push(currSelection);
                 }
               }
             }
           }
 
           console.log(`After creating selections: ${currTime()}`)
-          if(spectrogram.selections.length > 0) {
-            spectrogram.updatePlotWithSelection(true);
-          }
+          // if( > 0) {
+          Plotly.addTraces(spectrogram.divID,
+            {x:new_markers_x, y:new_markers_y, type:'scattergl',
+            mode:'markers', marker: { size:5, color: '#ffffff', opacity: 1 }}
+          )
+            // spectrogram.updatePlotWithSelection(true);
+          // }
           console.log(`After applying selections: ${currTime()}`)
       }
     });

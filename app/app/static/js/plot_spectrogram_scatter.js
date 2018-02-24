@@ -1,9 +1,4 @@
-
-// import PlotlyHeatmap from "plotly_plots.js";
-
-function make_spectrogram(heatmap, results, audioLength) {
-    // var logY = document.getElementById('yLogCheckbox').checked;
-    // if (typeof(logY) === 'undefined') logY = false;
+function make_scatter_spectrogram(heatmap, results, audioLength) {
     let logY = false;
     let freqMax = 150;
 
@@ -18,24 +13,15 @@ function make_spectrogram(heatmap, results, audioLength) {
     status.text('Ready...');
 }
 
-function getSpectrogramAsImage(heatmap, freqMax) {
-    let url = "./spec_image?val=" + Math.random().toString(36).substring(7);
-    let duration = mixture_waveform.backend.getDuration();
+function getMelScatterSpectrogramAsImage(heatmap, path, freqMax) {
+  let url = "./mel_spec_image";
+  // let duration = mixture_waveform.backend.getDuration();
+  // let freqMax = 20000;
 
-    heatmap.drawImage(url, duration, freqMax);
-    enableTools(true, '.spec-tool');
+  heatmap.drawImage(url, 15, 150);
 }
 
-function getMelSpectrogramAsImage(heatmap, path, freqMax) {
-    let url = "./mel_spec_image";
-    // let duration = mixture_waveform.backend.getDuration();
-    // let freqMax = 20000;
-
-    heatmap.drawImage(url, 15, 150);
-
-}
-
-class SpectrogramHeatmap extends PlotlyHeatmap {
+class ScatterSpectrogram extends PlotlyHeatmap {
 
     constructor(divID, yMax) {
         super(divID, yMax);
@@ -67,7 +53,12 @@ class SpectrogramHeatmap extends PlotlyHeatmap {
         this.yTicks = arange(0.0, this.freqMax, this.rawData.length);
         this.xTicks = arange(0.0, this.audioLength, this.rawData[0].length);
 
-        let data = [ { x: this.xTicks, y: this.yTicks, z: this.rawData, type: 'heatmapgl', showscale: false } ];
+        let x = [1, 2, 3, 4, 5, 6];
+        let y = [1, 2, 3, 2, 3, 4];
+        let colors = ['#00000','#00000','#00000',
+                '#00000','#00000','#00000'];
+        let data = [{x:x, y:y, type:'scattergl',
+                mode:'markers', marker:{size:16, color:colors}, showscale: false}];
 
         let layout = this.plotLayout;
         layout.xaxis.range = [0.0, this.audioLength];
@@ -83,28 +74,58 @@ class SpectrogramHeatmap extends PlotlyHeatmap {
 
     }
 
+    addMarkers() {
+
+    }
+
     drawImage(url, duration, freqMax) {
 
         let layout = this.plotLayout;
-        layout.xaxis.range = [0.0, duration];
-        layout.yaxis.range = [0.0, freqMax];
+        layout.xaxis.range = [0.0, 1293];
+        layout.yaxis.range = [0.0, 150];
         layout.yaxis.autorange = false;
-
+        layout.hovermode = false;
+        layout.showgrid = false;
+        // layout.scene = {
+        //     xaxis: {
+        //         showgrid: false
+        //     },
+        //     yaxis: {
+        //         showgrid: false
+        //     }
+        // }
+        layout.xaxis.showgrid = false;
+        layout.yaxis.showgrid = false;
+        // = {
+        //     xaxis: {
+        //         showgrid: false
+        //     },
+        //     yaxis: {
+        //         showgrid: false
+        //     }
+        // }
         layout.images = [{
             "source": url,
             "xref": "x",
             "yref": "y",
             "x": 0,
             "y": 0,
-            "sizex": duration,
-            "sizey": freqMax,
+            "sizex": 1293,
+            "sizey": 150,
             "xanchor": "left",
             "yanchor": "bottom",
-            "sizing": "stretch"
+            "sizing": "stretch",
+            "layer": "below"
         }];
 
-        this.plot = Plotly.newPlot(this.divID, [{ x: [], y: [] }], layout, this.plotOptions);
-        // let update = { width: $(window).width() };
-        // Plotly.relayout(this.divID, update);
+        // let x = [1, 2, 3, 4, 5, 6];
+        // let y = [1, 2, 3, 2, 3, 4];
+        // let x = zeros(100000).map((val) => Math.round(1293 * Math.random()));
+        // let y = zeros(100000).map((val) => Math.round(150 * Math.random()));
+        let data = [{x:[], y:[], type:'scattergl',
+                mode:'markers', marker: { size:5, color: '#ffffff', opacity: 1 }}];
+                // mode:'markers', marker: { symbol: "square", size:2, color: '#000000', opacity: 0.8 }, showscale: false}];
+
+        this.plot = Plotly.newPlot(this.divID, data, layout, this.plotOptions);
     }
 }

@@ -249,7 +249,7 @@ def mel_spectrogram_image():
         data = Unpickler(open('./app/toy_data.p')).load()
         spec_data = data['mel_spectrogram'][0].T
         sess = awaken_session()
-        path = save_image(spec_data, )
+        path = save_image(spec_data, os.path.join(spec_data, sess.user_original_file_folder, 'test_mel.png'))
         return send_file(path, mimetype='image/png')
 
 @app_.route('/spec_image', methods=['GET'])
