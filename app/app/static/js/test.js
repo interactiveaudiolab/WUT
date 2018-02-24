@@ -7,7 +7,7 @@ var result_waveform = Object.create(WaveSurfer);
 var all_waveforms = [mixture_waveform, result_waveform];
 var defaultZoomStart;
 var zoomStepSize = 5;
-var spectrogram = new SpectrogramHeatmap('spectrogram', 20000);
+var spectrogram = new ScatterSpectrogram('spectrogram', 20000);
 var pca = new PCAHeatmap('pca', 100);
 var pca_tf_indices;
 var spec_dims;
@@ -28,7 +28,7 @@ var TAKE_THIS_OUT_ONLY_FOR_KILLING_CODE_WHILE_TESTING = false
 
 pcaMatrixToHistogram = (pca) => {
     // max = Math.max(...pca.map(row => Math.max(...row.map(inds => inds.length))))
-    return pca.map(row => row.map(inds => Math.log(inds.length + 0.0000000001)))
+    return pca.map(row => row.map(inds => Math.log(inds.length + 1)))
 }
 
 var currTime = () => {
@@ -78,7 +78,7 @@ $(document).ready(function() {
     console.log(`About to draw spectrogram: ${currTime()}`)
     // make_spectrogram(spectrogram, spec_data, 15)
     console.log(`Drew spectrogram: ${currTime()}`)
-    getMelSpectrogramAsImage(spectrogram, undefined, undefined);
+    getMelScatterSpectrogramAsImage(spectrogram, undefined, undefined);
   });
 });
 
