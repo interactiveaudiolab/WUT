@@ -11,6 +11,7 @@ var spectrogram = new ScatterSpectrogram('spectrogram', 20000);
 var pca = new PCAHeatmap('pca', 100);
 var pca_tf_indices;
 var spec_dims;
+var spectrogram_data;
 
 var socket;
 var time_to_graph = 0.0;
@@ -50,7 +51,6 @@ $(document).ready(function() {
 
   socket.on('audio_upload_ok', function () {
       $('#status').text('Audio uploaded to server.');
-      console.log(currTime())
   });
 
   socket.on('bad_file', function () {
@@ -58,8 +58,7 @@ $(document).ready(function() {
   });
 
   socket.on('pca', function(message) {
-    console.log('Got PCA');
-    console.log(currTime())
+    console.log(`Got PCA - ${currTime()}`);
     pca_tf_indices = JSON.parse(message)
 
     let hist = pcaMatrixToHistogram(pca_tf_indices)
@@ -67,14 +66,11 @@ $(document).ready(function() {
   });
 
   socket.on('spec', function(message) {
-    console.log('Got SPECTROGRAM');
-    console.log(currTime())
-    spec_data = JSON.parse(message);
-    spec_dims = [spec_data.length, spec_data[0].length]
+    console.log(`Got Spectrogram - ${currTime()}`);
+    spectrogram_data = JSON.parse(message);
+    spec_dims = [spectrogram_data.length, spectrogram_data[0].length]
 
-    console.log(`About to draw spectrogram: ${currTime()}`)
     getMelScatterSpectrogramAsImage(spectrogram, undefined, undefined);
-    console.log(`Drew spectrogram: ${currTime()}`)
   });
 });
 

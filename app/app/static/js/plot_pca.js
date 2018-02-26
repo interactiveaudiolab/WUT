@@ -48,16 +48,20 @@ class PCAHeatmap extends PlotlyHeatmap {
     this.drawMarkers = (range) => {
       // parent draws box on this plot
       // need to draw scatter plot markers on spectrogram
-      console.log(`Beginning selections: ${currTime()}`)
+      // console.log(`Beginning selections: ${currTime()}`)
 
-      let [x_indices, y_indices] = this.getSelectionIndices(range)
+      console.log(`Given from (${range.x[0]}, ${range.y[0]}) to (${range.x[1]}, ${range.y[1]})`);
 
-      let y_dim = spec_dims[0]
-      let x_dim = spec_dims[1]
+      let [x_indices, y_indices] = this.getSelectionIndices(range);
 
-      let new_markers_x = []
-      let new_markers_y = []
+      console.log(`Rounded from (${x_indices[0]}, ${y_indices[0]}) to (${getLastItemInArray(x_indices)}, ${getLastItemInArray(y_indices)})`);
 
+      let inner_dim = spec_dims[0];
+
+      let new_markers_x = [];
+      let new_markers_y = [];
+
+      let counter = 0;
       for(let x of x_indices) {
         for(let y of y_indices) {
           if(0 <= x && x < pca_tf_indices.length
@@ -67,30 +71,32 @@ class PCAHeatmap extends PlotlyHeatmap {
             let tf_indices = pca_tf_indices[y][x];
 
             for(let index of tf_indices) {
-              let spec_x = (index % x_dim);
-              let spec_y = Math.floor(index / x_dim);
+              let spec_x = (index / inner_dim);
+              let spec_y = Math.floor(index % inner_dim);
 
               // REMOVE HARDCODING
-              if(TAKE_THIS_OUT_ONLY_FOR_KILLING_CODE_WHILE_TESTING) {
-                console.log(`Index: ${index}`)
-                console.log(`Spec index: ${spec_x}, ${spec_y}`)
+              if(counter % 10 === 0) {
+                console.log(`Index: ${index}`);
+                console.log(`Spec index: ${spec_x}, ${spec_y}`);
               }
+              counter++;
 
-              new_markers_x.push(spec_x)
-              new_markers_y.push(spec_y)
+              new_markers_x.push(spec_x);
+              new_markers_y.push(spec_y);
             }
           }
         }
       }
 
-      Plotly.addTraces(spectrogram.divID,
-        { x:new_markers_x, y:new_markers_y, type:'scattergl',
-        mode:'markers', marker: { size:5, color: '#ffffff', opacity: 1 }})
-      console.log(`After selections: ${currTime()}`)
+      console.log(`Are x & y coordinate numbers equal? - ${new_markers_x.length === new_markers_y.length} @ ${new_markers_x.length}`)
+
+      spectrogram.addMarkers(new_markers_x, new_markers_y);
     }
 
     this.DOMObject.on('plotly_selected', (eventData, data) => {
-      if(data) { this.drawMarkers(data.range) }
+      if(!data || !data.range) {
+        spectrogram.clearMarkers()
+      } else { this.drawMarkers(data.range) }
     });
 
     this.emptyHeatmap()
@@ -105,7 +111,7 @@ class PCAHeatmap extends PlotlyHeatmap {
     this.drawMarkers(range)
   }
 
-  makeRange(x_min, x_max, y_min, y_max) {
+  makeRange(x_min, y_min, x_max, y_max) {
     return { x: [x_min, x_max], y: [y_min, y_max] };
   }
 
