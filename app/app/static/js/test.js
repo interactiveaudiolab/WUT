@@ -27,7 +27,6 @@ var colorDict = {'white': {'line': whiteLine, 'fill': whiteFill },
 var TAKE_THIS_OUT_ONLY_FOR_KILLING_CODE_WHILE_TESTING = false
 
 pcaMatrixToHistogram = (pca) => {
-    // max = Math.max(...pca.map(row => Math.max(...row.map(inds => inds.length))))
     return pca.map(row => row.map(inds => Math.log(inds.length + 1)))
 }
 
@@ -63,10 +62,7 @@ $(document).ready(function() {
     console.log(currTime())
     pca_tf_indices = JSON.parse(message)
 
-    // console.log(`Indices before: ${pca_tf_indices.slice(0, 5)}`)
     let hist = pcaMatrixToHistogram(pca_tf_indices)
-    // console.log(`Hist After: ${hist.slice(0, 5)}`)
-
     make_pca(pca, hist)
   });
 
@@ -75,10 +71,10 @@ $(document).ready(function() {
     console.log(currTime())
     spec_data = JSON.parse(message);
     spec_dims = [spec_data.length, spec_data[0].length]
+
     console.log(`About to draw spectrogram: ${currTime()}`)
-    // make_spectrogram(spectrogram, spec_data, 15)
-    console.log(`Drew spectrogram: ${currTime()}`)
     getMelScatterSpectrogramAsImage(spectrogram, undefined, undefined);
+    console.log(`Drew spectrogram: ${currTime()}`)
   });
 });
 
@@ -156,79 +152,3 @@ function openFileDialog() {
     audio.import_audio();
     $('#status').text('Uploading audio to server...');
 }
-
-
-
-// ~~~~~~~~~~~~~ AUDIO ~~~~~~~~~~~~~
-
-// $('#mixture-play').click(function() {
-//     if (!mixture_waveform.backend.buffer) {
-//         return;
-//     }
-
-//     if (!mixture_waveform.isPlaying()) {
-//         // Audio is paused
-//         $('#mixture-play').find("i").removeClass('glyphicon glyphicon-play').addClass('glyphicon glyphicon-pause')
-//             .attr('title', 'Pause audio');
-//     } else {
-//         // Audio is playing
-//         $('#mixture-play').find("i").removeClass('glyphicon glyphicon-pause').addClass('glyphicon glyphicon-play')
-//             .attr('title', 'Play audio');
-//     }
-//     mixture_waveform.playPause();
-// });
-
-// $('#mixture-stop').click(function() {
-//     if (!mixture_waveform.backend.buffer) {
-//         return;
-//     }
-
-//     if (mixture_waveform.isPlaying()) {
-//         $('#mixture-play').find("i").removeClass('glyphicon glyphicon-pause').addClass('glyphicon glyphicon-play')
-//             .attr('title', 'Play audio');
-//         mixture_waveform.stop();
-//     }
-
-//     mixture_waveform.seekTo(0);
-// });
-
-
-// audio.playPause = function () {
-//     togglePlayPauseIcon();
-//     mixture_waveform.playPause();
-// };
-
-// audio.isPlaying = function () {
-//     var playing = true;
-//     this.waveforms.forEach( function (w) {
-//         playing = playing && w.isPlaying();
-//     });
-//     return playing;
-// };
-
-// function togglePlayPauseIcon() {
-//     if (!audio.isPlaying()) {
-//         // Audio is paused
-//         $('#play_icon').removeClass('glyphicon glyphicon-play').addClass('glyphicon glyphicon-pause');
-//         $('#play_button').attr('title', 'Pause audio');
-//     } else {
-//         // Audio is playing
-//         $('#play_icon').removeClass('glyphicon glyphicon-pause').addClass('glyphicon glyphicon-play');
-//         $('#play_button').attr('title', 'Play audio');
-//     }
-// }
-
-// function playPauseButton() {
-//     if (mixture_audio_file.file !== null) {
-//         audio.playPause();
-//     }
-// }
-
-// function stopButton() {
-//     if (audio.isPlaying()) {
-//         togglePlayPauseIcon();
-//         mixture_waveform.stop();
-//     } else {
-//         mixture_waveform.seekTo(0);
-//     }
-// }

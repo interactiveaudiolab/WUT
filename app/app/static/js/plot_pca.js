@@ -3,7 +3,6 @@ function make_pca(heatmap, rawData) {
   status.text('Drawing PCA');
 
   heatmap.drawHeatmap(rawData)
-  // enableTools(true, '.spec-tool')
 
   status.text('Ready...');
 }
