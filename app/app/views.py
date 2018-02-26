@@ -104,27 +104,50 @@ def initialize(audio_file_data):
     logger.info('About to send spectrogram')
 
     def scale_num(num, _min, _max, scaled_min, scaled_max):
+        """
+            Scales given number between given scaled_min and scaled_max.
+            _min and _max of source distribution needed for scaling.
+        """
         return (((scaled_max - scaled_min) * (num - _min)) / (_max - _min)) + scaled_min
 
     def clean_coordinates(coord, x_edges, y_edges, new_max = 99, new_min = 0):
+        """
+            coord is x, y tuple (technically two item list), edges are tuples
+            holding min and max values along respective axes. new_max and
+            new_min specify range to scale points to.
+        """
         return (int(round(scale_num(coord[0], x_edges[0], x_edges[1], new_min, new_max))),
             int(round(scale_num(coord[1], y_edges[0], y_edges[1], new_min, new_max))))
 
     def find_pca_min_max(pca):
+        """
+            Takes Zx2 numpy array and returns tuples of tuples giving min and
+            max along each dimension
+        """
         mins = np.amin(pca, 0)
         maxes = np.amax(pca, 0)
         return (mins[0], maxes[0]), (mins[1], maxes[1])
 
     def scale_pca(pca, new_max=99, new_min = 0):
+        """
+            takes Zx2 (specifically TFx2 as used) numpy array and scales all
+            coordinates
+        """
         x_edges, y_edges = find_pca_min_max(pca)
 
         scale_and_clean = lambda coord: clean_coordinates(coord, x_edges, y_edges, new_max, new_min)
         return np.apply_along_axis(scale_and_clean, 1, pca)
 
     def make_square_matrix(dim=100):
+        """
+            Generates 3D array where inner cells are empty arrays
+        """
         return [[[] for x in range(dim)] for y in range(dim)]
 
     def bin_matrix(scaled_tf, matrix):
+        """
+            Given scaled Zx2 array, bins indices of coordinates
+        """
         # come back to this
         # don't know why but x and y need to be swapped here
         for index, (y, x) in enumerate(scaled_tf):
@@ -133,9 +156,13 @@ def initialize(audio_file_data):
         return matrix
 
     def make_hist(matrix):
+        """
+            Makes histogram from binned matrix. Used only on server side for
+            testing.
+        """
         for x in range(len(matrix)):
             for y in range(len(matrix[0])):
-                matrix[x][y] = np.log(len(matrix[x][y]) + 0.00000000000000001)
+                matrix[x][y] = np.log(len(matrix[x][y]) + 1)
 
         return matrix
 
@@ -205,13 +232,9 @@ def _exception(error_msg):
     else:
         abort(500)
 
-def save_image(data, file_path):
-    # spec = self.do_spectrogram()
-    # spectrogram data here - REMOVE THIS LATER
+# spectrogram data here - REMOVE THIS LATER
+def save_mel_image(data, file_path):
     spec = data
-    # max_idx = self.find_peak_freq()
-    # spec = spec[:max_idx, :]
-
     w, h = 28, 12
 
     fig = plt.figure(frameon=False)
@@ -234,22 +257,10 @@ def mel_spectrogram_image():
     logger.info('in /mel_spec_image')
 
     if request.method == 'GET':
-        # sess = separation_session.SeparationSession.from_json(session['cur_session'])
-        # logger.info('session awake {}'.format(sess.session_id))
-
-        # if not sess.initialized:
-        #     _exception('sess not initialized!')
-
-        # path = sess.spectrogram_image_path
-
-        ### TODO: Remove the kludge of having it as a url parameter!!!
-        # path = request.args.get('path', default='', type=str)
-
-
         data = Unpickler(open('./app/toy_data.p')).load()
         spec_data = data['mel_spectrogram'][0].T
         sess = awaken_session()
-        path = save_image(spec_data, os.path.join(spec_data, sess.user_original_file_folder, 'test_mel.png'))
+        path = save_mel_image(spec_data, os.path.join(spec_data, sess.user_original_file_folder, 'test_mel.png'))
         return send_file(path, mimetype='image/png')
 
 @app_.route('/spec_image', methods=['GET'])
