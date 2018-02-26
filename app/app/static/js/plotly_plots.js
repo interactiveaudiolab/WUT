@@ -20,8 +20,8 @@ class PlotlyHeatmap {
                 let range = arguments[1].range;
                 let curSelection = new BoxSelection(_this.xTicks, _this.yTicks, range);
                 console.log(range)
-                console.log(`First Corner: (${range.x[0]}, ${range.y[0]})`)
-                console.log(`Opposite Corner: (${range.x[1]}, ${range.y[1]})`)
+                // console.log(`First Corner: (${range.x[0]}, ${range.y[0]})`)
+                // console.log(`Opposite Corner: (${range.x[1]}, ${range.y[1]})`)
                 _this.selections.push(curSelection);
 
                 updateSelectionStatus(_this.selections.length);
@@ -117,52 +117,29 @@ class PlotlyHeatmap {
         return colorDict[colorVal];
     }
 
-    updatePlotWithSelection(temp_flag) {
+    updatePlotWithSelection() {
         if (!this.plotLayout.hasOwnProperty('shapes')) {
             this.plotLayout.shapes = [];
         }
         // let colors = PlotlyHeatmap.getColor();
         let colors = colorDict.white;
 
-        if(temp_flag) {
-            this.plotLayout.shapes = [];
+        let sel = getLastItemInArray(this.selections);
+        let rect = {
+            'type': 'rect',
+            'x0': sel.xStart,
+            'y0': sel.yStart,
+            'x1': sel.xEnd,
+            'y1': sel.yEnd,
+            'line': {
+                'color': colors.line,
+                'width': 1,
+            },
+            'fillcolor': colors.fill,
+        };
 
-            for(let sel of this.selections) {
-                let rect = {
-                    'type': 'rect',
-                    'x0': sel.xStart,
-                    'y0': sel.yStart,
-                    'x1': sel.xEnd,
-                    'y1': sel.yEnd,
-                    'line': {
-                        'color': colors.line,
-                        'width': 1,
-                    },
-                    'fillcolor': colors.fill,
-                };
-                this.plotLayout.shapes.push(rect);
-            }
-            console.log(`Number of shapes: ${this.plotLayout.shapes.length}`)
-            console.log(`About to apply selections: ${currTime()}`)
-            Plotly.relayout(this.divID, this.plotLayout);
-        } else {
-            let sel = getLastItemInArray(this.selections);
-            let rect = {
-                'type': 'rect',
-                'x0': sel.xStart,
-                'y0': sel.yStart,
-                'x1': sel.xEnd,
-                'y1': sel.yEnd,
-                'line': {
-                    'color': colors.line,
-                    'width': 1,
-                },
-                'fillcolor': colors.fill,
-            };
-
-            this.plotLayout.shapes.push(rect);
-            Plotly.relayout(this.divID, this.plotLayout);
-        }
+        this.plotLayout.shapes.push(rect);
+        Plotly.relayout(this.divID, this.plotLayout);
     }
 
     resetSelections() {
