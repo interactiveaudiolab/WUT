@@ -45,7 +45,7 @@ class PCAHeatmap extends PlotlyHeatmap {
       autosize: true,
     }
 
-    this.drawMarkers = (range) => {
+    this.drawMarkers = (range, color) => {
       // parent draws box on this plot
       // need to draw scatter plot markers on spectrogram
       // console.log(`Beginning selections: ${currTime()}`)
@@ -60,6 +60,10 @@ class PCAHeatmap extends PlotlyHeatmap {
 
       let new_markers_x = [];
       let new_markers_y = [];
+      let indices = [];
+      let coords = [];
+      let indices_set = new Set();
+      let coords_set = new Set();
 
       let counter = 0;
       for(let x of x_indices) {
@@ -71,11 +75,20 @@ class PCAHeatmap extends PlotlyHeatmap {
             let tf_indices = pca_tf_indices[y][x];
 
             for(let index of tf_indices) {
-              let spec_x = (index / inner_dim);
-              let spec_y = Math.floor(index % inner_dim);
+              indices.push(index);
+              indices_set.add(index)
+              let [spec_x, spec_y] = this.getCoordinateFromTFIndex(index, inner_dim);
+              coords.push([spec_x, spec_y])
+              coords_set.add(JSON.stringify([spec_x, spec_y]));
+
+              if (0 > spec_x || spec_x > 1293) {
+                console.log(`Whoops invalid x: ${spec_x}`)
+              } else if (0 > spec_y || spec_y > 150) {
+                console.log(`Whoops invalid y: ${spec_y}`)
+              }
 
               // REMOVE HARDCODING
-              if(counter % 10 === 0) {
+              if(counter === 0) {
                 console.log(`Index: ${index}`);
                 console.log(`Spec index: ${spec_x}, ${spec_y}`);
               }
@@ -89,8 +102,14 @@ class PCAHeatmap extends PlotlyHeatmap {
       }
 
       console.log(`Are x & y coordinate numbers equal? - ${new_markers_x.length === new_markers_y.length} @ ${new_markers_x.length}`)
+      console.log(`Any duplicate indices? - ${indices.length !== indices_set.size}, indices: ${indices.length}, indices_set: ${indices_set.size}`)
+      console.log(`As many coords as indices? - ${coords_set.size === indices_set.size}, coords_set: ${coords_set.size}, indices_set: ${indices_set.size}`)
+      console.log('INDICES')
+      console.log(indices)
+      console.log('COORDS')
+      console.log(coords)
 
-      spectrogram.addMarkers(new_markers_x, new_markers_y);
+      spectrogram.addMarkers(new_markers_x, new_markers_y, color);
     }
 
     this.DOMObject.on('plotly_selected', (eventData, data) => {
@@ -102,13 +121,17 @@ class PCAHeatmap extends PlotlyHeatmap {
     this.emptyHeatmap()
   }
 
+  getCoordinateFromTFIndex(index, inner_dim) {
+    return [Math.floor(index / inner_dim), index % inner_dim]
+  }
+
   // range format - { x: [min, max], y: [min, max] }
-  makeSelection(range) {
+  makeSelection(range, color) {
     let sel = new BoxSelection(undefined, undefined, range);
     this.selections.push(sel)
     this.updatePlotWithSelection()
 
-    this.drawMarkers(range)
+    this.drawMarkers(range, color)
   }
 
   makeRange(x_min, y_min, x_max, y_max) {

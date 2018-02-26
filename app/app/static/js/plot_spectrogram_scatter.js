@@ -10,7 +10,7 @@ class ScatterSpectrogram extends PlotlyHeatmap {
         this.audioLength = null;
         this.freqMax = null;
 
-        this.plotLayout.hovermode = false;
+        // this.plotLayout.hovermode = false;
 
         this.plotLayout.xaxis = {
             title: "Time (s)",
@@ -41,11 +41,11 @@ class ScatterSpectrogram extends PlotlyHeatmap {
         this.plot = Plotly.newPlot(this.divID, data, this.plotLayout, this.plotOptions);
     }
 
-    addMarkers(x_marks, y_marks) {
+    addMarkers(x_marks, y_marks, color) {
         // let data = [{x:[], y:[], type:'scattergl',
         //         mode:'markers', marker: { symbol: "square", size:5, color: '#ffffff', opacity: 1 }}];
         Plotly.addTraces(spectrogram.divID, { x: x_marks, y: y_marks, type: 'scattergl',
-            mode:'markers', marker: { size: 2, color: '#ffffff', opacity: 1 }});
+            mode:'markers', marker: { size: 2, color: (color !== undefined ? color : '#ffffff'), opacity: 1 }});
     }
 
     drawImage(url, duration, freqMax) {
