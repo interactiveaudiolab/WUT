@@ -10,7 +10,7 @@ class ScatterSpectrogram extends PlotlyHeatmap {
         this.audioLength = null;
         this.freqMax = null;
 
-        // this.plotLayout.hovermode = false;
+        this.plotLayout.hovermode = false;
 
         this.plotLayout.xaxis = {
             title: "Time (s)",
