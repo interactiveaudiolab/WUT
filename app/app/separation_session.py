@@ -17,11 +17,16 @@ import jsonpickle.ext.numpy as jsonpickle_numpy
 import audio_processing
 import recommendations
 import config
-import nussl
 import actions
 import utils
 
 from pickle import Unpickler
+
+
+import sys
+sys.path.insert(0, '../../nussl')
+
+import nussl
 
 # Set up logging
 logger = logging.getLogger()
@@ -114,6 +119,7 @@ class SeparationSession(object):
 
         self.initialized = True
         self.time_of_init = time.asctime(time.localtime(time.time()))
+        return user_signal
 
     def receive_survey_response(self, survey_data):
         self.user_goals = survey_data['extraction_goals']

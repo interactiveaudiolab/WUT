@@ -80,13 +80,7 @@ class PCAHeatmap extends PlotlyHeatmap {
               let [spec_x, spec_y] = this.getCoordinateFromTFIndex(index, inner_dim);
               coords.push([spec_x, spec_y])
               coords_set.add(JSON.stringify([spec_x, spec_y]));
-
-              if (0 > spec_x || spec_x > 1293) {
-                console.log(`Whoops invalid x: ${spec_x}`)
-              } else if (0 > spec_y || spec_y > 150) {
-                console.log(`Whoops invalid y: ${spec_y}`)
-              }
-
+              
               // REMOVE HARDCODING
               if(counter === 0) {
                 console.log(`Index: ${index}`);

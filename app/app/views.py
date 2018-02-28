@@ -3,6 +3,7 @@ import logging
 import inspect
 import json
 import math
+import audio_processing
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -85,7 +86,7 @@ def initialize(audio_file_data):
 
     # Initialize the session
     logger.info('Initializing session for {}...'.format(filename))
-    separation_sess.initialize(path)
+    user_signal = separation_sess.initialize(path)
     logger.info('Initialization successful for file {}!'.format(separation_sess.user_original_file_location))
     save_session(separation_sess)
     socketio.emit('audio_upload_ok', namespace=WUT_SOCKET_NAMESPACE)
@@ -98,86 +99,23 @@ def initialize(audio_file_data):
     socketio.emit('spectrogram_image_ready', {'max_freq': separation_sess.user_general_audio.max_frequency_displayed},
                   namespace=WUT_SOCKET_NAMESPACE)
 
-    logger.info('About to unpickle')
-    data = Unpickler(open('./app/toy_data.p')).load()
-
-    logger.info('About to send spectrogram')
-
-    def scale_num(num, _min, _max, scaled_min, scaled_max):
-        """
-            Scales given number between given scaled_min and scaled_max.
-            _min and _max of source distribution needed for scaling.
-        """
-        return (((scaled_max - scaled_min) * (num - _min)) / (_max - _min)) + scaled_min
-
-    def clean_coordinates(coord, x_edges, y_edges, new_max = 99, new_min = 0):
-        """
-            coord is x, y tuple (technically two item list), edges are tuples
-            holding min and max values along respective axes. new_max and
-            new_min specify range to scale points to.
-        """
-        return (int(round(scale_num(coord[0], x_edges[0], x_edges[1], new_min, new_max))),
-            int(round(scale_num(coord[1], y_edges[0], y_edges[1], new_min, new_max))))
-
-    def find_pca_min_max(pca):
-        """
-            Takes Zx2 numpy array and returns tuples of tuples giving min and
-            max along each dimension
-        """
-        mins = np.amin(pca, 0)
-        maxes = np.amax(pca, 0)
-        return (mins[0], maxes[0]), (mins[1], maxes[1])
-
-    def scale_pca(pca, new_max=99, new_min = 0):
-        """
-            takes Zx2 (specifically TFx2 as used) numpy array and scales all
-            coordinates
-        """
-        x_edges, y_edges = find_pca_min_max(pca)
-
-        scale_and_clean = lambda coord: clean_coordinates(coord, x_edges, y_edges, new_max, new_min)
-        return np.apply_along_axis(scale_and_clean, 1, pca)
-
-    def make_square_matrix(dim=100):
-        """
-            Generates 3D array where inner cells are empty arrays
-        """
-        return [[[] for x in range(dim)] for y in range(dim)]
-
-    def bin_matrix(scaled_tf, matrix):
-        """
-            Given scaled Zx2 array, bins indices of coordinates
-        """
-        # come back to this
-        # don't know why but x and y need to be swapped here
-        for index, (y, x) in enumerate(scaled_tf):
-            matrix[x][y].append(index)
-
-        return matrix
-
-    def make_hist(matrix):
-        """
-            Makes histogram from binned matrix. Used only on server side for
-            testing.
-        """
-        for x in range(len(matrix)):
-            for y in range(len(matrix[0])):
-                matrix[x][y] = np.log(len(matrix[x][y]) + 1)
-
-        return matrix
-
-    dim = 99
-    scaled = scale_pca(data['pca'], dim)
-    binned = bin_matrix(scaled, make_square_matrix(dim + 1))
-
-    socketio.emit('pca', json.dumps(binned), namespace=WUT_SOCKET_NAMESPACE)
-    socketio.emit('spec', json.dumps(data['mel_spectrogram'][0].T.tolist()), namespace=WUT_SOCKET_NAMESPACE)
-
-    logger.info('Sent spectrogram')
-
     # logger.info('Sent spectrogram for {}'.format(filename))
 
     # Initialize other representations
+
+    # Compute and send Deep Clustering PCA visualization and mel spectrogram
+    dc = audio_processing.DeepClustering(user_signal, separation_sess.user_original_file_folder)
+    logger.info('Computing and sending clusters for {}'.format(filename))
+
+    # currently kind of ugly hack for mel spectrogram image
+    file_name = '{}_spec.png'.format(separation_sess.user_general_audio.audio_signal_copy.file_name.replace('.', '_'))
+    file_path = os.path.join(separation_sess.user_general_audio.storage_path, file_name)
+    separation_sess.user_general_audio.spectrogram_image_path = file_path
+
+    socketio.start_background_task(dc.send_deep_clustering_results,
+        **{ 'socket': socketio, 'namespace': WUT_SOCKET_NAMESPACE,
+            'file_path': file_path })
+
     # Compute and send the AD histogram, Asynchronously
     logger.info('Computing and sending AD histogram for {}'.format(filename))
     socketio.start_background_task(separation_sess.duet.send_ad_histogram_json,
@@ -232,41 +170,14 @@ def _exception(error_msg):
     else:
         abort(500)
 
-# spectrogram data here - REMOVE THIS LATER
-def save_mel_image(data, file_path):
-    spec = data
-    w, h = 28, 12
-
-    fig = plt.figure(frameon=False)
-    fig.set_size_inches(w, h)
-
-    ax = plt.Axes(fig, [0., 0., 1., 1.])
-    ax.set_axis_off()
-    fig.add_axes(ax)
-
-    img = ax.imshow(spec, interpolation='nearest', aspect='auto')
-    img.set_cmap('plasma')
-    ax.invert_yaxis()
-    fig.savefig(file_path, dpi=80)
-
-    return file_path
-
-
 @app_.route('/mel_spec_image', methods=['GET'])
 def mel_spectrogram_image():
     logger.info('in /mel_spec_image')
 
     if request.method == 'GET':
-        data = Unpickler(open('./app/toy_data.p')).load()
-        spec_data = data['mel_spectrogram'][0].T
-        logger.info('SHAPE Transposed')
-        logger.info(spec_data.shape)
-
-        logger.info('SHAPE Untransposed')
-        logger.info(data['mel_spectrogram'][0].shape)
         sess = awaken_session()
-        path = save_mel_image(spec_data, os.path.join(spec_data, sess.user_original_file_folder, 'test_mel.png'))
-        return send_file(path, mimetype='image/png')
+        # path = save_mel_image(spec_data, os.path.join(spec_data, sess.user_original_file_folder, 'test_mel.png'))
+        return send_file(sess.user_general_audio.spectrogram_image_path, mimetype='image/png')
 
 @app_.route('/spec_image', methods=['GET'])
 def spectrogram_image():

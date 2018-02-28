@@ -7,7 +7,10 @@ import copy
 
 import librosa
 import numpy as np
-from .. import nussl
+
+import sys
+sys.path.insert(0, '../../nussl')
+import nussl
 
 logger = logging.getLogger()
 

@@ -65,13 +65,21 @@ $(document).ready(function() {
     make_pca(pca, hist)
   });
 
-  socket.on('spec', function(message) {
+  socket.on('mel', function(message) {
     console.log(`Got Spectrogram - ${currTime()}`);
     spectrogram_data = JSON.parse(message);
     spec_dims = [spectrogram_data.length, spectrogram_data[0].length]
 
-    getMelScatterSpectrogramAsImage(spectrogram, undefined, undefined);
+    // currently hardcoding in max mel freq
+    getMelScatterSpectrogramAsImage(spectrogram, spec_dims[1], 150);
   });
+
+//   socket.on('mel_image', function(message) {
+//     console.log(`Got spectrogram image - ${currTime()}`);
+//     spec_image = JSON.parse(message);
+
+//     getMelScatterSpectrogramAsImage(spectrogram, undefined, undefined);
+//   });
 });
 
 document.addEventListener('DOMContentLoaded', function () {

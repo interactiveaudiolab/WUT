@@ -11,7 +11,10 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
-from .. import nussl
+
+import sys
+sys.path.insert(0, '../../nussl')
+import nussl
 
 from . import audio_processing_base
 

@@ -10,7 +10,10 @@ import numpy as np
 import scipy.ndimage
 import matplotlib.pyplot as plt
 
-from .. import nussl
+import sys
+sys.path.insert(0, '../../nussl')
+import nussl
+
 from . import selection
 
 
