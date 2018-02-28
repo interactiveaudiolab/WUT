@@ -1,8 +1,17 @@
-function getMelScatterSpectrogramAsImage(heatmap, path, freqMax) {
-    let url = "./mel_spec_image";
+function getMelScatterSpectrogramAsImage(heatmap, duration, freqMax) {
+    let url = "./mel_spec_image?val=" + Math.random().toString(36).substring(7);
     // duration currently hardcoded in for toy data
-    heatmap.drawImage(url, 1293, 150);
+    heatmap.drawImage(url, duration, freqMax);
 }
+
+function getSpectrogramAsImage(heatmap, duration, freqMax) {
+    let url = "./spec_image?val=" + Math.random().toString(36).substring(7);
+    // let duration = mixture_waveform.backend.getDuration();
+
+    heatmap.drawImage(url, duration, freqMax);
+    enableTools(true, '.spec-tool');
+}
+
 
 class ScatterSpectrogram extends PlotlyHeatmap {
     constructor(divID, yMax) {

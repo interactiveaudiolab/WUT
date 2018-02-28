@@ -8,7 +8,11 @@ import json
 import numpy as np
 import general_audio
 from . import audio_processing_base
-from .. import nussl
+
+import sys
+sys.path.insert(0, '../../nussl')
+import nussl
+
 import scipy.ndimage
 
 logger = logging.getLogger()

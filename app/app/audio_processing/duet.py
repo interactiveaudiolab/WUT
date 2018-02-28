@@ -9,7 +9,10 @@ import numpy as np
 
 from . import audio_processing_base
 from .. import utils
-from .. import nussl
+
+import sys
+sys.path.insert(0, '../../nussl')
+import nussl
 
 logger = logging.getLogger()
 
