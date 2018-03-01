@@ -91,19 +91,28 @@ main > .waveform-cont > .upload {
 
 main > .interaction {
 	flex: 1 0 auto;
-
 	display: flex;
-	flex-flow: row wrap;
+	flex-flow: column;
+
+	justify-content: space-around;
+	align-items: center;
+}
+
+main > .interaction > .plots {
+	/* flex: 1 0 auto; */
+	align-self: stretch;
+	display: flex;
+	flex-flow: row nowrap;
 	justify-content: space-around;
 	align-items: center;
 	padding: 0 20px 10px 20px;
 }
 
-main > .interaction > .outer {
+main > .interaction > .plots > .outer {
 	flex: 0 1 29%;
 }
 
-main > .interaction > #spectrogram {
+main > .interaction > .plots > #spectrogram {
 	flex: 0 1 65%;
 
 	/*
@@ -115,6 +124,11 @@ main > .interaction > #spectrogram {
 		plots become unusably small, corresponds to window width of 1280
 	*/
 	min-width: 850px;
+}
+
+main > .interaction > #result_waveform {
+	color: lightcoral;
+	width: 100vw;
 }
 
 footer {
@@ -162,16 +176,16 @@ footer p {
 	min-width on spectrogram
 */
 @media screen and (max-width: 1280px) {
-	main > .interaction {
+	main > .interaction > .plots {
 		align-content: center;
 	}
 
-	main > .interaction > .outer {
+	main > .interaction > .plots > .outer {
 		flex: 0 1 36%;
 		margin-bottom: 50px;
 	}
 
-	main > .interaction > #spectrogram {
+	main > .interaction > .plots > #spectrogram {
 		min-width: 0;
 		flex: 0 1 90%;
 	}

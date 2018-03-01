@@ -86,7 +86,7 @@ def initialize(audio_file_data):
 
     # Initialize the session
     logger.info('Initializing session for {}...'.format(filename))
-    user_signal = separation_sess.initialize(path)
+    separation_sess.initialize(path)
     logger.info('Initialization successful for file {}!'.format(separation_sess.user_original_file_location))
     save_session(separation_sess)
     socketio.emit('audio_upload_ok', namespace=WUT_SOCKET_NAMESPACE)
@@ -104,7 +104,7 @@ def initialize(audio_file_data):
     # Initialize other representations
 
     # Compute and send Deep Clustering PCA visualization and mel spectrogram
-    dc = audio_processing.DeepClustering(user_signal, separation_sess.user_original_file_folder)
+    dc = audio_processing.DeepClustering(separation_sess.user_signal, separation_sess.user_original_file_folder)
     logger.info('Computing and sending clusters for {}'.format(filename))
 
     # currently kind of ugly hack for mel spectrogram image
@@ -260,6 +260,44 @@ def get_action(action_):
     sess.push_action(action_dict)
     save_session(sess)
 
+
+@socketio.on('mask', namespace=WUT_SOCKET_NAMESPACE)
+def get_action(mask):
+    logger.info('receiving mask')
+
+    sess = awaken_session()
+
+    logger.info(len(mask['mask']))
+    logger.info(len(mask['mask'][0]))
+
+    dc = audio_processing.DeepClustering(sess.user_signal, sess.user_original_file_folder)
+    dc.dc.run()
+    mask = dc.dc.generate_mask(0, mask['mask'])
+    result = dc.dc.apply_mask(mask)
+
+    logger.info('About to write file')
+    sess.masked_path = os.path.join(sess.user_original_file_folder, 'masked.mp3')
+    result.write_audio_to_file(sess.masked_path)
+    logger.info('Finished writing file')
+
+    socketio.emit('masked_audio', {}, namespace=WUT_SOCKET_NAMESPACE)
+    logger.info('Told server to load masked audio')
+
+    save_session(sess)
+
+@app_.route('/get_masked_audio', methods=['GET'])
+def get_masked_audio():
+    logger.info('sending masked audio')
+
+    sess = awaken_session()
+
+    if not sess.initialized or not sess.stft_done:
+        _exception('sess not initialized or STFT not done!')
+
+    save_session(sess)
+
+    file_mime_type = 'audio/mp3'
+    return make_response(send_file(sess.masked_path, file_mime_type))
 
 @app_.route('/action', methods=['POST'])
 def action():
