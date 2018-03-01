@@ -69,6 +69,8 @@ class SeparationSession(object):
         self.user_general_audio = None
         self.ft2d = None
         self.duet = None
+        self.user_signal = None
+        self.masked_path = None
 
         self.sdr_predictor = None
 
@@ -107,19 +109,19 @@ class SeparationSession(object):
 
         self.user_original_file_location = path_to_file
 
-        user_signal = nussl.AudioSignal(self.user_original_file_location)
-        self.user_general_audio = audio_processing.GeneralAudio(user_signal, self.user_original_file_folder)
-        self.ft2d = audio_processing.FT2D(user_signal, self.user_original_file_folder)
+        self.user_signal = nussl.AudioSignal(self.user_original_file_location)
+        self.user_general_audio = audio_processing.GeneralAudio(self.user_signal, self.user_original_file_folder)
+        self.ft2d = audio_processing.FT2D(self.user_signal, self.user_original_file_folder)
 
-        if user_signal.is_stereo:
-            self.duet = audio_processing.Duet(user_signal, self.user_original_file_folder)
+        if self.user_signal.is_stereo:
+            self.duet = audio_processing.Duet(self.user_signal, self.user_original_file_folder)
 
         self.sdr_predictor = recommendations.SDRPredictor(self.user_general_audio.audio_signal_copy,
                                                           self.base_audio_path, self.user_goals, {})
 
         self.initialized = True
         self.time_of_init = time.asctime(time.localtime(time.time()))
-        return user_signal
+        return self.user_signal
 
     def receive_survey_response(self, survey_data):
         self.user_goals = survey_data['extraction_goals']

@@ -7,7 +7,7 @@ var result_waveform = Object.create(WaveSurfer);
 var all_waveforms = [mixture_waveform, result_waveform];
 var defaultZoomStart;
 var zoomStepSize = 5;
-var spectrogram = new ScatterSpectrogram('spectrogram', 20000);
+var spectrogram = new ScatterSpectrogram('spectrogram', 150);
 var pca = new PCAHeatmap('pca', 100);
 var pca_tf_indices;
 var spec_dims;
@@ -70,8 +70,21 @@ $(document).ready(function() {
     spectrogram_data = JSON.parse(message);
     spec_dims = [spectrogram_data.length, spectrogram_data[0].length]
 
+    spectrogram._rawData = spectrogram_data;
+    spectrogram.dims = spec_dims;
+
     // currently hardcoding in max mel freq
     getMelScatterSpectrogramAsImage(spectrogram, spec_dims[1], 150);
+  });
+
+
+  socket.on('masked_audio', function(message) {
+    // url = JSON.parse(message);
+    // console.log('URL' + url)
+    console.log('About to mask audio')
+
+    result_waveform.load('./get_masked_audio?val=' + Math.random().toString(36).substring(7))
+    result_waveform.play()
   });
 
 //   socket.on('mel_image', function(message) {
@@ -99,6 +112,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Init mixture_waveform
     mixture_waveform.init(mixtureOptions);
+
+    mixtureOptions.container = '#result_waveform'
+    result_waveform.init(mixtureOptions);
+
     defaulZoomStart = mixture_waveform.params.minPxPerSec;
 
     $('#open-modal').modal({
@@ -156,3 +173,10 @@ function openFileDialog() {
     audio.import_audio();
     $('#status').text('Uploading audio to server...');
 }
+
+//  ~~~~~~~~~~~~~ Apply Selections button ~~~~~~~~~~~~~
+
+$('#apply-selections').click(function(){
+    let mask = spectrogram.exportSelectionMask()
+    socket.emit('mask', { mask: mask })
+});

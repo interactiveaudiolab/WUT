@@ -33,9 +33,11 @@ class DeepClustering(audio_processing_base.InteractiveAudioProcessingBase):
 
         # TODO: call this correctly, will need model path, etc.
         self.dc = nussl.DeepClustering(mixture_signal,
-              model_path=model_path,
+              model_path = model_path,
               num_sources = 2,
-              cutoff=-80)
+              cutoff = -80,
+            # how to handle stero?
+              do_mono = True)
 
     def perform_deep_clustering(self):
         self.dc.run()
@@ -100,7 +102,9 @@ class DeepClustering(audio_processing_base.InteractiveAudioProcessingBase):
         pca, mel = data
 
         dim = 99
+        logger.info(pca.shape)
         scaled = self._scale_pca(pca, dim)
+        logger.info(pca.shape)
         binned = self._bin_matrix(scaled, self._make_square_matrix(dim + 1))
 
         # transpose mel

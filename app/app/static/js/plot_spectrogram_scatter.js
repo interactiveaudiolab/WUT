@@ -21,31 +21,43 @@ class ScatterSpectrogram extends PlotlyHeatmap {
 
         this.plotLayout.hovermode = false;
 
-        this.plotLayout.xaxis = {
-            title: "Time (s)",
-            type: "linear",
-            range: [0.0, 1.0],
-            showgrid: false
+        this.plotMargins = {
+            l: 50,
+            r: 10,
+            b: 50,
+            t: 10
         };
 
-        this.plotLayout.yaxis = {
-            title: "Frequency (Mel)",
-            type: "linear",
-            autorange: true,
-            range: [0.0, 150],
-            showgrid: false
+        this.plotLayout = {
+            xaxis: {
+                title: "Time (s)",
+                type: "linear",
+                range: [0.0, 1.0],
+                showgrid: false
+            },
+            yaxis: {
+                title: "Frequency (Mel)",
+                type: "linear",
+                autorange: true,
+                range: [0.0, 150],
+                showgrid: false
+            },
+            margin: this.plotMargins
         };
-
-        this.plotLayout
 
         this.DOMObject.on('plotly_selected', (eventData, data) => {
             if(!data || !data.range) { this.clearMarkers(); }
         });
 
+        // maybe somehow deal with duplicate markers?
+        // for now just add them on top
+        this.markers = []
+
         this.emptyHeatmap();
     }
 
     clearMarkers() {
+        this.markers = []
         let data = [{x:[], y:[]}];
         this.plot = Plotly.newPlot(this.divID, data, this.plotLayout, this.plotOptions);
     }
@@ -53,8 +65,19 @@ class ScatterSpectrogram extends PlotlyHeatmap {
     addMarkers(x_marks, y_marks, color) {
         // let data = [{x:[], y:[], type:'scattergl',
         //         mode:'markers', marker: { symbol: "square", size:5, color: '#ffffff', opacity: 1 }}];
+        let coords = x_marks.map((x, i) => [x, y_marks[i]])
+        this.markers = this.markers.concat(coords)
+
         Plotly.addTraces(spectrogram.divID, { x: x_marks, y: y_marks, type: 'scattergl',
             mode:'markers', marker: { size: 2, color: (color !== undefined ? color : '#ffffff'), opacity: 1 }});
+    }
+
+    // returns TF mel matrix with 1s in all TF bins
+    // currently selected
+    exportSelectionMask() {
+        let matrix = [...new Array(this.dims[1])].map(() => [... new Array(this.dims[0])].map(() => 0))
+        this.markers.forEach(([x, y]) => { matrix[x][y] = 1 });
+        return matrix;
     }
 
     drawImage(url, duration, freqMax) {
