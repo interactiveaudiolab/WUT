@@ -267,21 +267,20 @@ def get_action(mask):
 
     sess = awaken_session()
 
-    logger.info(len(mask['mask']))
-    logger.info(len(mask['mask'][0]))
-
+    logger.info('about to apply mask')
     dc = audio_processing.DeepClustering(sess.user_signal, sess.user_original_file_folder)
     dc.dc.run()
     mask = dc.dc.generate_mask(0, mask['mask'])
     result = dc.dc.apply_mask(mask)
+    logger.info('mask applied')
 
-    logger.info('About to write file')
+    logger.info('about to write file')
     sess.masked_path = os.path.join(sess.user_original_file_folder, 'masked.mp3')
     result.write_audio_to_file(sess.masked_path)
-    logger.info('Finished writing file')
+    logger.info('finished writing file')
 
     socketio.emit('masked_audio', {}, namespace=WUT_SOCKET_NAMESPACE)
-    logger.info('Told server to load masked audio')
+    logger.info('told server to load masked audio')
 
     save_session(sess)
 

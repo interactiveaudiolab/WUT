@@ -157,15 +157,17 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function enableSurveyDoneButton() {
-    if ($('#extraction-goal option:selected').length > 0) {
-        $('#survey-done').removeClass('disabled');
-    } else {
-        $('#survey-done').addClass('disabled');
-    }
+    maybeEnable('#survey-done', $('#extraction-goal option:selected').length > 0);
 }
 
-mixture_waveform.on('ready', function () {
-  var timeline = Object.create(WaveSurfer.Timeline);
+function maybeEnable(cssIdentifier, cond) {
+    cond ? $(cssIdentifier).removeClass('disabled')
+         : $(cssIdentifier).addClass('disabled');
+}
+
+
+mixture_waveform.on('ready', function() {
+    var timeline = Object.create(WaveSurfer.Timeline);
 
   timeline.init({
     wavesurfer: mixture_waveform,
@@ -210,12 +212,7 @@ $('#save-result').click(function() {
 });
 
 function enableTools(enabled, className) {
-    if (enabled === true) {
-        $(className).removeClass('disabled');
-    }
-    else if (enabled === false) {
-        $(className).addClass('disabled');
-    }
+    maybeEnable(enabled, className)
 }
 
 $('#results-pill').click(function() {
@@ -255,11 +252,7 @@ function sendSurveyResults() {
         return $(this).val();
     }).get();
 
-    let survey_data = {
-        extraction_goals: extraction_goals,
-        // do_not_store: do_not_store
-    };
-
+    let survey_data = { extraction_goals: extraction_goals };
     socket.emit('survey_results', survey_data);
 
 }

@@ -102,9 +102,7 @@ class DeepClustering(audio_processing_base.InteractiveAudioProcessingBase):
         pca, mel = data
 
         dim = 99
-        logger.info(pca.shape)
         scaled = self._scale_pca(pca, dim)
-        logger.info(pca.shape)
         binned = self._bin_matrix(scaled, self._make_square_matrix(dim + 1))
 
         # transpose mel

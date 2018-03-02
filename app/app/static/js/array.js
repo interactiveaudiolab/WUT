@@ -20,13 +20,13 @@ function zeros(numrows, numcols){
 
 function abs_matrix(mat) {
     var magnitude = zeros_like(mat);
-    
+
     for (var row = 0; row < mat.length; ++row){
         for (var col = 0; col < mat[row].length; ++col){
             magnitude[row][col] = Math.abs(mat[row][col]);
         }
     }
-    
+
     return magnitude;
 }
 
@@ -47,13 +47,13 @@ function add_matrix(mat1, mat2) {
 	var row_small = mat1.length < mat2.length ? mat1.length : mat2.length;
 	var col_small = mat1[0].length < mat2[0].length ? mat1[0].length : mat2[0].length;
     var result = zeros_like(mat1);
-    
+
     for (var row = 0; row < row_small; ++row){
         for (var col = 0; col < col_small; ++col){
             result[row][col] = mat1[row][col] + mat2[row][col];
         }
     }
-    
+
     return result;
 }
 

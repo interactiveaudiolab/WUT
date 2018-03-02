@@ -71,16 +71,17 @@ function findClosestIndexInSortedArray(sortedArray, target) {
     return i;
 }
 
-// Add "{0} is dead, but {1} is alive! {0} {2}".format("ASP", "ASP.NET") formatting
-// First, checks if it isn't implemented yet.
-if (!String.prototype.format) {
-  String.prototype.format = function() {
-    var args = arguments;
-    return this.replace(/{(\d+)}/g, function(match, number) {
-      return typeof args[number] != 'undefined'
-        ? args[number]
-        : match
-      ;
-    });
-  };
+function generateTicks(xaxisRange, duration) {
+    // choose ~200px as spacing between ticks
+    let prelimNumTicks = Math.floor(xaxisRange / 100);
+    let timeSpacing = Math.floor(duration / prelimNumTicks)
+
+    // number of whole number spacings in time domain that fit
+    let actualNumTicks = Math.floor(duration / timeSpacing)
+
+    let tickVals = [...new Array(actualNumTicks)].map((_, i) => i*timeSpacing)
+    let tickLocs = tickVals.map(val => Math.floor(xaxisRange * (val/duration)))
+    let tickText = tickVals.map(val => val.toString())
+
+    return [tickLocs, tickText];
 }

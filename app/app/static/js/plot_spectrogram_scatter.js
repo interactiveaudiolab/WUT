@@ -1,14 +1,15 @@
-function getMelScatterSpectrogramAsImage(heatmap, duration, freqMax) {
+function getMelScatterSpectrogramAsImage(heatmap, xaxisRange, freqMax) {
     let url = "./mel_spec_image?val=" + Math.random().toString(36).substring(7);
-    // duration currently hardcoded in for toy data
-    heatmap.drawImage(url, duration, freqMax);
+
+    let duration = mixture_waveform.backend.getDuration();
+    heatmap.drawImage(url, xaxisRange, freqMax, duration);
 }
 
-function getSpectrogramAsImage(heatmap, duration, freqMax) {
+function getSpectrogramAsImage(heatmap, xaxisRange, freqMax) {
     let url = "./spec_image?val=" + Math.random().toString(36).substring(7);
-    // let duration = mixture_waveform.backend.getDuration();
+    let duration = mixture_waveform.backend.getDuration();
 
-    heatmap.drawImage(url, duration, freqMax);
+    heatmap.drawImage(url, xaxisRange, freqMax, duration);
     enableTools(true, '.spec-tool');
 }
 
@@ -80,17 +81,25 @@ class ScatterSpectrogram extends PlotlyHeatmap {
         return matrix;
     }
 
-    drawImage(url, duration, freqMax) {
-        this.plotLayout.xaxis.range = [0.0, duration];
+    drawImage(url, xaxisRange, freqMax, duration) {
+        this.plotLayout.xaxis.range = [0.0, xaxisRange];
+
         this.plotLayout.yaxis.range = [0.0, freqMax];
         this.plotLayout.yaxis.autorange = false;
+        this.plotLayout.hovermode = false;
+
+        let [locs, text] = generateTicks(xaxisRange, duration);
+        this.plotLayout.xaxis.tickmode = 'array';
+        this.plotLayout.xaxis.tickvals = locs;
+        this.plotLayout.xaxis.ticktext = text;
+
         this.plotLayout.images = [{
             "source": url,
             "xref": "x",
             "yref": "y",
             "x": 0,
             "y": 0,
-            "sizex": duration,
+            "sizex": xaxisRange,
             "sizey": freqMax,
             "xanchor": "left",
             "yanchor": "bottom",
@@ -99,6 +108,13 @@ class ScatterSpectrogram extends PlotlyHeatmap {
         }];
 
         let data = [{x:[], y:[]}];
-        this.plot = Plotly.newPlot(this.divID, data, this.plotLayout, this.plotOptions);
+        this.plot = Plotly.newPlot(this.divID, data, this.plotLayout, this.plotOptions)
+            .then(() => {
+                $('#apply-selections').removeClass('disabled');
+                $('.plots-spinner').hide();
+                $('#pca').show();
+                $('#spectrogram').show();
+                relayoutPlots();
+            });
     }
 }

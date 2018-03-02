@@ -11,9 +11,9 @@ var DO_STFT_ON_CLIENT = false;
 
 
 audio.import_audio = function() {
-    if (this.isPlaying()) {
-        this.playPause();
-    }
+    mixture_waveform.pause();
+    result_waveform.pause();
+
     $('input[type=file]').click();
 };
 
@@ -22,21 +22,10 @@ audio.playPause = function () {
     mixture_waveform.playPause();
 };
 
-audio.isPlaying = function () {
-    var playing = true;
-    this.waveforms.forEach( function (w) {
-        playing = playing && w.isPlaying();
-    });
-    return playing;
-};
-
 $('#input_audio_file').change(function () {
     time_to_graph = new Date().getTime();
     mixture_audio_file.file = this.files[0];
     mixture_audio_file.url = URL.createObjectURL(mixture_audio_file.file);
-    if (DO_STFT_ON_CLIENT) {
-        buffer_loader_load(mixture_audio_file.url);
-    }
 
     $("#filename").text(mixture_audio_file.file.name);
     $('#extraction-goal').multiselect('enable');
@@ -54,110 +43,67 @@ mixture_audio_file.upload_to_server = function (obj) {
             'file_type': file.type,
             'file_data': file };
         socket.compress(true).emit('audio_upload', {'audio_file': file_with_metadata});
+        $('.plots-spinner').show();
+        $('#pca').hide();
+        $('#spectrogram').hide();
     }
     else {
         socket.emit('audio_upload', {'audio_file': null});
     }
 };
 
-$('#result-play').click(function() {
-    if (!result_waveform.backend.buffer) {
+$('#results-play').click(function() {
+    if (!result_waveform.backend.buffer ||
+        $('#results-play').hasClass('disabled')) {
         return;
     }
 
-    if (!result_waveform.isPlaying()) {
-        // Audio is paused
-        $('#result-play').find("i").removeClass('glyphicon glyphicon-play').addClass('glyphicon glyphicon-pause')
-            .attr('title', 'Pause audio');
-    } else {
-        // Audio is playing
-        $('#result-play').find("i").removeClass('glyphicon glyphicon-pause').addClass('glyphicon glyphicon-play')
-            .attr('title', 'Play audio');
-    }
+    togglePlayPauseIcon(this);
     result_waveform.playPause();
 });
 
 $('#mixture-play').click(function() {
-    if (!mixture_waveform.backend.buffer) {
+    if (!mixture_waveform.backend.buffer ||
+        $('#mixture-play').hasClass('disabled')) {
         return;
     }
-    togglePlayPauseIcon(this);
 
+    togglePlayPauseIcon(this);
     mixture_waveform.playPause();
 });
 
 function togglePlayPauseIcon(obj) {
-    if ($(obj).find('i').hasClass('glyphicon-play')) {
-        $(obj).find('i').removeClass('glyphicon glyphicon-play').addClass('glyphicon glyphicon-pause')
-            .attr('title', 'Pause audio');
-    } else {
-        $(obj).find('i').removeClass('glyphicon glyphicon-pause').addClass('glyphicon glyphicon-play')
-            .attr('title', 'Play audio');
+    $(obj).find('svg').toggleClass('fa-pause fa-play');
+    $(obj).attr('title', `${$(obj).attr('title') === 'Play audio' ? 'Pause' : 'Play'} audio`)
+}
+
+function resetWaveform(waveform, waveformPlayId) {
+    if(!waveform.backend.buffer) { return; }
+
+    if(waveform.isPlaying()) {
+        waveform.stop()
     }
+
+    $(`${waveformPlayId}`).attr('title', 'Play audio')
+    $(`${waveformPlayId} > svg`).attr('class', 'fas fa-play');
+    waveform.seekTo(0);
 }
 
 $('#mixture-stop').click(function() {
-    if (!mixture_waveform.backend.buffer) {
-        return;
-    }
-
-    if (mixture_waveform.isPlaying()) {
-        $('#mixture-play').find("i").removeClass('glyphicon glyphicon-pause').addClass('glyphicon glyphicon-play')
-            .attr('title', 'Play audio');
-        mixture_waveform.stop();
-    }
-
-    mixture_waveform.seekTo(0);
+    resetWaveform(mixture_waveform, '#mixture-play')
 });
 
-$('#result-stop').click(function() {
-    if (!result_waveform.backend.buffer) {
-        return;
-    }
-
-    if (result_waveform.isPlaying()) {
-        $('#result-play').find("i").removeClass('glyphicon glyphicon-pause').addClass('glyphicon glyphicon-play')
-            .attr('title', 'Play audio');
-        result_waveform.stop();
-    }
-
-    result_waveform.seekTo(0);
+$('#results-stop').click(function() {
+    resetWaveform(result_waveform, '#results-play')
 });
 
 mixture_waveform.on('finish', function () {
-    $('#mixture-play').find("i").removeClass('glyphicon glyphicon-pause').addClass('glyphicon glyphicon-play')
-            .attr('title', 'Play audio');
-    mixture_waveform.seekTo(0);
+    resetWaveform(mixture_waveform, '#mixture-play')
 });
 
 result_waveform.on('finish', function () {
-    $('#result-play').find("i").removeClass('glyphicon glyphicon-pause').addClass('glyphicon glyphicon-play')
-            .attr('title', 'Play audio');
-    result_waveform.seekTo(0);
+    resetWaveform(result_waveform, '#results-play')
 });
-
-function buffer_loader_load(url) {
-    AUDIOFILES = [url];
-    bufferLoader = new BufferLoader (
-        context,
-        AUDIOFILES,
-        function (bufferList) {
-            let windowSize = 16384;
-            let hopSize = windowSize / 2;
-            let sampleRate = bufferList[0].sampleRate;
-            var specLength = bufferList[0].length / bufferList[0].sampleRate;
-            var selectedRange = [0.0, specLength];
-            spec_data = display_ready_spectrogram(bufferList[0].getChannelData(0), windowSize, hopSize, 'hamm', sampleRate);
-            drawSpectrogramPlotly("spectrogram-heatmap", spec_data.spectrogram, '', spec_data.freqMax, specLength, selectedRange, false);
-        }
-    );
-    bufferLoader.load();
-    function finishedLoading(bufferList) {
-        BUFFERS = bufferList.slice(0);
-        offline = new OfflineAudioContext(2, Math.round(BUFFERS[0].length * 1.2), 44100);
-        // readyWave();
-    }
-}
 
 function get_audio_data () {
     if (bufferLoader === null || bufferLoader.bufferList === null
@@ -167,16 +113,9 @@ function get_audio_data () {
 
     var n_channels = bufferLoader.bufferList[0].numberOfChannels;
     var len = bufferLoader.bufferList[0].length;
-    // var audio_data = Array.matrix(n_channels, len, 0.0);
 
     n_channels = 1;
     var audio_data = bufferLoader.bufferList[0].getChannelData(0);
-
-    // for (var i = 0; i <= n_channels; i++) {
-    //     for (var i = Things.length - 1; i >= 0; i--) {
-    //         audio_data[i] = bufferLoader.bufferList[0].getChannelData(i);
-    //     };
-    // };
 
     return [audio_data, bufferLoader.bufferList[0].sampleRate];
 }
