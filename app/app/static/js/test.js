@@ -2,8 +2,6 @@ var InteractiveAudioLab = namespace('InteractiveAudioLab');
 var WebUnmixingToolbox = namespace('InteractiveAudioLab.WebUnmixingToolbox');
 var Main = namespace('InteractiveAudioLab.WebUnmixingToolbox.Main');
 
-var mixture_waveform = Object.create(WaveSurfer);
-var result_waveform = Object.create(WaveSurfer);
 var all_waveforms = [mixture_waveform, result_waveform];
 var defaultZoomStart;
 var zoomStepSize = 5;
@@ -25,7 +23,25 @@ var greenFill = 'rgba(0, 255, 0, 0.35)';
 var colorDict = {'white': {'line': whiteLine, 'fill': whiteFill },
                  'green': {'line': greenLine, 'fill': greenFill } };
 
-var TAKE_THIS_OUT_ONLY_FOR_KILLING_CODE_WHILE_TESTING = false
+
+var surferOptions = {
+    container: '#mixture-waveform',
+    waveColor: 'grey',
+    progressColor: 'black',
+    cursorColor: 'pink',
+    scrollParent: false,
+    height: 80,
+    normalize: true,
+    audioRate: 1.0,
+    minPxPerSec: 0,
+    responsive: true
+};
+
+var mixture_waveform = WaveSurfer.create(surferOptions);
+
+surferOptions.container = '#results-waveform'
+var result_waveform = WaveSurfer.create(surferOptions);
+
 
 pcaMatrixToHistogram = (pca) => {
     return pca.map(row => row.map(inds => Math.log(inds.length + 1)))
@@ -79,45 +95,11 @@ $(document).ready(function() {
 
 
   socket.on('masked_audio', function(message) {
-    // url = JSON.parse(message);
-    // console.log('URL' + url)
-    console.log('About to mask audio')
-
     result_waveform.load('./get_masked_audio?val=' + Math.random().toString(36).substring(7))
-    result_waveform.play()
   });
-
-//   socket.on('mel_image', function(message) {
-//     console.log(`Got spectrogram image - ${currTime()}`);
-//     spec_image = JSON.parse(message);
-
-//     getMelScatterSpectrogramAsImage(spectrogram, undefined, undefined);
-//   });
 });
 
 document.addEventListener('DOMContentLoaded', function () {
-
-    var mixtureOptions = {
-        container: '#waveform',
-        waveColor: 'grey',
-        progressColor: 'black',
-        cursorColor: 'pink',
-        scrollParent: false,
-        height: 80,
-        normalize: true,
-        audioRate: 1.0,
-        minPxPerSec: 0,
-        responsive: true
-    };
-
-    // Init mixture_waveform
-    mixture_waveform.init(mixtureOptions);
-
-    mixtureOptions.container = '#result_waveform'
-    result_waveform.init(mixtureOptions);
-
-    defaulZoomStart = mixture_waveform.params.minPxPerSec;
-
     $('#open-modal').modal({
         backdrop: 'static',
         keyboard: false
@@ -125,31 +107,46 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 
-$( window ).resize(function() {
-    let update = { width: $('pca').width() };
+function relayoutPlots() {
+    let update = { width: $('#pca').width() };
     Plotly.relayout("pca", update);
+    update = { width: $('#spectrogram').width() };
     Plotly.relayout("spectrogram", update);
+}
+
+$( window ).resize(function() {
+    relayoutPlots()
 });
 
 // ~~~~~~~~~~~~~ WAVEFORM ~~~~~~~~~~~~~
 
 mixture_waveform.on('ready', function () {
-  var timeline = Object.create(WaveSurfer.Timeline);
-
-  timeline.init({
-    wavesurfer: mixture_waveform,
-    container: '#waveform'
-  });
+    // enable buttons on waveform load
+    $('#mixture-play').removeClass('disabled')
+    $('#mixture-stop').removeClass('disabled')
 });
+
+result_waveform.on('ready', function() {
+    $('#results-play').removeClass('disabled')
+    $('#results-stop').removeClass('disabled')
+    $('.results-spinner').hide();
+    $('#results-waveform').show();
+    result_waveform.empty();
+    result_waveform.drawBuffer();
+})
 
 // resize with half second lag
 // kills audio, could have it pick up where left off later
 // also may want to write own debouncing function instead of
 // importing Lodash for it
 $(window).resize(_.debounce(function(){
-    if(mixture_waveform) {
+    if(mixture_waveform && mixture_waveform.backend.buffer) {
         mixture_waveform.empty();
         mixture_waveform.drawBuffer();
+    }
+    if(result_waveform && result_waveform.backend.buffer) {
+        result_waveform.empty();
+        result_waveform.drawBuffer();
     }
   }, 500));
 
@@ -177,6 +174,21 @@ function openFileDialog() {
 //  ~~~~~~~~~~~~~ Apply Selections button ~~~~~~~~~~~~~
 
 $('#apply-selections').click(function(){
-    let mask = spectrogram.exportSelectionMask()
-    socket.emit('mask', { mask: mask })
+    // probably a better way to check this in the future
+    if(!$('#apply-selections').hasClass('disabled')) {
+        if(!$('#results-play').hasClass('disabled')) {
+            $('#results-play').addClass('disabled')
+        }
+
+        if(!$('#results-stop').hasClass('disabled')) {
+            $('#results-stop').addClass('disabled')
+        }
+
+        $('.results-spinner').show();
+        $('.results-spinner').css('display', 'flex')
+        $('#results-waveform').hide();
+
+        let mask = spectrogram.exportSelectionMask()
+        socket.emit('mask', { mask: mask })
+    }
 });

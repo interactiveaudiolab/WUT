@@ -50,22 +50,13 @@ class PCAHeatmap extends PlotlyHeatmap {
       // need to draw scatter plot markers on spectrogram
       // console.log(`Beginning selections: ${currTime()}`)
 
-      console.log(`Given from (${range.x[0]}, ${range.y[0]}) to (${range.x[1]}, ${range.y[1]})`);
-
       let [x_indices, y_indices] = this.getSelectionIndices(range);
-
-      console.log(`Rounded from (${x_indices[0]}, ${y_indices[0]}) to (${getLastItemInArray(x_indices)}, ${getLastItemInArray(y_indices)})`);
 
       let inner_dim = spec_dims[0];
 
       let new_markers_x = [];
       let new_markers_y = [];
-      let indices = [];
-      let coords = [];
-      let indices_set = new Set();
-      let coords_set = new Set();
 
-      let counter = 0;
       for(let x of x_indices) {
         for(let y of y_indices) {
           if(0 <= x && x < pca_tf_indices.length
@@ -75,33 +66,13 @@ class PCAHeatmap extends PlotlyHeatmap {
             let tf_indices = pca_tf_indices[y][x];
 
             for(let index of tf_indices) {
-              indices.push(index);
-              indices_set.add(index)
               let [spec_x, spec_y] = this.getCoordinateFromTFIndex(index, inner_dim);
-              coords.push([spec_x, spec_y])
-              coords_set.add(JSON.stringify([spec_x, spec_y]));
-
-              // REMOVE HARDCODING
-              if(counter === 0) {
-                console.log(`Index: ${index}`);
-                console.log(`Spec index: ${spec_x}, ${spec_y}`);
-              }
-              counter++;
-
               new_markers_x.push(spec_x);
               new_markers_y.push(spec_y);
             }
           }
         }
       }
-
-      console.log(`Are x & y coordinate numbers equal? - ${new_markers_x.length === new_markers_y.length} @ ${new_markers_x.length}`)
-      console.log(`Any duplicate indices? - ${indices.length !== indices_set.size}, indices: ${indices.length}, indices_set: ${indices_set.size}`)
-      console.log(`As many coords as indices? - ${coords_set.size === indices_set.size}, coords_set: ${coords_set.size}, indices_set: ${indices_set.size}`)
-      console.log('INDICES')
-      console.log(indices)
-      console.log('COORDS')
-      console.log(coords)
 
       spectrogram.addMarkers(new_markers_x, new_markers_y, color);
     }

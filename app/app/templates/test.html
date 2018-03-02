@@ -46,20 +46,20 @@
         </div>
     </header>
     <main>
-        <div class="waveform-cont">
+        <div class="mixture-waveform-cont">
+
+            <div class='upload'><i class="fas fa-upload fa-lg"></i></div>
 
             <div class="controls">
-                <button id="mixture-play" type="button" class="btn btn-primary">
+                <button id="mixture-play" type="button" class="btn btn-primary disabled" title="Play audio">
                     <i class="fas fa-play"></i>
                 </button>
-                <button type="button" class="btn btn-primary">
+                <button id="mixture-stop" type="button" class="btn btn-primary disabled">
                     <i class="fas fa-stop"></i>
                 </button>
             </div>
 
-            <div id="waveform"></div>
-
-            <div class='upload'><i class="fas fa-upload fa-lg"></i></div>
+            <div id="mixture-waveform"></div>
         </div>
 
         <div class="interaction">
@@ -68,13 +68,37 @@
                         <div class="aspect-ratio-box">
                             <div class="alignment" id="pca">
                             </div>
+                            <div class='spinner-outer plots-spinner alignment'>
+                                <div class='spinner'></div>
+                            </div>
                         </div>
                     </div>
 
-                    <div id="spectrogram"></div>
+                    <div id="spectrogram" class="spectrogram-css"></div>
+                    <div class='spinner-outer plots-spinner spectrogram-css'>
+                        <div class='spinner'></div>
+                    </div>
             </div>
-            <button type="button" class="btn btn-primary" id="apply-selections">Apply Selections</button>
-            <div id="result_waveform"></div>
+
+            <button id="apply-selections" type="button" class="btn btn-primary disabled">Apply Selections</button>
+
+            <div id="results-header">Result Audio</div>
+
+            <div class="results-waveform-cont">
+                <div class="controls">
+                    <button id="results-play" type="button" class="btn btn-primary disabled" title="Play audio">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <button id="results-stop" type="button" class="btn btn-primary disabled">
+                        <i class="fas fa-stop"></i>
+                    </button>
+                </div>
+
+                <div id="results-waveform" class="results-waveform-css"></div>
+                <div class='spinner-outer results-spinner results-waveform-css'>
+                    <div class='spinner'></div>
+                </div>
+            </div>
         </div>
 
     </main>

@@ -51,7 +51,7 @@ main {
 	margin: 10px 0 0 0;
 }
 
-main > .waveform-cont {
+main > .mixture-waveform-cont {
 	flex: 0 0 100px;
 	display: flex;
 	align-items: stretch;
@@ -59,7 +59,7 @@ main > .waveform-cont {
 	margin: 0 30px 20px 30px;
 }
 
-main > .waveform-cont > .controls {
+main > .mixture-waveform-cont > .controls {
 	flex: 0 0 40px;
 	margin: 0 20px 0 20px;
 
@@ -68,7 +68,7 @@ main > .waveform-cont > .controls {
 	justify-content: space-around;
 }
 
-main > .waveform-cont > .controls div {
+main > .mixture-waveform-cont > .controls div {
 	padding: 10px 0;
 
 	display: flex;
@@ -76,11 +76,11 @@ main > .waveform-cont > .controls div {
 	align-items: center;
 }
 
-main > .waveform-cont > #waveform {
+main > .mixture-waveform-cont > #mixture-waveform {
 	flex: 1;
 }
 
-main > .waveform-cont > .upload {
+main > .mixture-waveform-cont > .upload {
 	display: flex;
 
 	cursor: pointer;
@@ -102,7 +102,7 @@ main > .interaction > .plots {
 	/* flex: 1 0 auto; */
 	align-self: stretch;
 	display: flex;
-	flex-flow: row nowrap;
+	flex-flow: row wrap;
 	justify-content: space-around;
 	align-items: center;
 	padding: 0 20px 10px 20px;
@@ -112,7 +112,7 @@ main > .interaction > .plots > .outer {
 	flex: 0 1 29%;
 }
 
-main > .interaction > .plots > #spectrogram {
+main > .interaction > .plots > .spectrogram-css {
 	flex: 0 1 65%;
 
 	/*
@@ -126,10 +126,42 @@ main > .interaction > .plots > #spectrogram {
 	min-width: 850px;
 }
 
-main > .interaction > #result_waveform {
-	color: lightcoral;
-	width: 100vw;
+main > #results-header {
+	font-size: 3em;
+	flex: 0 0 auto;
+	font-family: Arial, Helvetica, sans-serif;
 }
+
+.interaction > .results-waveform-cont {
+	flex: 0 0 100px;
+	width: 100vw;
+	padding: 10px 20px;
+	display: flex;
+	align-items: stretch;
+	justify-content: space-around;
+}
+
+.interaction > .results-waveform-cont > .controls {
+	flex: 0 0 40px;
+	margin: 0 20px 0 20px;
+
+	display: flex;
+	flex-flow: column;
+	justify-content: space-around;
+}
+
+.interaction > .results-waveform-cont > .controls div {
+	padding: 10px 0;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.interaction > .results-waveform-cont > .results-waveform-css {
+	flex: 1;
+}
+
 
 footer {
 	grid-area: footer;
@@ -171,6 +203,65 @@ footer p {
 	height: 100%;
 }
 
+
+/* SPINNER */
+
+/* initiallly hide all */
+
+.results-waveform-cont > .spinner-outer {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.plots-spinner {
+	display: none
+}
+
+.results-waveform-cont > .results-spinner {
+	display: none
+}
+
+.spinner-waveform {
+  background: lightblue;
+
+	width: 40px;
+  height: 40px;
+  border-radius: 100%;
+  -webkit-animation: sk-scaleout 1.0s infinite ease-in-out;
+  animation: sk-scaleout 1.0s infinite ease-in-out;
+}
+
+.spinner {
+  background: lightblue;
+
+	width: 40px;
+  height: 40px;
+	margin: 100px auto;
+  border-radius: 100%;
+  -webkit-animation: sk-scaleout 1.0s infinite ease-in-out;
+  animation: sk-scaleout 1.0s infinite ease-in-out;
+}
+
+@-webkit-keyframes sk-scaleout {
+  0% { -webkit-transform: scale(0) }
+  100% {
+    -webkit-transform: scale(1.0);
+    opacity: 0;
+  }
+}
+
+@keyframes sk-scaleout {
+  0% {
+    -webkit-transform: scale(0);
+    transform: scale(0);
+  } 100% {
+    -webkit-transform: scale(1.0);
+    transform: scale(1.0);
+    opacity: 0;
+  }
+}
+
 /*
 	currently pretty ugly hardcoding between this and
 	min-width on spectrogram
@@ -185,7 +276,7 @@ footer p {
 		margin-bottom: 50px;
 	}
 
-	main > .interaction > .plots > #spectrogram {
+	main > .interaction > .plots > .spectrogram-css {
 		min-width: 0;
 		flex: 0 1 90%;
 	}
