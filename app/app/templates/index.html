@@ -36,6 +36,7 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/waves-loaders.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/waves-ui.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/jquery.actual.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/recorder.js') }}"></script>
 </head>
 <body>
 <!--[if lt IE 8]>
@@ -169,7 +170,7 @@
             <ul class="nav nav-tabs" id="mainTabs">
                 <li class="active"><a href="#spectrogram-tab">Spectrogram</a></li>
                 <li><a href="#duet-tab">Attenuation/Delay Histogram</a></li>
-                <li id="results-pill"><a href="#results-tab">Results</a></li>
+{#                <li id="results-pill"><a href="#results-tab">Results</a></li>#}
                 <li><a href="#reqs-tab">Recommendations</a></li>
             </ul>
         </div>
@@ -180,7 +181,7 @@
                 <div class="row" id="spectrogram-controls">
                     <div class="col-md-1"></div>
                     <div class="col-md-1" id="waveform-zoom-buttons">
-                        <div class="btn-group">
+                        <div class="btn-group btn-group-sm">
                             <button id="mixture-zoom-in" class="btn btn-default" title="Zoom in">
                                 <i class="glyphicon glyphicon-zoom-in" id="waveform"></i>
                             </button>
@@ -192,7 +193,7 @@
                     </div>
 
                     <div class="col-md-6">
-                        <div class="btn-group">
+                        <div class="btn-group-sm">
 {#                            <button id="selection-louder" class="btn btn-default spec-tool disabled" title="Make selection louder">#}
 {#                                <i class="fa fa-volume-off fa-lg" aria-hidden="true"></i>#}
 {#                                <i class="fa fa-plus" aria-hidden="true"></i>#}
@@ -211,7 +212,7 @@
                     </div>
 
                     <div class="col-md-2">
-                        <div id="spec-color" class="btn-group" data-toggle="buttons">
+                        <div id="spec-color" class="btn-group btn-group-sm" data-toggle="buttons">
                             <label class="btn btn-default active">
                                 <input type="radio" name="options" id="white" autocomplete="off" checked> White
                             </label>
@@ -316,27 +317,73 @@
 
             <div class="tab-pane" id="reqs-tab">
                 <div class="row">
-                    <div class="col-md-10">
+                    <div class="col-md-9 col-md-offset-1">
                         <div class="btn-group btn-group-sm">
-                            <button id="req-stop" class="btn btn-default" title="Stop">
-                                <i class="glyphicon glyphicon-stop"></i>
-                            </button>
                             <button id="req-play" class="btn btn-default play-pause" title="Play">
                                 <i class="glyphicon glyphicon-play"></i>
                             </button>
+                            <button id="req-stop" class="btn btn-default" title="Stop">
+                                <i class="glyphicon glyphicon-stop"></i>
+                            </button>
                         </div>
+                    </div>
+                    <div class="col-md-1">
+                        <button id="req-save" class="btn btn-default btn-sm" title="Save">
+                            <i class="glyphicon glyphicon-download-alt"></i>
+                        </button>
                     </div>
                 </div>
                 <div class="row" id="track-container">
                     <div class="row">
                         <div class="col-md-10 col-md-offset-1">
+                            <div id="ticks-wrapper">
+                                <div id="ticks">
+                                    <div class="tick major">
+                                        <div class="time">00:00</div>
+                                    </div>
+                                    <div class="tick"></div>
+                                    <div class="tick"></div>
+                                    <div class="tick"></div>
+                                    <div class="tick"></div>
+                                    <div class="tick"></div>
+                                    <div class="tick major">
+                                        <div class="time">06:00</div>
+                                    </div>
+                                    <div class="tick"></div>
+                                    <div class="tick"></div>
+                                    <div class="tick"></div>
+                                    <div class="tick"></div>
+                                    <div class="tick"></div>
+                                    <div class="tick major">
+                                        <div class="time">12:00</div>
+                                    </div>
+                                    <div class="tick"></div>
+                                    <div class="tick"></div>
+                                    <div class="tick"></div>
+                                    <div class="tick"></div>
+                                    <div class="tick"></div>
+                                    <div class="tick major">
+                                        <div class="time">18:00</div>
+                                    </div>
+                                    <div class="tick"></div>
+                                    <div class="tick"></div>
+                                    <div class="tick"></div>
+                                    <div class="tick"></div>
+                                    <div class="tick"></div>
+                                    <div class="tick major">
+                                        <div class="time">00:00</div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-10 col-md-offset-1" id="transport-slider-wrapper">
                             <input id="transport-slider" type="text"
                                    data-slider-handle="custom"
                                    data-slider-min="0.0"
                                    data-slider-step="0.01"
                                    data-slider-value="0.0"
-                                    {# data-slider-tooltip="hide"#}
-
+                                   data-slider-tooltip="hide"
                             />
                         </div>
                     </div>
@@ -350,6 +397,12 @@
                                 <button id="repet-mute" class="btn mute-track" title="Mute">
                                     M
                                 </button>
+                            </div>
+                            <div class="db-label max-db-label">
+                                0dB
+                            </div>
+                            <div class="db-label min-db-label">
+                                -80dB
                             </div>
                         </div>
                         <div class="col-md-10 waves-ui-container">
@@ -367,6 +420,12 @@
                                     M
                                 </button>
                             </div>
+                            <div class="db-label max-db-label">
+                                0dB
+                            </div>
+                            <div class="db-label min-db-label">
+                                -80dB
+                            </div>
                         </div>
                         <div class="col-md-10 waves-ui-container">
                             <div class="waves-ui-track" id="melodia" data-color="PaleVioletRed"></div>
@@ -382,6 +441,12 @@
                                 <button id="projet-mute" class="btn mute-track" title="Mute">
                                     M
                                 </button>
+                            </div>
+                            <div class="db-label max-db-label">
+                                0dB
+                            </div>
+                            <div class="db-label min-db-label">
+                                -80dB
                             </div>
                         </div>
                         <div class="col-md-10 waves-ui-container">
@@ -417,7 +482,8 @@
                             {#                        audio representations (i.e., representations of your audio that cannot be turned back#}
                             {#                        into sound). These statistics and high-dimensional representations are used to power the#}
                             {#                        recommendation engine in WUT. WUT also uses information about how you use WUT (i.e.,#}
-                            {#                        what tools you use) to power these recommendations.#}
+                            {#                        what tools you use) to power these recommendations. WUT does never and will never sell or #}
+                            {#                        share any of your data with third parties.#}
                             The Web Unmixing Toolbox (WUT) is currently under active development. If you stumble upon
                             it, you should assume any audio that you upload to it can be used as training data for
                             future releases of WUT. That being said, future releases of WUT will have a very strict
