@@ -196,15 +196,15 @@ def get_separated_source():
 
     if separation_method == 'repet_sim':
         logger.info('Sending Repet!')
-        return send_file(os.path.join(base_path, 'repet_fg_est.mp3'), mimetype=mime_type)
+        return send_file(os.path.join(base_path, 'repet_fg.mp3'), mimetype=mime_type)
 
     elif separation_method == 'projet':
         logger.info('Sending Projet!')
-        return send_file(os.path.join(base_path, 'projet_src0.mp3'), mimetype=mime_type)
+        return send_file(os.path.join(base_path, 'proj_1.mp3'), mimetype=mime_type)
 
     elif separation_method == 'melodia':
         logger.info('Sending Melodia!')
-        return send_file(os.path.join(base_path, 'melodia_fg.mp3'), mimetype=mime_type)
+        return send_file(os.path.join(base_path, 'mel_fg.mp3'), mimetype=mime_type)
 
 
 @socketio.on('action', namespace=WUT_SOCKET_NAMESPACE)

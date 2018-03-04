@@ -107,7 +107,7 @@ class SDRPredictor(RecommendationEngineBase):
 
     def dummy_recommendations(self):
         dummy_file = '/Users/ethanmanilow/Documents/School/Research/audio_representations' \
-                     '/website/backend/output/sdr_predictions.npy'
+                     '/website/backend/output/sdr_predictions_new.npy'
 
         if self.predictions is None:
             self.predictions = self._prepare_data(np.load(dummy_file))

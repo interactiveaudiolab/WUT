@@ -15,6 +15,7 @@ class Track {
         this._envelopeData = envelopeData;
         this._envelopeDataHidden = false;
         this._envelopeDataColorMuted = false;
+        this._recommendationData = null;
 
         this._timeline = null;
         this._wavesUITrack = null;
@@ -201,6 +202,7 @@ class Track {
 
     setEnvelopeData(data) {
         this.clearAllEnvelopeData();
+        this._recommendationData = data;
         this._breakpointLayer.data = data;
         this._redrawLayer(this._breakpointLayer);
     }
@@ -222,7 +224,7 @@ class Track {
 
     hideEnvelopeData() {
         this._envelopeData = this._breakpointLayer.data;
-        this._breakpointLayer.data = [{x: 0.0, y: 0.05}, {x: this._buffer.duration, y: 0.05}];
+        this._breakpointLayer.data = [{x: 0.0, y: 0.8}, {x: this._buffer.duration, y: 0.8}];
         this._envelopeDataHidden = true;
 
         this._redrawLayer(this._breakpointLayer);
@@ -262,7 +264,9 @@ class Track {
         this._makeNewBreakpointLayer(envelopeColor); // create new layer with new color
         this._wavesUITrack.add(this._breakpointLayer); // add new layer
 
-        this.showEnvelopeData();
+        // this.showEnvelopeData();
+        this._breakpointLayer.data = this._envelopeData;
+        this._redrawLayer(this._breakpointLayer);
         this._timeline.tracks.updateLayers();
     }
 
