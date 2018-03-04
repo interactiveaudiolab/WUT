@@ -40,6 +40,9 @@ function initMultiTrack() {
 
 function addEnvelopeData(envelopeData, trackID) {
     trackList[trackID].setEnvelopeData(envelopeData);
+
+    // Highlight the recommendations button
+    $('#' + trackID).parent().parent().find('.toggle-reqs').addClass('btn-primary').removeClass('disabled');
 }
 
 function makeSlider() {
@@ -101,9 +104,17 @@ function stopAll() {
             .attr('title', 'Play audio');
 }
 
+$('.toggle-reqs').click(function () {
+    if (!$(this).hasClass('disabled')) {
+        var selectedID = $(this).parent().parent().siblings().children()[0].id;
+        trackList[selectedID].toggleEnvelopeData();
+        togglePrimaryBtn(this);
+    }
+});
+
 $('#req-stop').click(function () {
     // Make this look like an 'event'...
-    setTransport({value: {newValue: 0.0}})
+    setTransport({value: {newValue: 0.0}});
 });
 
 $('.mute-track').click(function () {
