@@ -214,9 +214,9 @@ footer p {
 	align-items: center;
 }
 
-.plots-spinner {
+/* .interaction > .plots-spinner .spinner-outer {
 	display: none
-}
+} */
 
 .results-waveform-cont > .results-spinner {
 	display: none

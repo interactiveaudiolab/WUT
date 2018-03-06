@@ -23,7 +23,6 @@ var greenFill = 'rgba(0, 255, 0, 0.35)';
 var colorDict = {'white': {'line': whiteLine, 'fill': whiteFill },
                  'green': {'line': greenLine, 'fill': greenFill } };
 
-
 var surferOptions = {
     container: '#mixture-waveform',
     waveColor: 'grey',
@@ -42,6 +41,7 @@ var mixture_waveform = WaveSurfer.create(surferOptions);
 surferOptions.container = '#results-waveform'
 var result_waveform = WaveSurfer.create(surferOptions);
 
+$('.plots-spinner').hide();
 
 pcaMatrixToHistogram = (pca) => {
     return pca.map(row => row.map(inds => Math.log(inds.length + 1)))
@@ -66,7 +66,7 @@ $(document).ready(function() {
   });
 
   socket.on('audio_upload_ok', function () {
-      $('#status').text('Audio uploaded to server.');
+    //   $('#status').text('Audio uploaded to server.');
   });
 
   socket.on('bad_file', function () {
@@ -153,6 +153,7 @@ $(window).resize(_.debounce(function(){
 //  ~~~~~~~~~~~~~ MODAL ~~~~~~~~~~~~~
 
 $('.upload').click(function(){
+    console.log('In upload')
     $('#open-modal').modal({
         backdrop: 'static',
         keyboard: false
@@ -168,7 +169,7 @@ function openFileDialog() {
     // $('#survey')[0].reset();
     // $('#extraction-goal').multiselect('deselectAll', false);
     audio.import_audio();
-    $('#status').text('Uploading audio to server...');
+    // $('#status').text('Uploading audio to server...');
 }
 
 //  ~~~~~~~~~~~~~ Apply Selections button ~~~~~~~~~~~~~
