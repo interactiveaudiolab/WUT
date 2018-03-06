@@ -111,9 +111,10 @@ class ScatterSpectrogram extends PlotlyHeatmap {
         this.plot = Plotly.newPlot(this.divID, data, this.plotLayout, this.plotOptions)
             .then(() => {
                 $('#apply-selections').removeClass('disabled');
+                // $('#pca').show();
+                // $('#spectrogram').show();
+                $('.plots').show()
                 $('.plots-spinner').hide();
-                $('#pca').show();
-                $('#spectrogram').show();
                 relayoutPlots();
             });
     }

@@ -1,4 +1,4 @@
-var audio = {waveforms: all_waveforms};
+var audio = { waveforms: all_waveforms };
 var mixture_audio_file = {file:null, url:null};
 var AUDIOFILES;
 var BUFFERS;
@@ -11,8 +11,13 @@ var DO_STFT_ON_CLIENT = false;
 
 
 audio.import_audio = function() {
-    mixture_waveform.pause();
-    result_waveform.pause();
+    for(let waveform of audio.waveforms) {
+        if(waveform && waveform.backend.buffer && waveform.isPlaying()) {
+            waveform.pause();
+        }
+        // mixture_waveform.pause();
+        // result_waveform.pause();
+    }
 
     $('input[type=file]').click();
 };
@@ -43,9 +48,10 @@ mixture_audio_file.upload_to_server = function (obj) {
             'file_type': file.type,
             'file_data': file };
         socket.compress(true).emit('audio_upload', {'audio_file': file_with_metadata});
+        $('.plots').hide();
         $('.plots-spinner').show();
-        $('#pca').hide();
-        $('#spectrogram').hide();
+        // $('#pca').hide();
+        // $('#spectrogram').hide();
     }
     else {
         socket.emit('audio_upload', {'audio_file': null});
