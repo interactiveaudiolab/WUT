@@ -58,19 +58,37 @@
         </div>
 
         <div class="waveform-cont">
-            <div id="results-header"><div>Separated Audio</div></div>
+            <div class="waveform-title"><div>Separated Audio</div></div>
 
             <div class="controls">
-                <button id="results-play" type="button" class="btn btn-primary disabled" title="Play audio">
+                <button id="masked-play" type="button" class="btn btn-primary disabled" title="Play audio">
                     <i class="fas fa-play"></i>
                 </button>
-                <button id="results-stop" type="button" class="btn btn-primary disabled">
+                <button id="masked-stop" type="button" class="btn btn-primary disabled">
                     <i class="fas fa-stop"></i>
                 </button>
             </div>
 
-            <div id="results-waveform" class="shared-waveform-spinner"></div>
-            <div id='results-spinner' class='spinner-outer shared-waveform-spinner'>
+            <div id="masked-waveform" class="shared-waveform-spinner"></div>
+            <div id='masked-spinner' class='spinner-outer shared-waveform-spinner'>
+                <div class='spinner'></div>
+            </div>
+        </div>
+
+        <div class="waveform-cont">
+            <div class="waveform-title"><div>Inverse Audio</div></div>
+
+            <div class="controls">
+                <button id="inverse-play" type="button" class="btn btn-primary disabled" title="Play audio">
+                    <i class="fas fa-play"></i>
+                </button>
+                <button id="inverse-stop" type="button" class="btn btn-primary disabled">
+                    <i class="fas fa-stop"></i>
+                </button>
+            </div>
+
+            <div id="inverse-waveform" class="shared-waveform-spinner"></div>
+            <div id='inverse-spinner' class='spinner-outer shared-waveform-spinner'>
                 <div class='spinner'></div>
             </div>
         </div>

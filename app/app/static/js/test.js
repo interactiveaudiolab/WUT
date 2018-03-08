@@ -2,7 +2,7 @@ var InteractiveAudioLab = namespace('InteractiveAudioLab');
 var WebUnmixingToolbox = namespace('InteractiveAudioLab.WebUnmixingToolbox');
 var Main = namespace('InteractiveAudioLab.WebUnmixingToolbox.Main');
 
-var all_waveforms = [mixture_waveform, result_waveform];
+var all_waveforms = [mixture_waveform, masked_waveform, inverse_waveform];
 var defaultZoomStart;
 var zoomStepSize = 5;
 var spectrogram = new ScatterSpectrogram('spectrogram', 150);
@@ -37,7 +37,8 @@ var surferOptions = {
 };
 
 var mixture_waveform = new Waveform('#mixture-waveform', '#mixture-play', '#mixture-stop')
-var result_waveform = new Waveform('#results-waveform', '#results-play', '#results-stop', '#results-spinner')
+var masked_waveform = new Waveform('#masked-waveform', '#masked-play', '#masked-stop', '#masked-spinner')
+var inverse_waveform = new Waveform('#inverse-waveform', '#inverse-play', '#inverse-stop', '#inverse-spinner')
 
 pcaMatrixToHistogram = (pca) => {
     return pca.map(row => row.map(inds => Math.log(inds.length + 1)))
@@ -87,7 +88,11 @@ $(document).ready(function() {
 
 
   socket.on('masked_audio', function(message) {
-    result_waveform.load('./get_masked_audio?val=' + Math.random().toString(36).substring(7))
+    masked_waveform.load('./get_masked_audio?val=' + Math.random().toString(36).substring(7))
+  });
+
+  socket.on('inverse_audio', function(message) {
+    inverse_waveform.load('./get_inverse_audio?val=' + Math.random().toString(36).substring(7))
   });
 });
 
@@ -118,7 +123,8 @@ $( window ).resize(function() {
 // importing Lodash for it
 $(window).resize(_.debounce(function(){
     mixture_waveform.resizeWaveform();
-    result_waveform.resizeWaveform();
+    masked_waveform.resizeWaveform();
+    inverse_waveform.resizeWaveform();
   }, 500));
 
 //  ~~~~~~~~~~~~~ MODAL ~~~~~~~~~~~~~
@@ -144,9 +150,10 @@ function openFileDialog() {
 $('#apply-selections').click(function(){
     // probably a better way to check this in the future
     if(!$('#apply-selections').hasClass('disabled')) {
-        result_waveform.setLoading(true)
+        masked_waveform.setLoading(true);
+        inverse_waveform.setLoading(true);
 
-        let mask = spectrogram.exportSelectionMask()
-        socket.emit('mask', { mask: mask })
+        let mask = spectrogram.exportSelectionMask();
+        socket.emit('mask', { mask: mask });
     }
 });

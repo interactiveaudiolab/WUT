@@ -262,25 +262,37 @@ def get_action(action_):
 
 
 @socketio.on('mask', namespace=WUT_SOCKET_NAMESPACE)
-def get_action(mask):
+def generate_mask(mask):
     logger.info('receiving mask')
 
     sess = awaken_session()
 
-    logger.info('about to apply mask')
+    logger.info('spinning up deep clusterer')
     dc = audio_processing.DeepClustering(sess.user_signal, sess.user_original_file_folder)
     dc.dc.run()
+    logger.info('done spinning up deep clusterer')
+
+    logger.info('generating mask')
     mask = dc.dc.generate_mask(0, mask['mask'])
-    result = dc.dc.apply_mask(mask)
+    logger.info('done generating mask')
+
+    masked = dc.dc.apply_mask(mask)
     logger.info('mask applied')
 
+    inverse = dc.dc.apply_mask(mask.invert_mask())
+    logger.info('inverse applied')
+
     sess.masked_path = os.path.join(sess.user_original_file_folder, 'masked.mp3')
-    result.write_audio_to_file(sess.masked_path)
-    logger.info('file written')
+    sess.inverse_path = os.path.join(sess.user_original_file_folder, 'inverse.mp3')
     logger.info(sess.masked_path)
+    logger.info(sess.inverse_path)
+    masked.write_audio_to_file(sess.masked_path)
+    inverse.write_audio_to_file(sess.inverse_path)
+    logger.info('files written')
 
     socketio.emit('masked_audio', {}, namespace=WUT_SOCKET_NAMESPACE)
-    logger.info('told client to load masked audio')
+    socketio.emit('inverse_audio', {}, namespace=WUT_SOCKET_NAMESPACE)
+    logger.info('told client to load masked & inverse audio')
 
     save_session(sess)
 
@@ -297,6 +309,20 @@ def get_masked_audio():
 
     file_mime_type = 'audio/mp3'
     return make_response(send_file(sess.masked_path, file_mime_type))
+
+@app_.route('/get_inverse_audio', methods=['GET'])
+def get_inverse_audio():
+    logger.info('sending inverse audio')
+
+    sess = awaken_session()
+
+    if not sess.initialized or not sess.stft_done:
+        _exception('sess not initialized or STFT not done!')
+
+    save_session(sess)
+
+    file_mime_type = 'audio/mp3'
+    return make_response(send_file(sess.inverse_path, file_mime_type))
 
 @app_.route('/action', methods=['POST'])
 def action():
