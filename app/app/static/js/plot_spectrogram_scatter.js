@@ -34,16 +34,20 @@ class ScatterSpectrogram extends PlotlyHeatmap {
                 title: "Time (s)",
                 type: "linear",
                 range: [0.0, 1.0],
-                showgrid: false
+                showgrid: false,
+                fixedrange: true
             },
             yaxis: {
                 title: "Frequency (Mel)",
                 type: "linear",
                 autorange: true,
                 range: [0.0, 150],
-                showgrid: false
+                showgrid: false,
+                fixedrange: true
             },
-            margin: this.plotMargins
+            margin: this.plotMargins,
+            showlegend: false,
+            hovermode: false
         };
 
         this.DOMObject.on('plotly_selected', (eventData, data) => {
@@ -111,10 +115,8 @@ class ScatterSpectrogram extends PlotlyHeatmap {
         this.plot = Plotly.newPlot(this.divID, data, this.plotLayout, this.plotOptions)
             .then(() => {
                 $('#apply-selections').removeClass('disabled');
-                // $('#pca').show();
-                // $('#spectrogram').show();
-                $('.plots').show()
-                $('.plots-spinner').hide();
+                $('.shared-plots-spinner').show()
+                $('#plots-spinner').hide();
                 relayoutPlots();
             });
     }

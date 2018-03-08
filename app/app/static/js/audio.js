@@ -15,8 +15,6 @@ audio.import_audio = function() {
         if(waveform && waveform.backend.buffer && waveform.isPlaying()) {
             waveform.pause();
         }
-        // mixture_waveform.pause();
-        // result_waveform.pause();
     }
 
     $('input[type=file]').click();
@@ -28,14 +26,31 @@ audio.playPause = function () {
 };
 
 $('#input_audio_file').change(function () {
+    // if user clicks upload but then cancels
+    if(this.files.length == 0) { return; }
+
     time_to_graph = new Date().getTime();
     mixture_audio_file.file = this.files[0];
     mixture_audio_file.url = URL.createObjectURL(mixture_audio_file.file);
 
     $("#filename").text(mixture_audio_file.file.name);
     $('#extraction-goal').multiselect('enable');
+
+    $('.shared-plots-spinner').hide();
+    $('#plots-spinner').show();
+    $('#plots-spinner').css('display', 'flex')
+    pca.clearSelections();
+
     mixture_waveform.load(mixture_audio_file.url);
     mixture_audio_file.upload_to_server(this);
+
+    // clear buffer so that on resize
+    // doesn't redraw cleared waveform
+    // wavesurfer doesn't offer a nice way
+    // of clearing all data
+    resetWaveform(result_waveform, '#results-play')
+    result_waveform.backend.buffer = undefined;
+    result_waveform.empty()
 });
 
 mixture_audio_file.upload_to_server = function (obj) {
@@ -48,10 +63,6 @@ mixture_audio_file.upload_to_server = function (obj) {
             'file_type': file.type,
             'file_data': file };
         socket.compress(true).emit('audio_upload', {'audio_file': file_with_metadata});
-        $('.plots').hide();
-        $('.plots-spinner').show();
-        // $('#pca').hide();
-        // $('#spectrogram').hide();
     }
     else {
         socket.emit('audio_upload', {'audio_file': null});

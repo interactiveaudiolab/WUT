@@ -28,12 +28,14 @@ class PCAHeatmap extends PlotlyHeatmap {
       xaxis: {
         title: 'Principal Component 1',
         type: 'linear',
-        range: [0, this.xBins]
+        range: [0, this.xBins],
+        fixedrange: true
       },
       yaxis: {
         title: 'Principal Component 2',
         type: 'linear',
-        range: [0, this.yBins]
+        range: [0, this.yBins],
+        fixedrange: true
       },
 
       // selectability
@@ -43,9 +45,19 @@ class PCAHeatmap extends PlotlyHeatmap {
       // cosmetics
       margin: this.plotMargins,
       autosize: true,
+      hovermode: false,
     }
 
-    this.drawMarkers = (range, color) => {
+    this.clearMarkers = function() {
+      spectrogram.clearMarkers();
+    }
+
+    this.clearSelections = function() {
+      this.resetSelections();
+      this.clearMarkers();
+    }
+
+    this.drawMarkers = function(range, color) {
       // parent draws box on this plot
       // need to draw scatter plot markers on spectrogram
       // console.log(`Beginning selections: ${currTime()}`)

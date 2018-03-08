@@ -79,6 +79,7 @@ class GeneralAudio(audio_processing_base.InteractiveAudioProcessingBase):
             all_power = np.sum(psd, axis=1)
             freq_i = np.argmax(np.abs(np.diff(np.log(all_power))))
             idx = freq_i + freq_bin + bump
+            idx = len(freqs) - 1 if idx >= len(freqs) else idx
 
             logger.info('Max freq = {} Hz'.format(freqs[idx]))
 

@@ -41,8 +41,6 @@ var mixture_waveform = WaveSurfer.create(surferOptions);
 surferOptions.container = '#results-waveform'
 var result_waveform = WaveSurfer.create(surferOptions);
 
-$('.plots-spinner').hide();
-
 pcaMatrixToHistogram = (pca) => {
     return pca.map(row => row.map(inds => Math.log(inds.length + 1)))
 }
@@ -63,10 +61,6 @@ $(document).ready(function() {
 
   socket.on('connect', function() {
       console.log('Socket connected.');
-  });
-
-  socket.on('audio_upload_ok', function () {
-    //   $('#status').text('Audio uploaded to server.');
   });
 
   socket.on('bad_file', function () {
@@ -129,7 +123,7 @@ mixture_waveform.on('ready', function () {
 result_waveform.on('ready', function() {
     $('#results-play').removeClass('disabled')
     $('#results-stop').removeClass('disabled')
-    $('.results-spinner').hide();
+    $('#results-spinner').hide();
     $('#results-waveform').show();
     result_waveform.empty();
     result_waveform.drawBuffer();
@@ -152,8 +146,7 @@ $(window).resize(_.debounce(function(){
 
 //  ~~~~~~~~~~~~~ MODAL ~~~~~~~~~~~~~
 
-$('.upload').click(function(){
-    console.log('In upload')
+$('#upload').click(function(){
     $('#open-modal').modal({
         backdrop: 'static',
         keyboard: false
@@ -185,10 +178,13 @@ $('#apply-selections').click(function(){
             $('#results-stop').addClass('disabled')
         }
 
-        $('.results-spinner').show();
-        $('.results-spinner').css('display', 'flex')
+        $('#results-spinner').show();
+        $('#results-spinner').css('display', 'flex')
+
         $('#results-waveform').hide();
 
+        resetWaveform(result_waveform, '#results-play')
+        result_waveform.backend.buffer = undefined;
         let mask = spectrogram.exportSelectionMask()
         socket.emit('mask', { mask: mask })
     }
