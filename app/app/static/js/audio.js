@@ -20,11 +20,6 @@ audio.import_audio = function() {
     $('input[type=file]').click();
 };
 
-audio.playPause = function () {
-    togglePlayPauseIcon();
-    mixture_waveform.playPause();
-};
-
 $('#input_audio_file').change(function () {
     // if user clicks upload but then cancels
     if(this.files.length == 0) { return; }
@@ -44,13 +39,7 @@ $('#input_audio_file').change(function () {
     mixture_waveform.load(mixture_audio_file.url);
     mixture_audio_file.upload_to_server(this);
 
-    // clear buffer so that on resize
-    // doesn't redraw cleared waveform
-    // wavesurfer doesn't offer a nice way
-    // of clearing all data
-    resetWaveform(result_waveform, '#results-play')
-    result_waveform.backend.buffer = undefined;
-    result_waveform.empty()
+    result_waveform.clearSurfer()
 });
 
 mixture_audio_file.upload_to_server = function (obj) {
@@ -68,59 +57,6 @@ mixture_audio_file.upload_to_server = function (obj) {
         socket.emit('audio_upload', {'audio_file': null});
     }
 };
-
-$('#results-play').click(function() {
-    if (!result_waveform.backend.buffer ||
-        $('#results-play').hasClass('disabled')) {
-        return;
-    }
-
-    togglePlayPauseIcon(this);
-    result_waveform.playPause();
-});
-
-$('#mixture-play').click(function() {
-    if (!mixture_waveform.backend.buffer ||
-        $('#mixture-play').hasClass('disabled')) {
-        return;
-    }
-
-    togglePlayPauseIcon(this);
-    mixture_waveform.playPause();
-});
-
-function togglePlayPauseIcon(obj) {
-    $(obj).find('svg').toggleClass('fa-pause fa-play');
-    $(obj).attr('title', `${$(obj).attr('title') === 'Play audio' ? 'Pause' : 'Play'} audio`)
-}
-
-function resetWaveform(waveform, waveformPlayId) {
-    if(!waveform.backend.buffer) { return; }
-
-    if(waveform.isPlaying()) {
-        waveform.stop()
-    }
-
-    $(`${waveformPlayId}`).attr('title', 'Play audio')
-    $(`${waveformPlayId} > svg`).attr('class', 'fas fa-play');
-    waveform.seekTo(0);
-}
-
-$('#mixture-stop').click(function() {
-    resetWaveform(mixture_waveform, '#mixture-play')
-});
-
-$('#results-stop').click(function() {
-    resetWaveform(result_waveform, '#results-play')
-});
-
-mixture_waveform.on('finish', function () {
-    resetWaveform(mixture_waveform, '#mixture-play')
-});
-
-result_waveform.on('finish', function () {
-    resetWaveform(result_waveform, '#results-play')
-});
 
 function get_audio_data () {
     if (bufferLoader === null || bufferLoader.bufferList === null

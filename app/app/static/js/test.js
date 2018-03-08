@@ -36,10 +36,8 @@ var surferOptions = {
     responsive: true
 };
 
-var mixture_waveform = WaveSurfer.create(surferOptions);
-
-surferOptions.container = '#results-waveform'
-var result_waveform = WaveSurfer.create(surferOptions);
+var mixture_waveform = new Waveform('#mixture-waveform', '#mixture-play', '#mixture-stop')
+var result_waveform = new Waveform('#results-waveform', '#results-play', '#results-stop', '#results-spinner')
 
 pcaMatrixToHistogram = (pca) => {
     return pca.map(row => row.map(inds => Math.log(inds.length + 1)))
@@ -84,7 +82,7 @@ $(document).ready(function() {
     spectrogram.dims = spec_dims;
 
     // currently hardcoding in max mel freq
-    getMelScatterSpectrogramAsImage(spectrogram, spec_dims[1], 150);
+    getMelScatterSpectrogramAsImage(spectrogram, spec_dims[1], 150, mixture_waveform.surfer.backend.getDuration());
   });
 
 
@@ -114,34 +112,13 @@ $( window ).resize(function() {
 
 // ~~~~~~~~~~~~~ WAVEFORM ~~~~~~~~~~~~~
 
-mixture_waveform.on('ready', function () {
-    // enable buttons on waveform load
-    $('#mixture-play').removeClass('disabled')
-    $('#mixture-stop').removeClass('disabled')
-});
-
-result_waveform.on('ready', function() {
-    $('#results-play').removeClass('disabled')
-    $('#results-stop').removeClass('disabled')
-    $('#results-spinner').hide();
-    $('#results-waveform').show();
-    result_waveform.empty();
-    result_waveform.drawBuffer();
-})
-
 // resize with half second lag
 // kills audio, could have it pick up where left off later
 // also may want to write own debouncing function instead of
 // importing Lodash for it
 $(window).resize(_.debounce(function(){
-    if(mixture_waveform && mixture_waveform.backend.buffer) {
-        mixture_waveform.empty();
-        mixture_waveform.drawBuffer();
-    }
-    if(result_waveform && result_waveform.backend.buffer) {
-        result_waveform.empty();
-        result_waveform.drawBuffer();
-    }
+    mixture_waveform.resizeWaveform();
+    result_waveform.resizeWaveform();
   }, 500));
 
 //  ~~~~~~~~~~~~~ MODAL ~~~~~~~~~~~~~
@@ -159,10 +136,7 @@ $('#open-button-modal').click(function () {
 });
 
 function openFileDialog() {
-    // $('#survey')[0].reset();
-    // $('#extraction-goal').multiselect('deselectAll', false);
     audio.import_audio();
-    // $('#status').text('Uploading audio to server...');
 }
 
 //  ~~~~~~~~~~~~~ Apply Selections button ~~~~~~~~~~~~~
@@ -170,21 +144,8 @@ function openFileDialog() {
 $('#apply-selections').click(function(){
     // probably a better way to check this in the future
     if(!$('#apply-selections').hasClass('disabled')) {
-        if(!$('#results-play').hasClass('disabled')) {
-            $('#results-play').addClass('disabled')
-        }
+        result_waveform.setLoading(true)
 
-        if(!$('#results-stop').hasClass('disabled')) {
-            $('#results-stop').addClass('disabled')
-        }
-
-        $('#results-spinner').show();
-        $('#results-spinner').css('display', 'flex')
-
-        $('#results-waveform').hide();
-
-        resetWaveform(result_waveform, '#results-play')
-        result_waveform.backend.buffer = undefined;
         let mask = spectrogram.exportSelectionMask()
         socket.emit('mask', { mask: mask })
     }
