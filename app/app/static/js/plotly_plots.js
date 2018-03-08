@@ -2,8 +2,8 @@
 
 
 class PlotlyHeatmap {
-
     constructor(divID, yMax) {
+        console.log(`Plotly heatmap this: ${this}`)
         var _this = this;
         this.divID = divID;
         this.DOMObject = $('#' + this.divID);
@@ -13,34 +13,6 @@ class PlotlyHeatmap {
         this._rawData = null;
         this.selections = [];
         this.selectionData = null;
-
-        this.DOMObject.on('plotly_selected', function(eventData) {
-            if (arguments.length > 1 && arguments[1].hasOwnProperty("range")) {
-                // click and drag event
-                let range = arguments[1].range;
-                let curSelection = new BoxSelection(_this.xTicks, _this.yTicks, range);
-                // console.log(range)
-                // console.log(`First Corner: (${range.x[0]}, ${range.y[0]})`)
-                // console.log(`Opposite Corner: (${range.x[1]}, ${range.y[1]})`)
-                _this.selections.push(curSelection);
-
-                updateSelectionStatus(_this.selections.length);
-                _this.updatePlotWithSelection();
-            }
-            else {
-                // just a click event
-                _this.resetSelections();
-            }
-
-        });
-
-        this.plotMargins = {   // TODO: put these values into Jinja variables
-            l: 95, // left
-            r: 95, // right
-            b: 50, // bottom
-            t: 10, // top
-            pad: 4
-        };
 
         this.plotOptions = {
             scrollZoom: false,
@@ -52,24 +24,20 @@ class PlotlyHeatmap {
         this.xMax = 1.0;
         this.xTicks = null;
         this.yTicks = null;
-
-        if (yMax === undefined) {
-            this.yMax = 1.0;
-        }
-        else {
-            this.yMax = yMax;
-        }
+        this.yMax = yMax === undefined ? 1.0 : yMax;
         this.logY = false;
 
         this.plotLayout = {
             xaxis: {
                 type: "linear",
                 range: [0.0, this.xMax],
+                showgrid: false
             },
             yaxis: {
                 type: "linear",
                 autorange: true,
-                range: [0.0, this.yMax]
+                range: [0.0, this.yMax],
+                showgrid: false
             },
 
             // Interaction
@@ -77,15 +45,31 @@ class PlotlyHeatmap {
             selectable: true,
             shapes: [],
 
-            // Cosmetics
-            // paper_bgcolor: '#E3F0FB', // 'rgb(0,0,0,0); doesn't work :(
-            // plot_bgcolor: '#E3F0FB',
-            // width: 500,
-            // height: 500,
-            margin: this.plotMargins,
+            margin: {
+                l: 95, // left
+                r: 95, // right
+                b: 50, // bottom
+                t: 10, // top
+                pad: 4
+            },
             autosize: true,
         };
 
+        this.DOMObject.on('plotly_selected', function(eventData) {
+            if (arguments.length > 1 && arguments[1].hasOwnProperty("range")) {
+                // click and drag event
+                let curSelection = new BoxSelection(_this.xTicks, _this.yTicks, arguments[1].range);
+                _this.selections.push(curSelection);
+
+                updateSelectionStatus(_this.selections.length);
+                _this.updatePlotWithSelection();
+            }
+            else {
+                // just a click event
+                _this.resetSelections();
+            }
+
+        });
     }
 
     get rawData() {
