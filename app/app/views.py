@@ -274,13 +274,13 @@ def get_action(mask):
     result = dc.dc.apply_mask(mask)
     logger.info('mask applied')
 
-    logger.info('about to write file')
     sess.masked_path = os.path.join(sess.user_original_file_folder, 'masked.mp3')
     result.write_audio_to_file(sess.masked_path)
-    logger.info('finished writing file')
+    logger.info('file written')
+    logger.info(sess.masked_path)
 
     socketio.emit('masked_audio', {}, namespace=WUT_SOCKET_NAMESPACE)
-    logger.info('told server to load masked audio')
+    logger.info('told client to load masked audio')
 
     save_session(sess)
 

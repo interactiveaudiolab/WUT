@@ -30,17 +30,18 @@ class SpectrogramHeatmap extends PlotlyHeatmap {
         this.audioLength = null;
         this.freqMax = null;
 
-        this.plotLayout.xaxis = {
-            title: "Time (s)",
-            type: "linear",
-            range: [0.0, 1.0],
-        };
-
-        this.plotLayout.yaxis = {
-            title: "Frequency (Hz)",
-            type: "linear",
-            autorange: true,
-            range: [0.0, 20000.0]
+        this.plotLayout = {
+            xaxis: {
+                title: "Time (s)",
+                type: "linear",
+                range: [0.0, 1.0],
+            },
+            yaxis: {
+                title: "Frequency (Hz)",
+                type: "linear",
+                autorange: true,
+                range: [0.0, 20000.0]
+            }
         };
 
         this.emptyHeatmap();

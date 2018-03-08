@@ -40,15 +40,10 @@
 {#        <script src="js/test.js"></script>#}
     <header>
         <div>Web Unmixing Toolbox</div>
-        <div id="status-cont">
-            <!-- <p>Status: </p>
-            <p id="status">Ready...</p> -->
-        </div>
     </header>
     <main>
-        <div class="mixture-waveform-cont">
-
-            <div class='upload'><i class="fas fa-upload fa-lg"></i></div>
+        <div class="waveform-cont">
+            <div id='upload'><i class="fas fa-upload fa-lg"></i></div>
 
             <div class="controls">
                 <button id="mixture-play" type="button" class="btn btn-primary disabled" title="Play audio">
@@ -62,42 +57,40 @@
             <div id="mixture-waveform"></div>
         </div>
 
+        <div class="waveform-cont">
+            <div id="results-header"><div>Separated Audio</div></div>
+
+            <div class="controls">
+                <button id="results-play" type="button" class="btn btn-primary disabled" title="Play audio">
+                    <i class="fas fa-play"></i>
+                </button>
+                <button id="results-stop" type="button" class="btn btn-primary disabled">
+                    <i class="fas fa-stop"></i>
+                </button>
+            </div>
+
+            <div id="results-waveform" class="shared-waveform-spinner"></div>
+            <div id='results-spinner' class='spinner-outer shared-waveform-spinner'>
+                <div class='spinner'></div>
+            </div>
+        </div>
+
         <div class="interaction">
-            <div class="plots">
+            <button id="apply-selections" type="button" class="btn btn-primary disabled">Apply Selections</button>
+
+            <div class="shared-plots-spinner">
                     <div class="outer">
                         <div class="aspect-ratio-box">
                             <div class="alignment" id="pca">
                             </div>
                         </div>
                     </div>
-
                     <div id="spectrogram" class="spectrogram-css"></div>
             </div>
-            <div class='spinner-outer plots-spinner plots'>
+            <div id='plots-spinner' class='spinner-outer shared-plots-spinner'>
                 <div class='spinner'></div>
             </div>
-
-            <button id="apply-selections" type="button" class="btn btn-primary disabled">Apply Selections</button>
-
-            <div id="results-header">Separated Audio</div>
-
-            <div class="results-waveform-cont">
-                <div class="controls">
-                    <button id="results-play" type="button" class="btn btn-primary disabled" title="Play audio">
-                        <i class="fas fa-play"></i>
-                    </button>
-                    <button id="results-stop" type="button" class="btn btn-primary disabled">
-                        <i class="fas fa-stop"></i>
-                    </button>
-                </div>
-
-                <div id="results-waveform" class="results-waveform-css"></div>
-                <div class='spinner-outer results-spinner results-waveform-css'>
-                    <div class='spinner-waveform'></div>
-                </div>
-            </div>
         </div>
-
     </main>
     <footer>
         <p>Ethan Manilow, Bryan Pardo, Darren Gergle </p>

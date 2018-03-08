@@ -18,9 +18,6 @@ body {
 header {
 	grid-area: header;
 
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
 	padding: 0 30px 0 20px;
 	border-bottom: whitesmoke 1px solid;
 }
@@ -31,18 +28,6 @@ header > :first-child {
 	font-family: Arial, Helvetica, sans-serif;
 }
 
-header #status-cont {
-	display: flex;
-	align-items: center;
-	flex: 0 0 25%;
-	height: 75px;
-	padding: 10px 5px 5px 5px;
-}
-
-header #status-cont > p {
-	margin: 0 5px 0 5px;
-}
-
 main {
 	grid-area: main;
 
@@ -51,15 +36,34 @@ main {
 	margin: 10px 0 0 0;
 }
 
-main > .mixture-waveform-cont {
+main > .waveform-cont {
 	flex: 0 0 100px;
-	display: flex;
-	align-items: stretch;
 	padding: 10px 20px;
 	margin: 0 30px 20px 30px;
+
+	display: flex;
+	align-items: stretch;
 }
 
-main > .mixture-waveform-cont > .controls {
+main > .waveform-cont > :first-child {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex: 0 0 80px;
+}
+
+main > .waveform-cont > #upload {
+	cursor: pointer;
+}
+
+main > .waveform-cont > #results-header {
+	font-size: 1em;
+	font-family: Arial, Helvetica, sans-serif;
+
+	text-align: center;
+}
+
+main > .waveform-cont > .controls {
 	flex: 0 0 40px;
 	margin: 0 20px 0 20px;
 
@@ -68,7 +72,7 @@ main > .mixture-waveform-cont > .controls {
 	justify-content: space-around;
 }
 
-main > .mixture-waveform-cont > .controls div {
+main > .waveform-cont > .controls div {
 	padding: 10px 0;
 
 	display: flex;
@@ -76,17 +80,8 @@ main > .mixture-waveform-cont > .controls div {
 	align-items: center;
 }
 
-main > .mixture-waveform-cont > #mixture-waveform {
+main > .waveform-cont > #mixture-waveform, .shared-waveform-spinner {
 	flex: 1;
-}
-
-main > .mixture-waveform-cont > .upload {
-	display: flex;
-
-	cursor: pointer;
-	justify-content: center;
-	align-items: center;
-	flex: 0 0 80px;
 }
 
 main > .interaction {
@@ -98,8 +93,7 @@ main > .interaction {
 	align-items: center;
 }
 
-main > .interaction > .plots {
-	/* flex: 1 0 auto; */
+.shared-plots-spinner {
 	align-self: stretch;
 	display: flex;
 	flex-flow: row wrap;
@@ -108,11 +102,11 @@ main > .interaction > .plots {
 	padding: 0 20px 10px 20px;
 }
 
-main > .interaction > .plots > .outer {
+main > .interaction > .shared-plots-spinner > .outer {
 	flex: 0 1 29%;
 }
 
-main > .interaction > .plots > .spectrogram-css {
+main > .interaction > .shared-plots-spinner > .spectrogram-css {
 	flex: 0 1 65%;
 
 	/*
@@ -125,43 +119,6 @@ main > .interaction > .plots > .spectrogram-css {
 	*/
 	min-width: 850px;
 }
-
-main > #results-header {
-	font-size: 3em;
-	flex: 0 0 auto;
-	font-family: Arial, Helvetica, sans-serif;
-}
-
-.interaction > .results-waveform-cont {
-	flex: 0 0 100px;
-	width: 100vw;
-	padding: 10px 20px;
-	display: flex;
-	align-items: stretch;
-	justify-content: space-around;
-}
-
-.interaction > .results-waveform-cont > .controls {
-	flex: 0 0 40px;
-	margin: 0 20px 0 20px;
-
-	display: flex;
-	flex-flow: column;
-	justify-content: space-around;
-}
-
-.interaction > .results-waveform-cont > .controls div {
-	padding: 10px 0;
-
-	display: flex;
-	justify-content: center;
-	align-items: center;
-}
-
-.interaction > .results-waveform-cont > .results-waveform-css {
-	flex: 1;
-}
-
 
 footer {
 	grid-area: footer;
@@ -208,28 +165,12 @@ footer p {
 
 /* initiallly hide all */
 
-.results-waveform-cont > .spinner-outer {
-	display: flex;
+.spinner-outer {
+	display: none;
+
+	/* in preparation for display changing to flex */
 	justify-content: center;
 	align-items: center;
-}
-
-/* .interaction > .plots-spinner .spinner-outer {
-	display: none
-} */
-
-.results-waveform-cont > .results-spinner {
-	display: none
-}
-
-.spinner-waveform {
-  background: lightblue;
-
-	width: 40px;
-  height: 40px;
-  border-radius: 100%;
-  -webkit-animation: sk-scaleout 1.0s infinite ease-in-out;
-  animation: sk-scaleout 1.0s infinite ease-in-out;
 }
 
 .spinner {
@@ -237,7 +178,6 @@ footer p {
 
 	width: 40px;
   height: 40px;
-	margin: 100px auto;
   border-radius: 100%;
   -webkit-animation: sk-scaleout 1.0s infinite ease-in-out;
   animation: sk-scaleout 1.0s infinite ease-in-out;
@@ -267,16 +207,16 @@ footer p {
 	min-width on spectrogram
 */
 @media screen and (max-width: 1280px) {
-	main > .interaction > .plots {
+	main > .interaction > .shared-plots-spinner {
 		align-content: center;
 	}
 
-	main > .interaction > .plots > .outer {
+	main > .interaction > .shared-plots-spinner > .outer {
 		flex: 0 1 36%;
 		margin-bottom: 50px;
 	}
 
-	main > .interaction > .plots > .spectrogram-css {
+	main > .interaction > .shared-plots-spinner > .spectrogram-css {
 		min-width: 0;
 		flex: 0 1 90%;
 	}
