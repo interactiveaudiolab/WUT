@@ -39,7 +39,8 @@ $('#input_audio_file').change(function () {
     mixture_waveform.load(mixture_audio_file.url);
     mixture_audio_file.upload_to_server(this);
 
-    result_waveform.clearSurfer()
+    masked_waveform.clearSurfer()
+    inverse_waveform.clearSurfer()
 });
 
 mixture_audio_file.upload_to_server = function (obj) {
