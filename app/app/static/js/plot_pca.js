@@ -7,7 +7,6 @@ class PCAHeatmap extends PlotlyHeatmap {
     super(divID);
 
     let newLayout = {
-      title: 'Visualization of Clustering Space',
       xaxis: {
         title: 'Principal Component 1'
       },

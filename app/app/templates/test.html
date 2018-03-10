@@ -97,13 +97,35 @@
             <button id="apply-selections" type="button" class="btn btn-primary disabled">Apply Selections</button>
 
             <div class="shared-plots-spinner">
+                <div id='pca-cont'>
+                    <div class='title-cont'>
+                        <div>Visualization of Clustering Space</div>
+
+                        <div class="hint--top hint--large hint--rounded" aria-label="A Principal Component Analysis representation of the k-dimensional clustering space. Click and drag on the plot to select bins and see the corresponding points on the spectrogram highlighted.">
+                            <i class="fa fa-info-circle"></i>
+                        </div>
+                    </div>
+
                     <div class="outer">
                         <div class="aspect-ratio-box">
                             <div class="alignment" id="pca">
                             </div>
                         </div>
                     </div>
-                    <div id="spectrogram" class="spectrogram-css"></div>
+                </div>
+
+
+                <div id='spectrogram-cont'>
+                    <div class='title-cont'>
+                        <div>Spectrogram</div>
+
+                        <div class="hint--top hint--large hint--rounded" aria-label="Visual representation of audio signal. Frequency in mels, time  in seconds. Each point on the x-axis is a single STFT taken over j samples. Intensity of a specific frequency over a specific window is given by color.">
+                            <i class="fa fa-info-circle"></i>
+                        </div>
+                    </div>
+
+                    <div id="spectrogram"></div>
+                </div>
             </div>
             <div id='plots-spinner' class='spinner-outer shared-plots-spinner'>
                 <div class='spinner'></div>
