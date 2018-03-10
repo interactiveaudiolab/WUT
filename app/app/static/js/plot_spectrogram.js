@@ -52,10 +52,10 @@ class SpectrogramHeatmap extends PlotlyHeatmap {
         this.freqMax = freqMax;
         this.logY = logY;
 
-        this.yTicks = arange(0.0, this.freqMax, this.rawData.length);
-        this.xTicks = arange(0.0, this.audioLength, this.rawData[0].length);
+        let xTicks = arange(0.0, this.audioLength, this.rawData[0].length);
+        let yTicks = arange(0.0, this.freqMax, this.rawData.length);
 
-        let data = [ { x: this.xTicks, y: this.yTicks, z: this.rawData, type: 'heatmapgl', showscale: false } ];
+        let data = [ { x: xTicks, y: yTicks, z: this.rawData, type: 'heatmapgl', showscale: false } ];
 
         let layout = this.plotLayout;
         layout.xaxis.range = [0.0, this.audioLength];

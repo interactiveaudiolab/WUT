@@ -93,6 +93,10 @@ main > .interaction {
 	align-items: center;
 }
 
+main > .interaction > #apply-selections {
+	margin: 10px 0 10px 0;
+}
+
 .shared-plots-spinner {
 	align-self: stretch;
 	display: flex;

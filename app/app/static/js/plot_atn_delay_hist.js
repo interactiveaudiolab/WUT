@@ -1,6 +1,4 @@
-
 function make_atn_delay_hist(results) {
-
     console.log('Got Attenuation/Delay histogram!');
     let status = $('#general-status');
     status.text('Drawing Attenuation/Delay Histogram...');
@@ -9,12 +7,9 @@ function make_atn_delay_hist(results) {
     enableTools(true, '.duet-tool');
 
     status.text('Ready...');
-
 }
 
-
 class AttenuationDelayHistogram extends PlotlyHeatmap {
-
     constructor(divID, yMax) {
         super(divID, yMax);
         this.min = -3.0;
@@ -25,7 +20,6 @@ class AttenuationDelayHistogram extends PlotlyHeatmap {
             type: "linear",
             range: [this.min, this.max],
         };
-
         this.plotLayout.yaxis = {
             title: "Inter-channel Delay Difference",
             type: "linear",
@@ -37,15 +31,12 @@ class AttenuationDelayHistogram extends PlotlyHeatmap {
     }
 
     drawHeatmap(audioLength, freqMax, logY) {
+        let xTicks = arange(this.min, this.max, this.rawData[0].length);
+        let yTicks = arange(this.min, this.max, this.rawData.length);
 
-        this.yTicks = arange(this.min, this.max, this.rawData.length);
-        this.xTicks = arange(this.min, this.max, this.rawData[0].length);
-
-        let data = [ { x: this.xTicks, y: this.yTicks, z: this.rawData, type: 'heatmap', showscale: false } ];
+        let data = [ { x: xTicks, y: yTicks, z: this.rawData, type: 'heatmap', showscale: false } ];
 
         this.plot = Plotly.newPlot(this.divID, data, this.plotLayout, this.plotOptions);
-        let update = { width: $(window).width() };
-        Plotly.relayout(this.divID, update);
-
+        Plotly.relayout(this.divID, { width: this.DOMObject.width() });
     }
 }

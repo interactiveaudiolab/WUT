@@ -4,34 +4,22 @@ function getMelScatterSpectrogramAsImage(heatmap, xaxisRange, freqMax, duration)
 }
 
 class ScatterSpectrogram extends PlotlyHeatmap {
-    constructor(divID, yMax) {
-        console.log(`Scatter spec this: ${this}`)
-        // currently hardcoding
-        // use yMax argument later
-        super(divID, 150);
-        this.audioLength = null;
-        this.freqMax = null;
-
+    constructor(divID) {
+        super(divID);
         let newLayout = {
+            title: 'Spectrogram',
             xaxis: {
-                title: "Time (s)",
-                fixedrange: true
+                title: "Time (s)"
             },
             yaxis: {
                 title: "Frequency (Mel)",
-                fixedrange: true
-            },
-            margin: {
-                l: 50,
-                r: 10,
-                b: 50,
-                t: 10
             },
             showlegend: false,
-            hovermode: false
         };
 
-        this.plotLayout = { ...this.plotLayout, ...newLayout }
+        // merges super and child layouts
+        // overlapping fields clobbered by child
+        _.merge(this.plotLayout, newLayout);
 
         // maybe somehow deal with duplicate markers?
         // for now just add them on top
@@ -46,8 +34,7 @@ class ScatterSpectrogram extends PlotlyHeatmap {
 
     clearMarkers() {
         this.markers = []
-        let data = [{x:[], y:[]}];
-        this.plot = Plotly.newPlot(this.divID, data, this.plotLayout, this.plotOptions);
+        this.plot = Plotly.newPlot(this.divID, [], this.plotLayout, this.plotOptions);
     }
 
     addMarkers(x_marks, y_marks, color) {
@@ -61,12 +48,12 @@ class ScatterSpectrogram extends PlotlyHeatmap {
             mode:'markers',
             marker: {
                 size: 2,
-                color: (color !== undefined ? color : '#ffffff'),
+                color: color !== undefined ? color : '#ffffff',
                 opacity: 1
             }
         }
 
-        Plotly.addTraces(spectrogram.divID, data);
+        Plotly.addTraces(this.divID, data);
     }
 
     // returns TF mel matrix with 1s in all TF bins
@@ -88,18 +75,18 @@ class ScatterSpectrogram extends PlotlyHeatmap {
         }
     }
 
-    drawImage(url, xaxisRange, freqMax, duration) {
-        let [locs, text] = generateTicks(xaxisRange, duration);
+    drawImage(url, numTimeBins, durationInSecs, maxFreq) {
+        let [locs, text] = generateTicks(numTimeBins, durationInSecs);
 
         let newLayout = {
             xaxis: {
-                range: [0.0, xaxisRange],
+                range: [0.0, numTimeBins],
                 tickmode: 'array',
                 tickvals: locs,
                 ticktext: text
             },
             yaxis: {
-                range: [0.0, freqMax],
+                range: [0.0, maxFreq],
                 autorange: false
             },
             images: [{
@@ -108,8 +95,8 @@ class ScatterSpectrogram extends PlotlyHeatmap {
                 "yref": "y",
                 "x": 0,
                 "y": 0,
-                "sizex": xaxisRange,
-                "sizey": freqMax,
+                "sizex": numTimeBins,
+                "sizey": maxFreq,
                 "xanchor": "left",
                 "yanchor": "bottom",
                 "sizing": "stretch",
@@ -117,10 +104,9 @@ class ScatterSpectrogram extends PlotlyHeatmap {
             }]
         }
 
-        this.plotLayout = { ...this.plotLayout, ...newLayout }
+        _.merge(this.plotLayout, newLayout);
 
-        let data = [{x:[], y:[]}];
-        this.plot = Plotly.newPlot(this.divID, data, this.plotLayout, this.plotOptions)
+        this.plot = Plotly.newPlot(this.divID, [], this.plotLayout, this.plotOptions)
             .then(() => this.setLoading(false));
     }
 }
