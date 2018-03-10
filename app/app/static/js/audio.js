@@ -24,7 +24,6 @@ $('#input_audio_file').change(function () {
     // if user clicks upload but then cancels
     if(this.files.length == 0) { return; }
 
-    time_to_graph = new Date().getTime();
     mixture_audio_file.file = this.files[0];
     mixture_audio_file.url = URL.createObjectURL(mixture_audio_file.file);
 

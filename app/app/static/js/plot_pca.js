@@ -1,101 +1,78 @@
-function make_pca(heatmap, rawData) {
-  let status = $('#status');
-  status.text('Drawing PCA');
-
-  heatmap.drawHeatmap(rawData)
-
-  status.text('Ready...');
+function make_pca(heatmap, rawData, numXBins, numYBins) {
+  heatmap.drawHeatmap(rawData, numXBins, numYBins);
 }
 
-
-
 class PCAHeatmap extends PlotlyHeatmap {
-  constructor(divID, yMax) {
-    super(divID, yMax);
+  constructor(divID) {
+    super(divID);
 
-    // might be better dynamic
-    this.xBins = yMax;
-    this.yBins = yMax;
-
-    this.plotMargins = {
-      l: 50,
-      r: 10,
-      b: 50,
-      t: 10
-    };
-
-    this.plotLayout = {
+    let newLayout = {
+      title: 'Visualization of Clustering Space',
       xaxis: {
-        title: 'Principal Component 1',
-        type: 'linear',
-        range: [0, this.xBins],
-        fixedrange: true
+        title: 'Principal Component 1'
       },
       yaxis: {
-        title: 'Principal Component 2',
-        type: 'linear',
-        range: [0, this.yBins],
-        fixedrange: true
+        title: 'Principal Component 2'
       },
+      showlegend: false,
+    };
 
-      // selectability
-      dragmode: 'select',
-      selectable: 'true',
+    // merges super and child layouts
+    // overlapping fields clobbered by child
+    _.merge(this.plotLayout, newLayout);
 
-      // cosmetics
-      margin: this.plotMargins,
-      autosize: true,
-      hovermode: false,
-    }
+    this.emptyHeatmap()
+  }
 
-    this.clearMarkers = function() {
-      spectrogram.clearMarkers();
-    }
+  // value in having this? makes it explicit?
+  addTFIndices(indices) { this.TFIndices = indices; }
 
-    this.clearSelections = function() {
-      this.resetSelections();
-      this.clearMarkers();
-    }
-
-    this.drawMarkers = function(range, color) {
-      // parent draws box on this plot
-      // need to draw scatter plot markers on spectrogram
-      // console.log(`Beginning selections: ${currTime()}`)
-
-      let [x_indices, y_indices] = this.getSelectionIndices(range);
-
-      let inner_dim = spec_dims[0];
-
-      let new_markers_x = [];
-      let new_markers_y = [];
-
-      for(let x of x_indices) {
-        for(let y of y_indices) {
-          if(0 <= x && x < pca_tf_indices.length
-          && 0 <= y && y < pca_tf_indices[0].length) {
-            // Come back to this
-            // Don't know why, but need to swap x and y here
-            let tf_indices = pca_tf_indices[y][x];
-
-            for(let index of tf_indices) {
-              let [spec_x, spec_y] = this.getCoordinateFromTFIndex(index, inner_dim);
-              new_markers_x.push(spec_x);
-              new_markers_y.push(spec_y);
-            }
-          }
-        }
-      }
-
-      spectrogram.addMarkers(new_markers_x, new_markers_y, color);
-    }
+  // could maybe be link generic plot
+  // would require more thinking about how generic plots
+  // might interact
+  addLinkedSpectrogram(linkedSpec) {
+    this.linkedSpec = linkedSpec;
 
     this.DOMObject.on('plotly_selected', (eventData, data) => {
       if(!data || !data.range) {
-        spectrogram.clearMarkers()
+        this.linkedSpec.clearMarkers()
       } else { this.drawMarkers(data.range) }
     });
+  }
 
-    this.emptyHeatmap()
+  clearSelections() {
+    this.resetSelections();
+    this.linkedSpec.clearMarkers();
+  }
+
+  drawMarkers(range, color) {
+    // parent draws box on this plot
+    // need to draw scatter plot markers on spectrogram
+    let [x_indices, y_indices] = this.getSelectionIndices(range);
+
+    let inner_dim = this.linkedSpec.dims[0];
+
+    let new_markers_x = [];
+    let new_markers_y = [];
+
+    for(let x of x_indices) {
+      for(let y of y_indices) {
+        if(0 <= x && x < this.TFIndices.length
+        && 0 <= y && y < this.TFIndices[0].length) {
+          // Come back to this
+          // Don't know why, but need to swap x and y here
+          let tf_indices = this.TFIndices[y][x];
+
+          for(let index of tf_indices) {
+            let [spec_x, spec_y] = this.getCoordinateFromTFIndex(index, inner_dim);
+            new_markers_x.push(spec_x);
+            new_markers_y.push(spec_y);
+          }
+        }
+      }
+    }
+
+    this.linkedSpec.addMarkers(new_markers_x, new_markers_y, color);
   }
 
   getCoordinateFromTFIndex(index, inner_dim) {
@@ -124,15 +101,23 @@ class PCAHeatmap extends PlotlyHeatmap {
     return [x_indices, y_indices];
   }
 
-  drawHeatmap(rawData) {
-    this.rawData = rawData;
+  drawHeatmap(rawData, numXBins, numYBins) {
+    let [xTicks, yTicks, xRange, yRange] = this._calculateAxes(numXBins, numYBins);
+    this.plotLayout.xaxis.range = xRange;
+    this.plotLayout.yaxis.range = yRange;
 
-    this.xTicks = arange(0, this.xBins);
-    this.yTicks = arange(0, this.yBins);
-    let data = [{ x: this.xTicks, y: this.yTicks,
-      z: this.rawData, type: 'heatmap', showscale: false}];
-    let layout = this.plotLayout;
+    let plotData = [{ x: xTicks, y: yTicks, z: rawData, type: 'heatmap', showscale: false}];
 
-    this.plot = Plotly.newPlot(this.divID, data, layout, this.plotOptions);
+    this.plot = Plotly.newPlot(this.divID, plotData, this.plotLayout, this.plotOptions);
+  }
+
+  _calculateAxes(numXBins, numYBins) {
+    let xRange = [this.plotLayout.xaxis.range[0], numXBins !== undefined ? numXBins : 1]
+    let yRange = [this.plotLayout.yaxis.range[0], numYBins !== undefined ? numYBins : 1]
+
+    let xTicks = arange(0, numXBins);
+    let yTicks = arange(0, numYBins);
+
+    return [xTicks, yTicks, xRange, yRange];
   }
 }

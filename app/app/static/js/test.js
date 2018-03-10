@@ -1,19 +1,8 @@
-var InteractiveAudioLab = namespace('InteractiveAudioLab');
-var WebUnmixingToolbox = namespace('InteractiveAudioLab.WebUnmixingToolbox');
-var Main = namespace('InteractiveAudioLab.WebUnmixingToolbox.Main');
-
 var all_waveforms = [mixture_waveform, masked_waveform, inverse_waveform];
-var defaultZoomStart;
-var zoomStepSize = 5;
-var spectrogram = new ScatterSpectrogram('spectrogram', 150);
-var pca = new PCAHeatmap('pca', 100);
-var pca_tf_indices;
-var spec_dims;
-var spectrogram_data;
-
+var spectrogram = new ScatterSpectrogram('spectrogram');
+var pca = new PCAHeatmap('pca');
+pca.addLinkedSpectrogram(spectrogram)
 var socket;
-var time_to_graph = 0.0;
-var spec_as_image = false;
 
 var whiteLine = 'rgba(245, 245, 245, 1)';
 var whiteFill = 'rgba(255, 255, 255, 0.35)';
@@ -67,25 +56,23 @@ $(document).ready(function() {
   });
 
   socket.on('pca', function(message) {
-    console.log(`Got PCA - ${currTime()}`);
-    pca_tf_indices = JSON.parse(message)
+    indices = JSON.parse(message)
 
-    let hist = pcaMatrixToHistogram(pca_tf_indices)
-    make_pca(pca, hist)
+    pca.addTFIndices(indices);
+    let hist = pcaMatrixToHistogram(pca.TFIndices)
+
+    // pca of size 100 x 100
+    make_pca(pca, hist, 100, 100)
   });
 
   socket.on('mel', function(message) {
-    console.log(`Got Spectrogram - ${currTime()}`);
-    spectrogram_data = JSON.parse(message);
-    spec_dims = [spectrogram_data.length, spectrogram_data[0].length]
-
-    spectrogram._rawData = spectrogram_data;
-    spectrogram.dims = spec_dims;
+    let spec_data = JSON.parse(message);
+    spectrogram.dims = [spec_data.length, spec_data[0].length]
 
     // currently hardcoding in max mel freq
-    getMelScatterSpectrogramAsImage(spectrogram, spec_dims[1], 150, mixture_waveform.surfer.backend.getDuration());
+    let durationInSecs = mixture_waveform.surfer.backend.getDuration();
+    getMelScatterSpectrogramAsImage(spectrogram, spectrogram.dims[1], durationInSecs, 150);
   });
-
 
   socket.on('masked_audio', function(message) {
     masked_waveform.load('./get_masked_audio?val=' + Math.random().toString(36).substring(7))
@@ -105,15 +92,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 function relayoutPlots() {
-    let update = { width: $('#pca').width() };
-    Plotly.relayout("pca", update);
-    update = { width: $('#spectrogram').width() };
-    Plotly.relayout("spectrogram", update);
+    Plotly.relayout(pca.divID, { width: pca.DOMObject.width() });
+    Plotly.relayout(spectrogram.divID, { width: spectrogram.DOMObject.width() });
 }
 
-$( window ).resize(function() {
-    relayoutPlots()
-});
+// RESIZE PLOTS ON WINDOW CHANGE
+$(window).resize(relayoutPlots);
 
 // ~~~~~~~~~~~~~ WAVEFORM ~~~~~~~~~~~~~
 
@@ -153,7 +137,6 @@ $('#apply-selections').click(function(){
         masked_waveform.setLoading(true);
         inverse_waveform.setLoading(true);
 
-        let mask = spectrogram.exportSelectionMask();
-        socket.emit('mask', { mask: mask });
+        socket.emit('mask', { mask: spectrogram.exportSelectionMask() });
     }
 });

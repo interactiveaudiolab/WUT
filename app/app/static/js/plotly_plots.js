@@ -1,13 +1,6 @@
-// import * as Plotly from "./vendor/plotly.js-master/src/core";
-
-
 class PlotlyHeatmap {
-    constructor(divID, yMax) {
-        console.log(`Plotly heatmap this: ${this}`)
-        var _this = this;
-        this.divID = divID;
-        this.DOMObject = $('#' + this.divID);
-        this.target = this.DOMObject.data('target-name');
+    constructor(divID) {
+        this.divID = divID[0] === '#' ? divID.slice(1) : divID;
 
         this.plot = null;
         this._rawData = null;
@@ -21,56 +14,50 @@ class PlotlyHeatmap {
             displayModeBar: false
         };
 
-        this.xMax = 1.0;
-        this.xTicks = null;
-        this.yTicks = null;
-        this.yMax = yMax === undefined ? 1.0 : yMax;
         this.logY = false;
 
         this.plotLayout = {
             xaxis: {
                 type: "linear",
-                range: [0.0, this.xMax],
-                showgrid: false
+                range: [0.0, 1.0],
+                showgrid: false,
+                fixedrange: true
             },
             yaxis: {
                 type: "linear",
-                autorange: true,
-                range: [0.0, this.yMax],
-                showgrid: false
+                range: [0.0, 1.0],
+                showgrid: false,
+                fixedrange: true,
+                autorange: true
+            },
+            margin: {
+                l: 50,
+                r: 10,
+                b: 50,
+                t: 30
             },
 
+            autosize: true,
+
             // Interaction
+            hovermode: false,
             dragmode: 'select',
             selectable: true,
             shapes: [],
-
-            margin: {
-                l: 95, // left
-                r: 95, // right
-                b: 50, // bottom
-                t: 10, // top
-                pad: 4
-            },
-            autosize: true,
         };
 
-        this.DOMObject.on('plotly_selected', function(eventData) {
-            if (arguments.length > 1 && arguments[1].hasOwnProperty("range")) {
+        this.DOMObject.on('plotly_selected', (eventData, data) => {
+            if (data && data.range) {
                 // click and drag event
-                let curSelection = new BoxSelection(_this.xTicks, _this.yTicks, arguments[1].range);
-                _this.selections.push(curSelection);
-
-                updateSelectionStatus(_this.selections.length);
-                _this.updatePlotWithSelection();
+                this.selections.push(new BoxSelection(data.range));
+                this.updatePlotWithSelection();
             }
-            else {
-                // just a click event
-                _this.resetSelections();
-            }
-
+            // just a click event
+            else { this.resetSelections(); }
         });
     }
+
+    get DOMObject() { return $(`#${this.divID}`) }
 
     get rawData() {
         return this._rawData;
@@ -85,15 +72,9 @@ class PlotlyHeatmap {
     }
 
     emptyHeatmap() {
-
-        let data = [ { x: [0.0, this.xMax], y: [0.0, this.yMax], z: [[0.0, 0.0], [0.0, 0.0]],
-            type: 'heatmap', showscale: false }];
-
         this.plotLayout.yaxis.autorange = false;
-
-        this.plot = Plotly.newPlot(this.divID, data, this.plotLayout, this.plotOptions);
-        // let update = { width: $(window).width() };
-        // Plotly.relayout(this.divID, update);
+        this.plot = Plotly.newPlot(this.divID, [], this.plotLayout, this.plotOptions);
+        // Plotly.relayout(this.divID, { width: this.DOMObject.width() });
     }
 
     static getColor() {
@@ -131,22 +112,10 @@ class PlotlyHeatmap {
         this.plotLayout.shapes = [];
 
         Plotly.restyle(this.divID, this.plotLayout);
-
-        $('#general-status').text('Ready...')
     }
 
-    drawHeatmap() {
-
-    }
-
+    drawHeatmap() {} // implement in inherited classes
 }
-
-// $( window ).resize(function() {
-//     let update = { width: $(window).width() };
-//     Plotly.relayout("spectrogram-heatmap", update);
-//     Plotly.relayout("result-spectrogram-heatmap", update);
-//     Plotly.relayout("ft2d-heatmap", update);
-// });
 
 let undoSelections = [];
 let redoSelections = [];
@@ -165,12 +134,7 @@ $('#clear-selection').click(function() {
         return;
     }
     resetSelections('spectrogram-heatmap');
-
 });
-
-function updateSelectionStatus(num_selections) {
-    $('#general-status').text(num_selections + ' selections');
-}
 
 $('#mixture-spec-delete-unselected').click(function () {
     if( $(this).hasClass("disabled") ) {
@@ -178,7 +142,6 @@ $('#mixture-spec-delete-unselected').click(function () {
     }
     postActionAndProcess('RemoveAllButSelections', mixture_spectrogram_heatmap.divID,
         mixture_spectrogram_heatmap.selections);
-
 });
 
 $('#selection-remove').click(function () {
@@ -195,7 +158,6 @@ $('#ft2d-delete-unselected').click(function () {
         return;
     }
     postActionAndProcess('RemoveAllButSelections', ft2d_heatmap.divID, ft2d_heatmap.selections);
-
 });
 
 $('#ft2d-delete-selected').click(function () {
@@ -211,7 +173,6 @@ $('#duet-delete-unselected').click(function () {
         return;
     }
     postActionAndProcess('RemoveAllButSelections', duet_histogram.divID, duet_histogram.selections);
-
 });
 
 $('#duet-delete-selected').click(function () {
