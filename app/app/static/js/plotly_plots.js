@@ -34,7 +34,7 @@ class PlotlyHeatmap {
                 l: 50,
                 r: 10,
                 b: 50,
-                t: 30
+                t: 10
             },
 
             autosize: true,

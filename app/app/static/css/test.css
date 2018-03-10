@@ -1,5 +1,6 @@
 @import url('https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.css');
 @import url('https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/hint.css/2.5.0/hint.css');
 
 body {
 	color: black;
@@ -94,7 +95,7 @@ main > .interaction {
 }
 
 main > .interaction > #apply-selections {
-	margin: 10px 0 10px 0;
+	margin: 10px 0 30px 0;
 }
 
 .shared-plots-spinner {
@@ -106,11 +107,26 @@ main > .interaction > #apply-selections {
 	padding: 0 20px 10px 20px;
 }
 
-main > .interaction > .shared-plots-spinner > .outer {
+main > .interaction > .shared-plots-spinner .title-cont {
+	display: flex;
+	justify-content: center;
+}
+
+main > .interaction > .shared-plots-spinner .title-cont > :first-child {
+	margin-right: 5px;
+}
+
+main > .interaction > .shared-plots-spinner > #pca-cont, #spectrogram-cont {
+	display: flex;
+	flex-flow: column;
+	justify-content: space-around;
+}
+
+main > .interaction > .shared-plots-spinner > #pca-cont {
 	flex: 0 1 29%;
 }
 
-main > .interaction > .shared-plots-spinner > .spectrogram-css {
+main > .interaction > .shared-plots-spinner > #spectrogram-cont {
 	flex: 0 1 65%;
 
 	/*
@@ -215,12 +231,12 @@ footer p {
 		align-content: center;
 	}
 
-	main > .interaction > .shared-plots-spinner > .outer {
-		flex: 0 1 36%;
+	main > .interaction > .shared-plots-spinner > #pca-cont {
+		flex: 0 1 45%;
 		margin-bottom: 50px;
 	}
 
-	main > .interaction > .shared-plots-spinner > .spectrogram-css {
+	main > .interaction > .shared-plots-spinner > #spectrogram-cont {
 		min-width: 0;
 		flex: 0 1 90%;
 	}

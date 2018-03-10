@@ -7,7 +7,6 @@ class ScatterSpectrogram extends PlotlyHeatmap {
     constructor(divID) {
         super(divID);
         let newLayout = {
-            title: 'Spectrogram',
             xaxis: {
                 title: "Time (s)"
             },
