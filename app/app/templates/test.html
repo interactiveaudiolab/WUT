@@ -38,12 +38,17 @@
 
 <script>window.jQuery || document.write('<script src="js/vendor/jquery-{{JQUERY_VERSION}}.min.js"><\/script>')</script>
 {#        <script src="js/test.js"></script>#}
+    <div class="avgrund-content-wrapper">
     <header>
         <div>Web Unmixing Toolbox</div>
     </header>
+
     <main>
         <div class="waveform-cont">
-            <div id='upload'><i class="fas fa-upload fa-lg"></i></div>
+            <!-- <div id='upload'><i class="fas fa-upload fa-lg"></i></div> -->
+            <button id="modal-open" type="button" class="btn btn-primary" title="Close Modal">
+                Begin
+            </button>
 
             <div class="controls">
                 <button id="mixture-play" type="button" class="btn btn-primary disabled" title="Play audio">
@@ -99,9 +104,9 @@
             <div class="shared-plots-spinner">
                 <div id='pca-cont'>
                     <div class='title-cont'>
-                        <div>Visualization of Clustering Space</div>
+                        <div>Visualization of Embedding Space</div>
 
-                        <div class="hint--top hint--large hint--rounded" aria-label="A Principal Component Analysis representation of the k-dimensional clustering space. Click and drag on the plot to select bins and see the corresponding points on the spectrogram highlighted.">
+                        <div class="hint--top hint--large hint--rounded" aria-label="Click and drag on the plot to select bins and see the corresponding points on the spectrogram highlighted. A Principal Component Analysis representation of the k-dimensional embedding space.">
                             <i class="fa fa-info-circle"></i>
                         </div>
                     </div>
@@ -143,20 +148,97 @@
     <form action="audio_upload" style="display: none;" method="post" role="form" enctype="multipart/form-data">
         <input id="input_audio_file" style="display: none" accept="audio/*" type="file" name="audio_file" />
     </form>
+    </div>
 
-<script type="text/javascript" src="{{ url_for('static', filename='js/utils.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/plotly_plots.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/plot_spectrogram.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/plot_spectrogram_scatter.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/plot_2dft.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/plot_atn_delay_hist.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/plot_pca.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/waveform.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/test.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/array.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/stft.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/csv_parse.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/audio.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/selection.js') }}"></script>
+    <!-- MODAL -->
+
+    <div id="modal" class="avgrund-modal">
+        <div id='modal-header'>
+          <button id="modal-back" type="button" class="btn btn-primary" title="Back">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+
+          <button id="modal-close" type="button" class="btn btn-primary" title="Close Modal">
+              <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <!-- modal first page -->
+        <div id='modal-separation'>
+            <div class='modal-info-text'>What would you like to separate?</div>
+
+            <div id='modal-separation-checks'>
+                <div class="form-check">
+                    <input class="form-check-input separation-check" type="checkbox" value="vocals" id="vocals">
+                    <label class="form-check-label" for="vocals">Vocals</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input separation-check" type="checkbox" value="accompaniment" id="accompaniment">
+                    <label class="form-check-label" for="accompaniment">Accompaniment</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input separation-check" type="checkbox" value="drums" id="drums">
+                    <label class="form-check-label" for="drums">Drums</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input separation-check" type="checkbox" value="bass" id="bass">
+                    <label class="form-check-label" for="bass">Bass</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input separation-check" type="checkbox" value="other" id="other">
+                    <label class="form-check-label" for="other">Other</label>
+                </div>
+            </div>
+
+            <button id="modal-next" type="button" class="btn btn-primary disabled" title="Modal Next">
+                Next
+            </button>
+        </div>
+
+        <!-- modal second page -->
+        <div id='modal-audio'>
+            <div class='modal-info-text'>Upload or Record Audio</div>
+
+            <div id='modal-upload-or-record'>
+                <div id='modal-upload'><i class="fas fa-upload fa-2x"></i></div>
+                <!-- HIDDEN -->
+                <!-- there's probably a better way to do this -->
+                <form id="modal-audio-upload-form" method="post" role="form" enctype="multipart/form-data">
+                    <input id="modal-upload-audio-input" accept="audio/*" type="file" />
+                </form>
+
+                <div>or</div>
+
+                <div id="modal-record" class='modal-record-off'></div>
+            </div>
+
+            <div id='modal-results'>
+                <audio id="modal-final-audio" controls></audio>
+            </div>
+
+            <button id="modal-begin" type="button" class="btn btn-primary disabled" title="Modal Begin">
+                Begin
+            </button>
+        </div>
+    </div>
+
+    <!-- modal cover behind -->
+    <div class="avgrund-cover"></div>
+
+
+    <script type="text/javascript" src="{{ url_for('static', filename='js/utils.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/plotly_plots.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/plot_spectrogram.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/plot_spectrogram_scatter.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/plot_2dft.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/plot_atn_delay_hist.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/plot_pca.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/waveform.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/test.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/array.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/stft.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/csv_parse.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/audio.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/selection.js') }}"></script>
 </body>
 </html>
