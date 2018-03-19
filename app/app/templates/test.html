@@ -76,7 +76,13 @@
 
             <div id="masked-waveform" class="shared-waveform-spinner"></div>
             <div id='masked-spinner' class='spinner-outer shared-waveform-spinner'>
-                <div class='spinner'></div>
+                <div class="spinner">
+                    <div class="rect1"></div>
+                    <div class="rect2"></div>
+                    <div class="rect3"></div>
+                    <div class="rect4"></div>
+                    <div class="rect5"></div>
+                </div>
             </div>
         </div>
 
@@ -94,7 +100,13 @@
 
             <div id="inverse-waveform" class="shared-waveform-spinner"></div>
             <div id='inverse-spinner' class='spinner-outer shared-waveform-spinner'>
-                <div class='spinner'></div>
+                <div class="spinner">
+                    <div class="rect1"></div>
+                    <div class="rect2"></div>
+                    <div class="rect3"></div>
+                    <div class="rect4"></div>
+                    <div class="rect5"></div>
+                </div>
             </div>
         </div>
 
@@ -133,7 +145,13 @@
                 </div>
             </div>
             <div id='plots-spinner' class='spinner-outer shared-plots-spinner'>
-                <div class='spinner'></div>
+                <div class="spinner">
+                    <div class="rect1"></div>
+                    <div class="rect2"></div>
+                    <div class="rect3"></div>
+                    <div class="rect4"></div>
+                    <div class="rect5"></div>
+                </div>
             </div>
         </div>
     </main>
@@ -145,9 +163,9 @@
         <p>Northwestern University</p>
     </footer>
 
-    <form action="audio_upload" style="display: none;" method="post" role="form" enctype="multipart/form-data">
+    <!-- <form action="audio_upload" style="display: none;" method="post" role="form" enctype="multipart/form-data">
         <input id="input_audio_file" style="display: none" accept="audio/*" type="file" name="audio_file" />
-    </form>
+    </form> -->
     </div>
 
     <!-- MODAL -->
@@ -183,6 +201,10 @@
                 <div class="form-check">
                     <input class="form-check-input separation-check" type="checkbox" value="bass" id="bass">
                     <label class="form-check-label" for="bass">Bass</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input separation-check" type="checkbox" value="speech" id="speech">
+                    <label class="form-check-label" for="speech">Speech</label>
                 </div>
                 <div class="form-check">
                     <input class="form-check-input separation-check" type="checkbox" value="other" id="other">
