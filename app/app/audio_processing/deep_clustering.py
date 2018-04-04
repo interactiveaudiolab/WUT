@@ -27,7 +27,10 @@ class DeepClustering(audio_processing_base.InteractiveAudioProcessingBase):
     """
 
     def __init__(self, mixture_signal, storage_path,
-        model_path='/Users/nathan/Downloads/_winter/research/code/deep_clustering_vocal_44k_long.model'):
+        model_path='/Users/nathan/Downloads/_winter/research/code/deep_clustering_vocal_44k_long.model',
+        hidden_size = 500,
+        resample_rate = 44100,
+        num_layers = 4):
 
         super(DeepClustering, self).__init__(mixture_signal, storage_path)
 
@@ -36,6 +39,9 @@ class DeepClustering(audio_processing_base.InteractiveAudioProcessingBase):
               model_path = model_path,
               num_sources = 2,
               cutoff = -80,
+              hidden_size=hidden_size,
+              num_layers=num_layers,
+              resample_rate=resample_rate,
             # how to handle stero?
               do_mono = True)
 
