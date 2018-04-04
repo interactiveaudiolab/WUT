@@ -35,7 +35,6 @@ $('#input_audio_file').change(function () {
     $('#plots-spinner').css('display', 'flex')
     pca.clearSelections();
 
-    mixture_waveform.load(mixture_audio_file.url);
     mixture_audio_file.upload_to_server(this);
 
     masked_waveform.clearSurfer()
