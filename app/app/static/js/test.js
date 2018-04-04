@@ -113,21 +113,21 @@ $(window).resize(_.debounce(function(){
 
 //  ~~~~~~~~~~~~~ MODAL ~~~~~~~~~~~~~
 
-$('#upload').click(function(){
-    $('#open-modal').modal({
-        backdrop: 'static',
-        keyboard: false
-    });
-    openFileDialog();
-});
+// $('#upload').click(function(){
+//     $('#open-modal').modal({
+//         backdrop: 'static',
+//         keyboard: false
+//     });
+//     openFileDialog();
+// });
 
-$('#open-button-modal').click(function () {
-    openFileDialog();
-});
+// $('#open-button-modal').click(function () {
+//     openFileDialog();
+// });
 
-function openFileDialog() {
-    audio.import_audio();
-}
+// function openFileDialog() {
+//     audio.import_audio();
+// }
 
 //  ~~~~~~~~~~~~~ Apply Selections button ~~~~~~~~~~~~~
 
@@ -174,8 +174,10 @@ class Avgrund {
       this.container.classList.remove(this.active);
 
       // cleaner removes unwanted state on modal (such as checked checkboxes)
-      if(!dontClean && this.onHideCleaner) { this.onHideCleaner() }
+      if(!dontClean) { this.clean() }
     }
+
+    clean() { if(this.onHideCleaner) this.onHideCleaner() }
 
     // add function to perform cleanup (such as unchecking checkboxes) on hide
     addOnHideCleaner(cleaner) { this.onHideCleaner = cleaner; }
@@ -277,13 +279,50 @@ document.getElementById('modal-begin').addEventListener('click', event => {
 
         // send checkboxes + audio to server
         // leave to specific implementations
-        }
+        let checks = getCheckedValues('separation-check');
+        upload_to_server(audio_file, checks);
+
+        // UI
+        $('.shared-plots-spinner').hide();
+        $('#plots-spinner').show();
+        $('#plots-spinner').css('display', 'flex')
+        pca.clearSelections();
+        mixture_waveform.load(URL.createObjectURL(audio_file));
+        masked_waveform.clearSurfer()
+        inverse_waveform.clearSurfer()
+
+        // clean once data no longer needed
+        grund.clean()
+    }
 })
+
+function upload_to_server(file, checks) {
+    file_with_metadata = {
+        'file_name': file.name,
+        'file_size': file.size,
+        'file_type': file.type,
+        'file_data': file
+    };
+
+    socket.compress(true).emit('audio_upload', {
+        'audio_file': file_with_metadata,
+        'selections': checks
+    });
+};
+
 
 // on file upload
 
 document.getElementById('modal-upload').addEventListener('click',
-    () => document.getElementById('modal-upload-audio-input').click())
+    () => {
+        for(let waveform of audio.waveforms) {
+            if(waveform && waveform.backend.buffer && waveform.isPlaying()) {
+                waveform.pause();
+            }
+        }
+
+        document.getElementById('modal-upload-audio-input').click()
+    });
 
 document.getElementById('modal-upload-audio-input').
     addEventListener('change',function () {
@@ -294,11 +333,14 @@ document.getElementById('modal-upload-audio-input').
         document.getElementById('modal-final-audio').src = url;
         document.getElementById('modal-results').setAttribute('style', 'visibility: visible;')
         document.getElementById('modal-begin').classList.remove('disabled');
+        audio_file = this.files[0];
 });
 
 // on recording finish
 // must be a way to avoid global recorder here (maybe context too?)
 var recorder;
+var blob;
+var audio_file;
 var context = new AudioContext();
 
 document.getElementById('modal-record').addEventListener('click', function(event){
@@ -312,24 +354,24 @@ document.getElementById('modal-record').addEventListener('click', function(event
     if(event.currentTarget.classList.contains('modal-record-on')) {
         navigator.mediaDevices.getUserMedia({ audio: true, video: false })
         .then((stream) => {
-        recorder = new MediaRecorder(stream);
-        document.getElementById('modal-begin').classList.add('disabled');
+            recorder = new MediaRecorder(stream);
+            document.getElementById('modal-begin').classList.add('disabled');
 
-        recorder.ondataavailable = e => {
-            // triggered when stop action fired on recorder
-            // after user clicks on record button again
-            if(recorder.state == 'inactive') {
-            document.getElementById('modal-final-audio').src = URL.createObjectURL(e.data);
-            document.getElementById('modal-results').setAttribute('style', 'visibility: visible;');
-            document.getElementById('modal-begin').classList.remove('disabled');
+            recorder.ondataavailable = e => {
+                // triggered when stop action fired on recorder
+                // after user clicks on record button again
+                if(recorder.state == 'inactive') {
+                    document.getElementById('modal-final-audio').src = URL.createObjectURL(e.data);
+                    document.getElementById('modal-results').setAttribute('style', 'visibility: visible;');
 
-            // back-end only
-            mediaRecorderBlobToWavFile(e.data)
-            }
-        };
+                    // back-end only
+                    blob = e.data;
+                    mediaRecorderBlobToWavFile(blob)
+                }
+            };
 
-        recorder.start();
-        })
+            recorder.start();
+    })
     } else { if(recorder) { recorder.stop(); } }
 });
 
@@ -343,72 +385,17 @@ function mediaRecorderBlobToWavFile(blob) {
         context.decodeAudioData(this.result).then(
         // then convert to wav blob
         buffer => {
-        let wav = bufferToWave(buffer, 0.0, buffer.length)
-        let file = new File([wav], 'test.mp3', {
-            type: 'audio/wav', lastModified: Date.now()
-        });
+            let wav = bufferToWave(buffer, 0.0, buffer.length)
+            let file = new File([wav], 'test.wav', {
+                type: 'audio/wav', lastModified: Date.now()
+            });
 
-        // solely back-end no need to present to user
-        // log for development purposes
-        console.log(file)
+            // solely back-end no need to present to user
+            // log for development purposes
+            audio_file = file;
+            document.getElementById('modal-begin').classList.remove('disabled');
         }
     )};
 
     fileReader.readAsArrayBuffer(blob);
-}
-
-// FROM: https://stackoverflow.com/a/30045041
-// Convert a audio-buffer segment to a Blob using WAVE representation
-// come back to this, there must be a cleaner way
-function bufferToWave(abuffer, offset, len) {
-    var numOfChan = abuffer.numberOfChannels,
-        length = len * numOfChan * 2 + 44,
-        buffer = new ArrayBuffer(length),
-        view = new DataView(buffer),
-        channels = [], i, sample,
-        pos = 0;
-
-    // write WAVE header
-    setUint32(0x46464952);                         // "RIFF"
-    setUint32(length - 8);                         // file length - 8
-    setUint32(0x45564157);                         // "WAVE"
-
-    setUint32(0x20746d66);                         // "fmt " chunk
-    setUint32(16);                                 // length = 16
-    setUint16(1);                                  // PCM (uncompressed)
-    setUint16(numOfChan);
-    setUint32(abuffer.sampleRate);
-    setUint32(abuffer.sampleRate * 2 * numOfChan); // avg. bytes/sec
-    setUint16(numOfChan * 2);                      // block-align
-    setUint16(16);                                 // 16-bit (hardcoded in this demo)
-
-    setUint32(0x61746164);                         // "data" - chunk
-    setUint32(length - pos - 4);                   // chunk length
-
-    // write interleaved data
-    for(i = 0; i < abuffer.numberOfChannels; i++)
-        channels.push(abuffer.getChannelData(i));
-
-    while(pos < length) {
-        for(i = 0; i < numOfChan; i++) {             // interleave channels
-        sample = Math.max(-1, Math.min(1, channels[i][offset])); // clamp
-        sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767)|0; // scale to 16-bit signed int
-        view.setInt16(pos, sample, true);          // update data chunk
-        pos += 2;
-        }
-        offset++                                     // next source sample
-    }
-
-    // create Blob
-    return new Blob([buffer], {type: "audio/wav"});
-
-    function setUint16(data) {
-        view.setUint16(pos, data, true);
-        pos += 2;
-    }
-
-    function setUint32(data) {
-        view.setUint32(pos, data, true);
-        pos += 4;
-    }
 }
