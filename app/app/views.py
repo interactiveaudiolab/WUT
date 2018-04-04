@@ -104,7 +104,15 @@ def initialize(audio_file_data):
     # Initialize other representations
 
     # Compute and send Deep Clustering PCA visualization and mel spectrogram
-    dc = audio_processing.DeepClustering(separation_sess.user_signal, separation_sess.user_original_file_folder)
+    separation_sess.checks = audio_file_data['selections']
+    isSpeech = 'speech' in separation_sess.checks
+
+    path = '/Users/nathan/Downloads/_winter/research/code/deep_clustering_speech.model' if isSpeech else '/Users/nathan/Downloads/_winter/research/code/deep_clustering_vocal_44k_long.model'
+    hidden_size = 300 if isSpeech else 500
+    resample_rate = 16000 if isSpeech else 44100
+    num_layers = 2 if isSpeech else 4
+
+    dc = audio_processing.DeepClustering(separation_sess.user_signal, separation_sess.user_original_file_folder, path, hidden_size, resample_rate, num_layers)
     logger.info('Computing and sending clusters for {}'.format(filename))
 
     # currently kind of ugly hack for mel spectrogram image
@@ -268,7 +276,23 @@ def generate_mask(mask):
     sess = awaken_session()
 
     logger.info('spinning up deep clusterer')
-    dc = audio_processing.DeepClustering(sess.user_signal, sess.user_original_file_folder)
+
+    logger.info('checks:')
+    logger.info(sess.checks)
+    isSpeech = 'speech' in sess.checks
+
+    path = '/Users/nathan/Downloads/_winter/research/code/deep_clustering_speech.model' if isSpeech else '/Users/nathan/Downloads/_winter/research/code/deep_clustering_vocal_44k_long.model'
+    hidden_size = 300 if isSpeech else 500
+    resample_rate = 16000 if isSpeech else 44100
+    num_layers = 2 if isSpeech else 4
+
+    logger.info(path)
+    logger.info(hidden_size)
+    logger.info(resample_rate)
+    logger.info(num_layers)
+
+    dc = audio_processing.DeepClustering(sess.user_signal, sess.user_original_file_folder, path, hidden_size, resample_rate, num_layers)
+
     dc.dc.run()
     logger.info('done spinning up deep clusterer')
 
