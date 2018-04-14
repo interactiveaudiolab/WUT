@@ -170,7 +170,6 @@
             <ul class="nav nav-tabs" id="mainTabs">
                 <li class="active"><a href="#spectrogram-tab">Spectrogram</a></li>
                 <li><a href="#duet-tab">Attenuation/Delay Histogram</a></li>
-{#                <li id="results-pill"><a href="#results-tab">Results</a></li>#}
                 <li><a href="#reqs-tab">Recommendations</a></li>
             </ul>
         </div>
@@ -194,20 +193,9 @@
 
                     <div class="col-md-6">
                         <div class="btn-group-sm">
-{#                            <button id="selection-louder" class="btn btn-default spec-tool disabled" title="Make selection louder">#}
-{#                                <i class="fa fa-volume-off fa-lg" aria-hidden="true"></i>#}
-{#                                <i class="fa fa-plus" aria-hidden="true"></i>#}
-{#                            </button>#}
-{#                            <button id="selection-softer" class="btn btn-default spec-tool disabled" title="Make selection softer">#}
-{#                                <i class="fa fa-volume-off fa-lg" aria-hidden="true"></i>#}
-{#                                <i class="fa fa-minus" aria-hidden="true"></i>#}
-{#                            </button>#}
                             <button id="selection-remove" class="btn btn-default spec-tool disabled" title="Delete selected regions">
                                 <i class="fa fa-eraser" aria-hidden="true"></i>
                             </button>
-{#                            <button id="selection-inverse" class="btn btn-default spec-tool disabled" title="Invert selection">#}
-{#                                Invert Selection#}
-{#                            </button>#}
                         </div>
                     </div>
 
@@ -387,88 +375,13 @@
                             />
                         </div>
                     </div>
-                    <div class="row track-and-controls">
-                        <div class="col-md-1 track-controls">
-                            <h5>Repet</h5>
-                            <div class="btn-group btn-group-xs">
-                                <button id="repet-solo" class="btn solo-track" title="Solo">
-                                    S
-                                </button>
-                                <button id="repet-mute" class="btn mute-track" title="Mute">
-                                    M
-                                </button>
-                                <button id="repet-req" class="btn disabled toggle-reqs" title="Toggle Recommendations">
-                                    Recs
-                                </button>
-                            </div>
-                            <div class="db-label max-db-label">
-                                0dB
-                            </div>
-                            <div class="db-label min-db-label">
-                                -80dB
-                            </div>
-                        </div>
-                        <div class="col-md-10 waves-ui-container">
-                            <div class="waves-ui-track" id="repet_sim" data-color="SkyBlue"></div>
-                        </div>
-                    </div>
-                    <div class="row track-and-controls">
-                        <div class="col-md-1 track-controls">
-                            <h5>Melodia</h5>
-                            <div class="btn-group btn-group-xs">
-                                <button id="melodia-solo" class="btn solo-track" title="Solo">
-                                    S
-                                </button>
-                                <button id="melodia-mute" class="btn mute-track" title="Mute">
-                                    M
-                                </button>
-                                <button id="melodia-req" class="btn disabled toggle-reqs" title="Toggle Recommendations">
-                                    Recs
-                                </button>
-                            </div>
-                            <div class="db-label max-db-label">
-                                0dB
-                            </div>
-                            <div class="db-label min-db-label">
-                                -80dB
-                            </div>
-                        </div>
-                        <div class="col-md-10 waves-ui-container">
-                            <div class="waves-ui-track" id="melodia" data-color="PaleVioletRed"></div>
-                        </div>
-                    </div>
-                    <div class="row track-and-controls">
-                        <div class="col-md-1 track-controls">
-                            <h5>Projet</h5>
-                            <div class="btn-group btn-group-xs">
-                                <button id="projet-solo" class="btn solo-track" title="Solo">
-                                    S
-                                </button>
-                                <button id="projet-mute" class="btn mute-track" title="Mute">
-                                    M
-                                </button>
-                                <button id="projet-req" class="btn disabled toggle-reqs" title="Toggle Recommendations">
-                                    Recs
-                                </button>
-                            </div>
-                            <div class="db-label max-db-label">
-                                0dB
-                            </div>
-                            <div class="db-label min-db-label">
-                                -80dB
-                            </div>
-                        </div>
-                        <div class="col-md-10 waves-ui-container">
-                            <div class="waves-ui-track" id="projet" data-color="MediumSeaGreen"></div>
-                        </div>
-                    </div>
                 </div>
 
             </div>
         </div>
 
         <div id="footer">
-            <p>Ethan Manilow, Bryan Pardo, Darren Gergle
+            <p>Ethan Manilow, Nathan Shelly, Bryan Pardo, Darren Gergle
                 <br />This work supported in part by NSF Award
                 <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=1420971&HistoricalAwards=false">1420971</a>
                 <br />Northwestern University</p>

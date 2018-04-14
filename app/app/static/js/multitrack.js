@@ -3,22 +3,23 @@ var trackList = {};
 
 function emptyMultiTrack() {
 
-    makeSlider();
-
     let demoParams = ['repet_sim', 'projet', 'melodia'];
+    let names = ['RepetSim', 'Projet', 'Melodia'];
+    let colors = ['SkyBlue', 'PaleVioletRed', 'MediumSeaGreen'];
     let context = new (window.AudioContext || window.webkitAudioContext)();
 
     let sr = context.sampleRate;
     let dur = mixture_waveform.backend.getDuration();
 
-    $.each(demoParams, function(_, algName) {
+    $.each(demoParams, function(i, algName) {
         let buffer = context.createBuffer(2, sr * dur, sr);
+        newTrackHTML('track-container', algName, names[i], colors[i]);
         let trackID = $('#' + algName)[0];
         let initialEnvelope = [{x: 0, y: 0.8}, {x: buffer.duration, y: 0.8}];
         trackList[algName] = new Track(buffer, context, trackID,
             initialEnvelope, $('#transport-slider'), audioEnded, demoParams.length);
     });
-
+    makeSlider();
 }
 
 
@@ -36,6 +37,63 @@ function initMultiTrack() {
         });
     });
 
+}
+
+function newTrackHTML(containerID, id, title, color) {
+
+    let soloButton = $('<button />', {
+        text: 'S',
+        id: id + '-solo',
+        class: 'btn solo-track',
+        title: 'Solo'
+    });
+    soloButton.click(soloTrack);
+
+    let muteButton = $('<button />', {
+        text: 'M',
+        id: id + '-mute',
+        class: 'btn mute-track',
+        title: 'Mute'
+    });
+    muteButton.click(muteTrack);
+
+    let recommendationsButton = $('<button />', {
+        text: 'Recs',
+        id: id + '-req',
+        class: 'btn disabled toggle-reqs',
+        title: 'Toggle Recommendations'
+    });
+    recommendationsButton.click(toggleReqs);
+
+    let buttonsDiv = $('<div />', {class: 'btn-group btn-group-xs'});
+    buttonsDiv.append(soloButton);
+    buttonsDiv.append(muteButton);
+    buttonsDiv.append(recommendationsButton);
+
+    let titleHeader = $('<h5 />', {text: title});
+    let maxDb = $('<div />', {class: 'db-label max-db-label', text: '0dB'});
+    let minDb = $('<div />', {class: 'db-label min-db-label', text: '-80dB'});
+
+    let trackControls = $('<div />', {class: 'col-md-1 track-controls'});
+    trackControls.append(titleHeader);
+    trackControls.append(buttonsDiv);
+    trackControls.append(maxDb);
+    trackControls.append(minDb);
+
+    let wavesUItrack = $('<div />', {
+        class: 'waves-ui-track',
+        id: id
+    });
+    wavesUItrack.attr('data-color', color);
+    let wavesUIcontainer = $('<div />', {class: 'col-md-10 waves-ui-container'});
+    wavesUIcontainer.append(wavesUItrack);
+
+    let trackAndControls = $('<div />', {class: 'row track-and-controls'});
+    trackAndControls.append(trackControls);
+    trackAndControls.append(wavesUIcontainer);
+
+    let containerObj = $('#' + containerID);
+    containerObj.append(trackAndControls);
 }
 
 function addEnvelopeData(envelopeData, trackID) {
@@ -104,24 +162,26 @@ function stopAll() {
             .attr('title', 'Play audio');
 }
 
-$('.toggle-reqs').click(function () {
-    if (!$(this).hasClass('disabled')) {
-        var selectedID = $(this).parent().parent().siblings().children()[0].id;
+function toggleReqs (eventObj) {
+    let button = eventObj.target;
+    if (!$(button).hasClass('disabled')) {
+        var selectedID = $(button).parent().parent().siblings().children()[0].id;
         trackList[selectedID].toggleEnvelopeData();
-        togglePrimaryBtn(this);
+        togglePrimaryBtn(button);
     }
-});
+}
 
 $('#req-stop').click(function () {
     // Make this look like an 'event'...
     setTransport({value: {newValue: 0.0}});
 });
 
-$('.mute-track').click(function () {
+function muteTrack (eventObj) {
     // THIS IS A BIG OLE HACK!
-    var selectedID = $(this).parent().parent().siblings().children()[0].id;
-    togglePrimaryBtn(this);
-    trackList[selectedID].muteSelected = $(this).hasClass('btn-primary');
+    let button = eventObj.target;
+    var selectedID = $(button).parent().parent().siblings().children()[0].id;
+    togglePrimaryBtn(button);
+    trackList[selectedID].muteSelected = $(button).hasClass('btn-primary');
 
     let anySoloed = false, noneSoloed = true;
     for (let t in trackList) {
@@ -139,11 +199,12 @@ $('.mute-track').click(function () {
         trackList[selectedID].unmute();
         trackList[selectedID].unmuteEnvelopeData();
     }
-});
+}
 
-$('.solo-track').click(function () {
-    let selectedID = $(this).parent().parent().siblings().children()[0].id;
-    let unselectedIDs = $(this).parent().parent().siblings().children();
+function soloTrack (eventObj) {
+    let button = eventObj.target;
+    let selectedID = $(button).parent().parent().siblings().children()[0].id;
+    let unselectedIDs = $(button).parent().parent().siblings().children();
 
     trackList[selectedID].isSoloed = !trackList[selectedID].isSoloed;
     trackList[selectedID].soloSelected = trackList[selectedID].isSoloed;
@@ -178,8 +239,8 @@ $('.solo-track').click(function () {
         }
     }
 
-    togglePrimaryBtn(this);
-});
+    togglePrimaryBtn(button);
+}
 
 function togglePrimaryBtn(obj) {
     // $.each(trackList, function(id, t) {
