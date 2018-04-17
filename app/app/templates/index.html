@@ -7,29 +7,28 @@
     <meta name="description" content="Web Unmixing Toolbox from the Interactive Audio Lab at Northwestern University">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
-          integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
-    <link href="https://fonts.googleapis.com/css?family=Josefin+Sans:300,400" rel="stylesheet">
+    <script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/test.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap-multiselect.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/font-awesome.min.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.0.0/css/bootstrap-slider.min.css">
-
 
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/modernizr-2.8.3.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/vendor/jquery-3.2.0.js') }}"></script>
     <script src="{{ url_for('static', filename='js/plugins.js') }}"></script>
     <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.0.0/bootstrap-slider.min.js"></script>
-    <script type="text/javascript" src="https://cdn.plot.ly/plotly-latest.js"></script>
-    {#    <script data-main="scripts/main" src="scripts/require.js"></script>#}
+    <!-- <script type="text/javascript" src="https://cdn.plot.ly/plotly-latest.js"></script> -->
+    <!-- expensive import for solely debounce, maybe just write our own? -->
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.5/lodash.min.js"></script>
+
+    <script data-main="scripts/main" src="scripts/require.js"></script>
+    <!-- Using local version of plotly because of bug in latest Plotly (as of 2/26/2018) - https://github.com/plotly/plotly.js/issues/2334
+         Following the workaround mentioned by mlaily in that issue we have modified `snap:1e4` -> `snap:1e7` which fixes underrendering -->
+    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/plotly-latest.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/wavesurfer.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/wavesurfer.regions.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/wavesurfer.timeline.js') }}"></script>
-    {#    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/buffer-loader.js') }}"></script>#}
-    {#    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/dsp.js') }}"></script>#}
+    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/buffer-loader.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/dsp.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/FileSaver.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/bootstrap-multiselect.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/socket.io.js') }}"></script>
@@ -38,403 +37,184 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/jquery.actual.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/recorder.js') }}"></script>
 </head>
+</head>
 <body>
-<!--[if lt IE 8]>
-            <p class="browserupgrade">You are using an <strong>outdated</strong> browser.
-                Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-        <![endif]-->
 
 <script>window.jQuery || document.write('<script src="js/vendor/jquery-{{JQUERY_VERSION}}.min.js"><\/script>')</script>
+        <script src="js/test.js"></script>
+    <div class="avgrund-content-wrapper">
+    <header>
+        <div>Web Unmixing Toolbox</div>
+    </header>
 
-<div id="wrapper">
-    <nav class="navbar navbar-default navbar-static-top" role="navigation">
-        <div class="container-fluid" id="title-text-wrapper-outer">
-            <div class="navbar-header" id="title-text-inner">
-                <a class="navbar-brand" href="#" id="title-text"
-                   data-text-swap="Web Unmixing Toolbox" title="What's WUT?">Web Unmixing Toolbox</a>
+    <main>
+        <div class="waveform-cont">
+            <button id="modal-open" type="button" class="btn btn-primary" title="Open Modal">
+                Begin
+            </button>
+
+            <div class="controls">
+                <button id="mixture-play" type="button" class="btn btn-primary disabled" title="Play audio">
+                    <i class="fas fa-play"></i>
+                </button>
+                <button id="mixture-stop" type="button" class="btn btn-primary disabled">
+                    <i class="fas fa-stop"></i>
+                </button>
             </div>
+
+            <div id="mixture-waveform"></div>
         </div>
-        <div class="collapse navbar-collapse" id="controls">
-            <ul class="nav navbar-nav">
-                <li class="divider-vertical"></li>
-                <li id="import-audio">
-                    <a href="#">
-                        <i class="glyphicon glyphicon-open icon text-center" id="open-button"></i>
-                        <p class="control-text">Open</p>
-                    </a>
-                </li>
 
-                <li class="divider-vertical"></li>
-                <li>
-                    <p class="control-text" id="status-text"> Status:</p><p id="general-status">Ready...</p>
-                </li>
+        <div class="interaction">
+            <button id="apply-selections" type="button" class="btn btn-primary disabled">Apply Selections</button>
 
-            </ul>
-        </div>
-    </nav>
+            <div class="shared-plots-spinner">
+                <div id='pca-cont'>
+                    <div class='title-cont'>
+                        <div>Visualization of Embedding Space</div>
 
-    <div id="open-modal" class="modal fade" role="dialog">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3 class="modal-title">Welcome! Open a New Audio File</h3>
-                </div>
-                <div class="modal-body">
-                    <div class="row modal-section" id="file-info-container">
-                        <div class="col-sm-2">
-                            <p>File: </p>
-                        </div>
-                        <div class="col-sm-8">
-                            <p id="filename"></p>
-                        </div>
-                        <div class="col-sm-2">
-                            <button type="button" class="btn btn-default btn-sm" id="open-button-modal">
-                                <i class="glyphicon glyphicon-folder-open icon text-center"></i>
-                                Open File
-                            </button>
+                        <div class="hint--top hint--large hint--rounded" aria-label="Click and drag on the plot to select bins and see the corresponding points on the spectrogram highlighted. A Principal Component Analysis representation of the k-dimensional embedding space.">
+                            <i class="fa fa-info-circle"></i>
                         </div>
                     </div>
-                    <form id="survey">
-                        <div class="row">
-                            <div class="col-sm-12">
-                                <h4>Please tell WUT about your audio...</h4>
-                            </div>
-                        </div>
 
-                        <div class="form-group">
-                            <div class="modal-section">
-                                <div class="row">
-                                    <div class="col-sm-4">
-                                        <p>I am trying to extract:</p>
-                                    </div>
-                                    <div class="col-sm-8">
-                                        <select id="extraction-goal" multiple="multiple">
-                                            <option value="vocals">Vocals</option>
-                                            <option value="accompaniment">Accompaniment</option>
-                                            <option value="drums">Drums</option>
-                                            <option value="bass">Bass</option>
-                                            <option value="other">Other</option>
-                                        </select>
-                                    </div>
-                                </div>
+                    <div class="outer">
+                        <div class="aspect-ratio-box">
+                            <div class="alignment" id="pca">
                             </div>
                         </div>
-                    </form>
+                    </div>
                 </div>
-                <div class="modal-footer">
-                    <span class="form-control-static pull-left">
-                        <a href="#" data-toggle="popover" data-trigger="hover" data-placement="bottom"
-                           data-content="WUT stores your raw audio data on the server for 7 days after your last
-                            active sesion. For more information about how your audio is stored, see our Privacy Policy
-                            (at the bottom of the main WUT page).">
-                            Privacy
-                        </a>
-                    </span>
-                    <button id="survey-done" type="submit" class="btn btn-default disabled">Start!</button>
+
+
+                <div id='spectrogram-cont'>
+                    <div class='title-cont'>
+                        <div>Spectrogram</div>
+
+                        <div class="hint--top hint--large hint--rounded" aria-label="Visual representation of audio signal. Frequency in mels, time  in seconds. Each point on the x-axis is a single STFT taken over j samples. Intensity of a specific frequency over a specific window is given by color.">
+                            <i class="fa fa-info-circle"></i>
+                        </div>
+                    </div>
+
+                    <div id="spectrogram"></div>
                 </div>
             </div>
+            <div id='plots-spinner' class='spinner-outer shared-plots-spinner'>
+                <div class="spinner">
+                    <div class="rect1"></div>
+                    <div class="rect2"></div>
+                    <div class="rect3"></div>
+                    <div class="rect4"></div>
+                    <div class="rect5"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <p>Ethan Manilow, Bryan Pardo, Darren Gergle </p>
+        <p>This work supported in part by NSF Award <a href=
+            "https://www.nsf.gov/awardsearch/showAward?AWD_ID=1420971&HistoricalAwards=false"
+            >1420971</a></p>
+        <p>Northwestern University</p>
+    </footer>
+    </div>
+
+    <!-- MODAL -->
+
+    <div id="modal" class="avgrund-modal">
+        <div id='modal-header'>
+          <button id="modal-back" type="button" class="btn btn-primary" title="Back">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+
+          <button id="modal-close" type="button" class="btn btn-primary" title="Close Modal">
+              <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <!-- modal first page -->
+        <div id='modal-separation'>
+            <div class='modal-info-text'>What would you like to separate?</div>
+
+            <div id='modal-separation-checks'>
+                <div class="form-check">
+                    <input class="form-check-input separation-check" type="checkbox" value="vocals" id="vocals">
+                    <label class="form-check-label" for="vocals">Vocals</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input separation-check" type="checkbox" value="accompaniment" id="accompaniment">
+                    <label class="form-check-label" for="accompaniment">Accompaniment</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input separation-check" type="checkbox" value="drums" id="drums">
+                    <label class="form-check-label" for="drums">Drums</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input separation-check" type="checkbox" value="bass" id="bass">
+                    <label class="form-check-label" for="bass">Bass</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input separation-check" type="checkbox" value="speech" id="speech">
+                    <label class="form-check-label" for="speech">Speech</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input separation-check" type="checkbox" value="other" id="other">
+                    <label class="form-check-label" for="other">Other</label>
+                </div>
+            </div>
+
+            <button id="modal-next" type="button" class="btn btn-primary disabled" title="Modal Next">
+                Next
+            </button>
+        </div>
+
+        <!-- modal second page -->
+        <div id='modal-audio'>
+            <div class='modal-info-text'>Upload or Record Audio</div>
+
+            <div id='modal-upload-or-record'>
+                <div id='modal-upload'><i class="fas fa-upload fa-2x"></i></div>
+                <!-- HIDDEN -->
+                <!-- there's probably a better way to do this -->
+                <form id="modal-audio-upload-form" method="post" role="form" enctype="multipart/form-data">
+                    <input id="modal-upload-audio-input" accept="audio/*" type="file" />
+                </form>
+
+                <div>or</div>
+
+                <div id="modal-record" class='modal-record-off'></div>
+            </div>
+
+            <div id='modal-results'>
+                <audio id="modal-final-audio" controls></audio>
+            </div>
+
+            <button id="modal-begin" type="button" class="btn btn-primary disabled" title="Modal Begin">
+                Begin
+            </button>
         </div>
     </div>
 
-    <form action="audio_upload" style="display: none;" method="post" role="form"
-          enctype="multipart/form-data">
-        <input id="input_audio_file" style="display: none" accept="audio/*" type="file" name="audio_file" />
-    </form>
-    <div id="mainContent">
-
-        <div class="player-wrapper" id="mixture-player">
-            <div class="player-controls" id="mixture-player-controls">
-                <div class="player-controls-inner" id="mixture-player-control-wrapper">
-                    <div class="btn-group-vertical">
-                        <button id="mixture-play" class="btn btn-default result-controls play-pause"
-                                title="Play">
-                            <i class="glyphicon glyphicon-play" title="Play Audio"></i>
-                        </button>
-                        <button id="mixture-stop" class="btn btn-default result-controls"
-                                title="Stop">
-                            <i class="glyphicon glyphicon-stop" title="Stop Audio"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="waveform-outer-wrapper" id="mixture-waveform-wrapper">
-                <div class="waveform-inner-wrapper">
-                    <div class="waveform" id="mixture-waveform">
-                    </div>
-                    <div id="waveform-timeline"></div>
-                </div>
-            </div>
-        </div>
-
-        <div id="tabs-wrapper">
-            <ul class="nav nav-tabs" id="mainTabs">
-                <li class="active"><a href="#spectrogram-tab">Spectrogram</a></li>
-                <li><a href="#duet-tab">Attenuation/Delay Histogram</a></li>
-                <li><a href="#reqs-tab">Recommendations</a></li>
-            </ul>
-        </div>
+    <!-- modal cover behind -->
+    <div class="avgrund-cover"></div>
 
 
-        <div class="tab-content">
-            <div class="tab-pane active" id="spectrogram-tab">
-                <div class="row" id="spectrogram-controls">
-                    <div class="col-md-1"></div>
-                    <div class="col-md-1" id="waveform-zoom-buttons">
-                        <div class="btn-group btn-group-sm">
-                            <button id="mixture-zoom-in" class="btn btn-default" title="Zoom in">
-                                <i class="glyphicon glyphicon-zoom-in" id="waveform"></i>
-                            </button>
-
-                            <button id="mixture-zoom-out" class="btn btn-default" title="Zoom out">
-                                <i class="glyphicon glyphicon-zoom-out"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="btn-group-sm">
-                            <button id="selection-remove" class="btn btn-default spec-tool disabled" title="Delete selected regions">
-                                <i class="fa fa-eraser" aria-hidden="true"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="col-md-2">
-                        <div id="spec-color" class="btn-group btn-group-sm" data-toggle="buttons">
-                            <label class="btn btn-default active">
-                                <input type="radio" name="options" id="white" autocomplete="off" checked> White
-                            </label>
-                            <label class="btn btn-default">
-                                <input type="radio" name="options" id="green" autocomplete="off"> Green
-                            </label>
-                        </div>
-                    </div>
-                </div>
-                <div id="spectrogram-container">
-
-                    <div id="spectrogram-heatmap" data-target-name="{{ target_dict['mixture']['name'] }}">
-                        <!-- Spectrogram will be drawn in this div -->
-                    </div>
-
-                </div>
-            </div>
-
-            <div class="tab-pane" id="duet-tab">
-{#                <div class="row" id="duet-controls">#}
-{#                    <div class="col-md-1"></div>#}
-{#                    <div class="col-md-1" id="duet-zoom-buttons">#}
-{#                        <div class="btn-group">#}
-{#                            <button id="duet-zoom-in" class="btn btn-default" title="Zoom in">#}
-{#                                <i class="glyphicon glyphicon-zoom-in"></i>#}
-{#                            </button>#}
-{##}
-{#                            <button id="ft2d-zoom-out" class="btn btn-default" title="Zoom out">#}
-{#                                <i class="glyphicon glyphicon-zoom-out"></i>#}
-{#                            </button>#}
-{#                        </div>#}
-{#                    </div>#}
-{##}
-{#                    <div class="col-md-6">#}
-{#                        <div class="btn-group">#}
-{#                            <button id="selection-louder" class="btn btn-default spec-tool disabled" title="Make selection louder">#}
-{#                                Make Selection Louder#}
-{#                            </button>#}
-{#                            <button id="selection-softer" class="btn btn-default spec-tool disabled" title="Make selection softer">#}
-{#                                Make Selection Softer#}
-{#                            </button>#}
-{#                            <button id="selection-remove" class="btn btn-default spec-tool disabled" title="Remove selection">#}
-{#                                Remove Selection#}
-{#                            </button>#}
-{#                            <button id="selection-inverse" class="btn btn-default spec-tool disabled" title="Invert selection">#}
-{#                                Invert Selection#}
-{#                            </button>#}
-{#                        </div>#}
-{#                    </div>#}
-{##}
-{#                </div>#}
-                <div id="duet-container">
-                    <div id="duet-heatmap" data-target-name="{{ target_dict['duet']['name'] }}">
-                        <!-- Attenuation/Delay Histogram will be drawn in this div -->
-                    </div>
-                </div>
-            </div>
-
-
-            <div class="tab-pane" id="results-tab">
-                <div class="row" style="height: 33px">
-                </div>
-                <div class="player-wrapper" id="results-player">
-                    <div class="player-controls" id="result-player-controls">
-                        <div class="player-controls-inner">
-                            <div style="padding-bottom: 5px">
-                                <button id="result-play" class="btn btn-default result-controls disabled"
-                                        title="Play/Pause">
-                                    <i class="glyphicon glyphicon-play" title="Play Audio"></i>
-                                </button>
-                            </div>
-                            <div style="padding-bottom: 5px">
-                                <button id="result-stop" class="btn btn-default result-controls disabled"
-                                        title="Stop">
-                                    <i class="glyphicon glyphicon-stop" title="Stop Audio"></i>
-                                </button>
-                            </div>
-                            <div>
-                                <button id="save-result" class="btn btn-default result-controls disabled"
-                                        title="Save Result">
-                                    Save
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="waveform-outer-wrapper" id="result-waveform-wrapper">
-                        <div class="waveform-inner-wrapper">
-                            <div class="waveform" id="result-waveform">
-                            </div>
-                            <div id="result-waveform-timeline"></div>
-                        </div>
-                    </div>
-                </div>
-                <div id="result-spectrogram-container">
-
-                    <div id="result-spectrogram-heatmap" data-target-name="{{ target_dict['result']['name'] }}">
-                        <!-- Spectrogram will be drawn in this div -->
-                    </div>
-
-                </div>
-            </div>
-
-            <div class="tab-pane" id="reqs-tab">
-                <div class="row">
-                    <div class="col-md-9 col-md-offset-1">
-                        <div class="btn-group btn-group-sm">
-                            <button id="req-play" class="btn btn-default play-pause" title="Play">
-                                <i class="glyphicon glyphicon-play"></i>
-                            </button>
-                            <button id="req-stop" class="btn btn-default" title="Stop">
-                                <i class="glyphicon glyphicon-stop"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="col-md-1">
-                        <button id="req-save" class="btn btn-default btn-sm" title="Save">
-                            <i class="glyphicon glyphicon-download-alt"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="row" id="track-container">
-                    <div class="row">
-                        <div class="col-md-10 col-md-offset-1">
-                            <div id="ticks-wrapper">
-                                <div id="ticks">
-                                    <div class="tick major">
-                                        <div class="time">00:00</div>
-                                    </div>
-                                    <div class="tick"></div>
-                                    <div class="tick"></div>
-                                    <div class="tick"></div>
-                                    <div class="tick"></div>
-                                    <div class="tick"></div>
-                                    <div class="tick major">
-                                        <div class="time">06:00</div>
-                                    </div>
-                                    <div class="tick"></div>
-                                    <div class="tick"></div>
-                                    <div class="tick"></div>
-                                    <div class="tick"></div>
-                                    <div class="tick"></div>
-                                    <div class="tick major">
-                                        <div class="time">12:00</div>
-                                    </div>
-                                    <div class="tick"></div>
-                                    <div class="tick"></div>
-                                    <div class="tick"></div>
-                                    <div class="tick"></div>
-                                    <div class="tick"></div>
-                                    <div class="tick major">
-                                        <div class="time">18:00</div>
-                                    </div>
-                                    <div class="tick"></div>
-                                    <div class="tick"></div>
-                                    <div class="tick"></div>
-                                    <div class="tick"></div>
-                                    <div class="tick"></div>
-                                    <div class="tick major">
-                                        <div class="time">00:00</div>
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-10 col-md-offset-1" id="transport-slider-wrapper">
-                            <input id="transport-slider" type="text"
-                                   data-slider-handle="custom"
-                                   data-slider-min="0.0"
-                                   data-slider-step="0.01"
-                                   data-slider-value="0.0"
-                                   data-slider-tooltip="hide"
-                            />
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        <div id="footer">
-            <p>Ethan Manilow, Nathan Shelly, Bryan Pardo, Darren Gergle
-                <br />This work supported in part by NSF Award
-                <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=1420971&HistoricalAwards=false">1420971</a>
-                <br />Northwestern University</p>
-            <a id="privacy-policy-link" href="">Privacy Policy</a>
-        </div>
-        <div id="privacy-modal" class="modal fade" role="dialog">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        <h3 class="modal-title">Privacy Policy</h3>
-                    </div>
-                    <div class="modal-body">
-                        <p>
-                            {#                        The Web Unmixing Toolbox (WUT) only stores your raw audio data for 7 days#}
-                            {#                        after your last session, after which your raw audio data will be deleted. WUT necessarily#}
-                            {#                        needs a copy of your raw audio data in order to do the server-side processing that enables#}
-                            {#                        the interactions WUT provides. The only remnants of your audio that are stored on our servers#}
-                            {#                        after the 7 day grace period are high-level statistics and non-invertable high-dimensional#}
-                            {#                        audio representations (i.e., representations of your audio that cannot be turned back#}
-                            {#                        into sound). These statistics and high-dimensional representations are used to power the#}
-                            {#                        recommendation engine in WUT. WUT also uses information about how you use WUT (i.e.,#}
-                            {#                        what tools you use) to power these recommendations. WUT does never and will never sell or #}
-                            {#                        share any of your data with third parties.#}
-                            The Web Unmixing Toolbox (WUT) is currently under active development. If you stumble upon
-                            it, you should assume any audio that you upload to it can be used as training data for
-                            future releases of WUT. That being said, future releases of WUT will have a very strict
-                            adherence to privacy principles and will assert that your audio and audio data are stored
-                            ephemerally.
-                        </p>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button class="btn btn-default" data-dismiss="modal">Back</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<script type="text/javascript" src="{{ url_for('static', filename='js/utils.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/plotly_plots.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/plot_spectrogram.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/plot_2dft.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/plot_atn_delay_hist.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/array.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/stft.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/csv_parse.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/audio.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/selection.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/track.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/multitrack.js') }}"></script>
-
+    <script type="text/javascript" src="{{ url_for('static', filename='js/utils.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/plotly_plots.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/plot_spectrogram.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/plot_spectrogram_scatter.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/plot_2dft.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/plot_atn_delay_hist.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/plot_pca.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/modal.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/waveform.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/array.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/stft.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/csv_parse.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/audio.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/selection.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/track.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/multitrack.js') }}"></script>
 </body>
 </html>
