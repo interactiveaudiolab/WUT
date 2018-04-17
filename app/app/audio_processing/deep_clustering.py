@@ -27,7 +27,7 @@ class DeepClustering(audio_processing_base.InteractiveAudioProcessingBase):
     """
 
     def __init__(self, mixture_signal, storage_path,
-        model_path='/Users/nathan/Downloads/_winter/research/code/deep_clustering_vocal_44k_long.model',
+        model_path='~/data/models/deep_clustering_vocal_44k_long.model',
         hidden_size = 500,
         resample_rate = 44100,
         num_layers = 4):
