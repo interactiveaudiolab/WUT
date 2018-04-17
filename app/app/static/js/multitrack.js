@@ -1,8 +1,6 @@
-
 var trackList = {};
 
 function emptyMultiTrack() {
-
     let demoParams = ['repet_sim', 'projet', 'melodia'];
     let names = ['RepetSim', 'Projet', 'Melodia'];
     let colors = ['SkyBlue', 'PaleVioletRed', 'MediumSeaGreen'];
@@ -22,25 +20,21 @@ function emptyMultiTrack() {
     makeSlider();
 }
 
-
 function initMultiTrack() {
-
     let demoParams = ['repet_sim', 'projet', 'melodia'];
     let demoUrl = '/separated_source_demo?method=';
 
-    $.each(demoParams, function(_, algName) {
-        let url = demoUrl + algName;
-        loader.load(url).then(function (buffer) {
+    // $.each(demoParams, function(_, algName) {
+    //     let url = demoUrl + algName;
+    //     loader.load(url).then(function (buffer) {
 
-            trackList[algName].changeWaveformBuffer(buffer, 0);
-            socket.emit('get_recommendations', {'algorithm': algName});
-        });
-    });
-
+    //         trackList[algName].changeWaveformBuffer(buffer, 0);
+    //         socket.emit('get_recommendations', {'algorithm': algName});
+    //     });
+    // });
 }
 
 function newTrackHTML(containerID, id, title, color) {
-
     let soloButton = $('<button />', {
         text: 'S',
         id: id + '-solo',

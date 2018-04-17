@@ -20,15 +20,15 @@
     <!-- expensive import for solely debounce, maybe just write our own? -->
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.5/lodash.min.js"></script>
 
-{#    <script data-main="scripts/main" src="scripts/require.js"></script>#}
+    <script data-main="scripts/main" src="scripts/require.js"></script>
     <!-- Using local version of plotly because of bug in latest Plotly (as of 2/26/2018) - https://github.com/plotly/plotly.js/issues/2334
          Following the workaround mentioned by mlaily in that issue we have modified `snap:1e4` -> `snap:1e7` which fixes underrendering -->
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/plotly-latest.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/wavesurfer.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/wavesurfer.regions.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/wavesurfer.timeline.js') }}"></script>
-{#    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/buffer-loader.js') }}"></script>#}
-{#    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/dsp.js') }}"></script>#}
+    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/buffer-loader.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/dsp.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/FileSaver.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/bootstrap-multiselect.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/socket.io.js') }}"></script>
@@ -37,7 +37,7 @@
 <body>
 
 <script>window.jQuery || document.write('<script src="js/vendor/jquery-{{JQUERY_VERSION}}.min.js"><\/script>')</script>
-{#        <script src="js/test.js"></script>#}
+        <script src="js/test.js"></script>
     <div class="avgrund-content-wrapper">
     <header>
         <div>Web Unmixing Toolbox</div>
@@ -46,7 +46,7 @@
     <main>
         <div class="waveform-cont">
             <!-- <div id='upload'><i class="fas fa-upload fa-lg"></i></div> -->
-            <button id="modal-open" type="button" class="btn btn-primary" title="Close Modal">
+            <button id="modal-open" type="button" class="btn btn-primary" title="Open Modal">
                 Begin
             </button>
 
@@ -162,10 +162,6 @@
             >1420971</a></p>
         <p>Northwestern University</p>
     </footer>
-
-    <!-- <form action="audio_upload" style="display: none;" method="post" role="form" enctype="multipart/form-data">
-        <input id="input_audio_file" style="display: none" accept="audio/*" type="file" name="audio_file" />
-    </form> -->
     </div>
 
     <!-- MODAL -->
@@ -255,6 +251,7 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/plot_2dft.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/plot_atn_delay_hist.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/plot_pca.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/modal.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/waveform.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/test.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/array.js') }}"></script>

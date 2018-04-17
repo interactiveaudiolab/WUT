@@ -133,7 +133,7 @@ $('#clear-selection').click(function() {
     if( $(this).hasClass("disabled") ) {
         return;
     }
-    resetSelections('spectrogram-heatmap');
+    resetSelections('spectrogram');
 });
 
 $('#mixture-spec-delete-unselected').click(function () {

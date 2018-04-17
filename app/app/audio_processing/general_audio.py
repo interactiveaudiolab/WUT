@@ -31,6 +31,7 @@ class GeneralAudio(audio_processing_base.InteractiveAudioProcessingBase):
         self.mode = self.MASTER
         self.max_frequency_displayed = None
         self.spectrogram_image_path = None
+        self.mel_spectrogram_image_path = None
 
         self.master_params = nussl.stft_utils.StftParams(self.audio_signal_copy.sample_rate)
 

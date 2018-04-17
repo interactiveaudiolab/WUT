@@ -12,34 +12,34 @@ var DO_STFT_ON_CLIENT = false;
 
 audio.import_audio = function() {
     for(let waveform of audio.waveforms) {
-        if(waveform && waveform.backend.buffer && waveform.isPlaying()) {
+        if(waveform && waveform.surfer.backend.buffer && waveform.isPlaying()) {
             waveform.pause();
         }
     }
 
     $('input[type=file]').click();
-};
+}
 
-$('#input_audio_file').change(function () {
-    // if user clicks upload but then cancels
-    if(this.files.length == 0) { return; }
+// $('#input_audio_file').change(function () {
+//     // if user clicks upload but then cancels
+//     if(this.files.length == 0) { return; }
 
-    mixture_audio_file.file = this.files[0];
-    mixture_audio_file.url = URL.createObjectURL(mixture_audio_file.file);
+//     mixture_audio_file.file = this.files[0];
+//     mixture_audio_file.url = URL.createObjectURL(mixture_audio_file.file);
 
-    $("#filename").text(mixture_audio_file.file.name);
-    $('#extraction-goal').multiselect('enable');
+//     $("#filename").text(mixture_audio_file.file.name);
+//     $('#extraction-goal').multiselect('enable');
 
-    $('.shared-plots-spinner').hide();
-    $('#plots-spinner').show();
-    $('#plots-spinner').css('display', 'flex')
-    pca.clearSelections();
+//     // $('.shared-plots-spinner').hide();
+//     // $('#plots-spinner').show();
+//     // $('#plots-spinner').css('display', 'flex')
+//     // pca.clearSelections();
 
-    mixture_audio_file.upload_to_server(this);
+//     mixture_audio_file.upload_to_server(this);
 
-    masked_waveform.clearSurfer()
-    inverse_waveform.clearSurfer()
-});
+//     // masked_waveform.clearSurfer()
+//     // inverse_waveform.clearSurfer()
+// });
 
 mixture_audio_file.upload_to_server = function (obj) {
     if($(obj).prop('files').length > 0)
@@ -55,7 +55,7 @@ mixture_audio_file.upload_to_server = function (obj) {
     else {
         socket.emit('audio_upload', {'audio_file': null});
     }
-};
+}
 
 function get_audio_data () {
     if (bufferLoader === null || bufferLoader.bufferList === null

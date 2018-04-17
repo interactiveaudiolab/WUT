@@ -1,6 +1,4 @@
 function make_spectrogram(heatmap, results, audioLength) {
-    // var logY = document.getElementById('yLogCheckbox').checked;
-    // if (typeof(logY) === 'undefined') logY = false;
     let logY = false;
     let freqMax = 150;
 
@@ -10,14 +8,13 @@ function make_spectrogram(heatmap, results, audioLength) {
 
     heatmap.rawData = results;
     heatmap.drawHeatmap(audioLength, freqMax, logY);
-    // enableTools(true, '.spec-tool');
 
     status.text('Ready...');
 }
 
 function getSpectrogramAsImage(heatmap, freqMax) {
     let url = "./spec_image?val=" + Math.random().toString(36).substring(7);
-    let duration = mixture_waveform.backend.getDuration();
+    let duration = mixture_waveform.surfer.backend.getDuration();
 
     heatmap.drawImage(url, duration, freqMax);
     enableTools(true, '.spec-tool');
@@ -69,7 +66,6 @@ class SpectrogramHeatmap extends PlotlyHeatmap {
     }
 
     drawImage(url, duration, freqMax) {
-
         let layout = this.plotLayout;
         layout.xaxis.range = [0.0, duration];
         layout.yaxis.range = [0.0, freqMax];
@@ -88,6 +84,10 @@ class SpectrogramHeatmap extends PlotlyHeatmap {
             "sizing": "stretch"
         }];
 
-        this.plot = Plotly.newPlot(this.divID, [{ x: [], y: [] }], layout, this.plotOptions);
+        // Plotly.newPlot(mixture_spectrogram_heatmap, [{ x: [1, 2, 3], y: [1, 5, 10] }], 
+
+        console.log("About to plot spectrogram");
+        // this.plot = Plotly.newPlot(this.divID, [{ x: [10, 15, 20], y: [100, 4000, 200] }], layout, this.plotOptions);
+        this.plot = Plotly.newPlot(this.divID, [{ x: [1, 2, 3], y: [5, 6, 7] }]);
     }
 }
