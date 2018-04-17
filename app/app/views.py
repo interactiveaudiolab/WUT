@@ -25,6 +25,8 @@ logger = logging.getLogger()
 WUT_SOCKET_NAMESPACE = '/wut'
 CURRENT_SESSION = 'cur_session'
 
+from os.path import expanduser
+HOME = expanduser("~")
 
 @app_.route('/')
 @app_.route('/index')
@@ -107,7 +109,7 @@ def initialize(audio_file_data):
     separation_sess.checks = audio_file_data['selections']
     isSpeech = 'speech' in separation_sess.checks
 
-    path = '/Users/nathan/Downloads/_winter/research/code/deep_clustering_speech.model' if isSpeech else '/Users/nathan/Downloads/_winter/research/code/deep_clustering_vocal_44k_long.model'
+    path = os.path.join(HOME, 'data/models/', ('deep_clustering_speech.model' if isSpeech else 'deep_clustering_vocal_44k_long.model'))
     hidden_size = 300 if isSpeech else 500
     resample_rate = 16000 if isSpeech else 44100
     num_layers = 2 if isSpeech else 4
@@ -281,7 +283,7 @@ def generate_mask(mask):
     logger.info(sess.checks)
     isSpeech = 'speech' in sess.checks
 
-    path = '/Users/nathan/Downloads/_winter/research/code/deep_clustering_speech.model' if isSpeech else '/Users/nathan/Downloads/_winter/research/code/deep_clustering_vocal_44k_long.model'
+    path = os.path.join(HOME, 'data/models/', ('deep_clustering_speech.model' if isSpeech else 'deep_clustering_vocal_44k_long.model'))
     hidden_size = 300 if isSpeech else 500
     resample_rate = 16000 if isSpeech else 44100
     num_layers = 2 if isSpeech else 4
