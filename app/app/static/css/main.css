@@ -2,6 +2,134 @@
 @import url('https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css');
 @import url('https://cdnjs.cloudflare.com/ajax/libs/hint.css/2.5.0/hint.css');
 
+
+/* ETHAN CSS */
+/* INCORPORATE BETTER IN THE FUTURE */
+#tabs-wrapper {
+	padding-left: 95px;
+	padding-right: 95px;
+	padding-top: 5px;
+}
+
+.track-and-controls {
+	margin: 0 5px;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+	border-top: 1px solid rgba(0, 0, 0, 0.25);
+	background: #9e9e9e17;
+}
+
+.track-and-controls:first-child {
+	border-top: 1px solid rgba(0, 0, 0, 0.25);
+}
+
+.waves-ui-container {
+	padding-left: 5px;
+}
+
+.waves-ui-track {
+	width: 100%
+}
+
+.slider-handle.custom::before {
+height: 10px;
+font-size: 20px;
+content: '\25BC' !important;
+color: #000000 !important;
+}
+
+.slider-tick.custom::before {
+	content: '' !important;
+}
+.slider-tick.in-selection {
+	display: none !important;
+}
+
+.slider-track {
+	background: #ffffff63 !important;
+	height: 4px !important;
+	margin-top: 4px !important;
+	top: 75% !important;
+	border-radius: 0 !important;
+}
+
+.slider {
+	width: 100% !important;
+	margin: 0 12px;
+}
+
+.slider-selection {
+	background: darkgray;
+}
+
+.background-blink {
+	background: gray;
+}
+
+.db-label {
+	font-size: 0.75em;
+}
+
+.max-db-label {
+	position: absolute;
+	top: 0;
+	right: 0;
+}
+
+.min-db-label {
+	position: absolute;
+	bottom: 0;
+	right: 0;
+}
+
+.track-controls {
+	height: 100px;
+
+}
+
+#ticks-wrapper {
+	display: flex;
+	flex-direction: column;
+	margin-top: 1em;
+	padding-left: 5px;
+	padding-right: 5px;
+	background: gainsboro;
+}
+
+#ticks {
+	height: 10px;
+	display: flex;
+	justify-content: space-between;
+}
+
+.tick {
+	width: 1px;
+	height: 100%;
+	background: grey;
+	position: relative;
+}
+
+.tick.major {
+	background:red;
+	width:2px;
+}
+
+.time {
+	position: absolute;
+	bottom: 100%;
+	left: 50%;
+	transform: translateX(-50%);
+	font-size: 80%;
+}
+
+#transport-slider-wrapper {
+	z-index: 1;
+	position: absolute;
+}
+
+/* **************** */
+/* END OF ETHAN CSS */
+/* **************** */
+
 .avgrund-contents {
 	width: 100%;
 	height: 100%;
@@ -144,6 +272,24 @@ main > .interaction > .shared-plots-spinner > #spectrogram-cont {
 		plots become unusably small, corresponds to window width of 1280
 	*/
 	min-width: 850px;
+}
+
+.reqs-spinner {
+	align-self: stretch;
+	display: flex;
+	flex-flow: row wrap;
+	justify-content: space-around;
+	align-items: center;
+	padding: 0 20px 10px 20px;
+}
+
+main .reqs-spinner .title-cont {
+	display: flex;
+	justify-content: center;
+}
+
+main .reqs-spinner .title-cont > :first-child {
+	margin-right: 5px;
 }
 
 footer {

@@ -194,11 +194,8 @@ def spectrogram_image():
         _exception('sess not initialized!')
 
     logger.info('Sending spectrogram file.')
-    # logger.info(sess.user_general_audio.spectrogram_image_path)
-    # return send_file(sess.user_general_audio.spectrogram_image_path, mimetype='image/png')
-    logger.info(sess.user_general_audio.mel_spectrogram_image_path)
-    return send_file(sess.user_general_audio.mel_spectrogram_image_path, mimetype='image/png')
-
+    logger.info(sess.user_general_audio.spectrogram_image_path)
+    return send_file(sess.user_general_audio.spectrogram_image_path, mimetype='image/png')
 
 @socketio.on('survey_results', namespace=WUT_SOCKET_NAMESPACE)
 def get_survey_results(message):
@@ -210,7 +207,6 @@ def get_survey_results(message):
 
 @socketio.on('get_recommendations', namespace=WUT_SOCKET_NAMESPACE)
 def send_recommendations(message):
-
     sess = awaken_session()
     reqs = sess.sdr_predictor.dummy_recommendations()
     algorithm = message['algorithm']
@@ -225,33 +221,29 @@ def send_recommendations(message):
 def get_separated_source():
     logger.info('getting separated source')
 
-    # sess = awaken_session()
-    #
-    # if not sess.initialized:
-    #     _exception('sess not initialized!')
+    sess = awaken_session()
 
-    # if 'method' not in request.args:
-    #     separation_method = 'repet_sim'
-    # else:
-    #     separation_method = request.args.get('method')
+    if not sess.initialized:
+        _exception('sess not initialized!')
 
-    # send_recommendations(separation_method)
+    sep_method = request.args.get('method') if 'method' in request.args else 'repet_sim'
+    send_recommendations({ 'algorithm': sep_method })
 
-    # mime_type = 'audio/mp3'
-    # base_path = '/Users/ethanmanilow/Documents/School/Research/audio_representations/website/backend/output/'
+    mime_type = 'audio/mp3'
+    base_path = os.path.join(HOME, 'data/recs')
 
-    # if separation_method == 'repet_sim':
-    #     logger.info('Sending Repet!')
-    #     return send_file(os.path.join(base_path, 'repet_fg.mp3'), mimetype=mime_type)
+    if sep_method == 'repet_sim':
+        logger.info('Sending Repet!')
+        return send_file(os.path.join(base_path, 'repet_fg.mp3'), mimetype=mime_type)
 
-    # elif separation_method == 'projet':
-    #     logger.info('Sending Projet!')
-    #     return send_file(os.path.join(base_path, 'proj_1.mp3'), mimetype=mime_type)
+    elif sep_method == 'projet':
+        logger.info('Sending Projet!')
+        return send_file(os.path.join(base_path, 'proj_1.mp3'), mimetype=mime_type)
 
-    # elif separation_method == 'melodia':
-    #     logger.info('Sending Melodia!')
-    #     return send_file(os.path.join(base_path, 'mel_fg.mp3'), mimetype=mime_type)
-    logger.info('\n\nINSIDE SEPARATED_SOURCE_DEMO, DOING NOTHING\n\n');
+    elif sep_method == 'melodia':
+        logger.info('Sending Melodia!')
+        return send_file(os.path.join(base_path, 'mel_fg.mp3'), mimetype=mime_type)
+    # logger.info('\n\nINSIDE SEPARATED_SOURCE_DEMO, DOING NOTHING\n\n');
     return ""
 
 @socketio.on('action', namespace=WUT_SOCKET_NAMESPACE)

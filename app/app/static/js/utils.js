@@ -1,4 +1,3 @@
-
 function namespace(namespaceString) {
     let parts = namespaceString.split('.'),
         parent = window,
@@ -84,4 +83,13 @@ function generateTicks(xaxisRange, duration) {
     let tickText = tickVals.map(val => val.toString())
 
     return [tickLocs, tickText];
+}
+
+// converts matrix of index lists to matrix of density values for plotting
+pcaMatrixToHistogram = (pca) => {
+    return pca.map(row => row.map(inds => Math.log(inds.length + 1)))
+}
+
+resizeToContainer = (plot) => {
+    Plotly.relayout(plot.divID, { width: plot.DOMObject.width() });
 }
