@@ -8,27 +8,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/test.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap-multiselect.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.0.0/css/bootstrap-slider.min.css">
+
 
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/modernizr-2.8.3.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/vendor/jquery-3.2.0.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap-multiselect.css') }}">
+
     <script src="{{ url_for('static', filename='js/plugins.js') }}"></script>
-    <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
     <!-- <script type="text/javascript" src="https://cdn.plot.ly/plotly-latest.js"></script> -->
     <!-- expensive import for solely debounce, maybe just write our own? -->
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.5/lodash.min.js"></script>
 
-    <script data-main="scripts/main" src="scripts/require.js"></script>
     <!-- Using local version of plotly because of bug in latest Plotly (as of 2/26/2018) - https://github.com/plotly/plotly.js/issues/2334
          Following the workaround mentioned by mlaily in that issue we have modified `snap:1e4` -> `snap:1e7` which fixes underrendering -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.0.0/bootstrap-slider.min.js"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/plotly-latest.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/wavesurfer.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/wavesurfer.regions.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/wavesurfer.timeline.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/buffer-loader.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/dsp.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/FileSaver.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/bootstrap-multiselect.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/socket.io.js') }}"></script>
@@ -41,7 +44,6 @@
 <body>
 
 <script>window.jQuery || document.write('<script src="js/vendor/jquery-{{JQUERY_VERSION}}.min.js"><\/script>')</script>
-        <script src="js/test.js"></script>
     <div class="avgrund-content-wrapper">
     <header>
         <div>Web Unmixing Toolbox</div>
@@ -65,53 +67,187 @@
             <div id="mixture-waveform"></div>
         </div>
 
-        <div class="interaction">
-            <button id="apply-selections" type="button" class="btn btn-primary disabled">Apply Selections</button>
+        <div id="tabs-wrapper">
+            <ul class="nav nav-tabs" id="mainTabs">
+                <li class="active"><a href="#spectrogram-tab">Spectrogram</a></li>
+                <li><a href="#deep-clustering-tab">Deep Clustering</a></li>
+                <li><a href="#reqs-tab">Recommendations</a></li>
+            </ul>
+        </div>
 
-            <div class="shared-plots-spinner">
-                <div id='pca-cont'>
-                    <div class='title-cont'>
-                        <div>Visualization of Embedding Space</div>
+        <div class="tab-content">
+            <div class="tab-pane active" id="spectrogram-tab">
+                <div class="row" id="spectrogram-controls">
+                    <div class="col-md-1"></div>
+                    <div class="col-md-1" id="waveform-zoom-buttons">
+                        <div class="btn-group btn-group-sm">
+                            <button id="mixture-zoom-in" class="btn btn-default" title="Zoom in">
+                                <i class="glyphicon glyphicon-zoom-in" id="waveform"></i>
+                            </button>
 
-                        <div class="hint--top hint--large hint--rounded" aria-label="Click and drag on the plot to select bins and see the corresponding points on the spectrogram highlighted. A Principal Component Analysis representation of the k-dimensional embedding space.">
-                            <i class="fa fa-info-circle"></i>
+                            <button id="mixture-zoom-out" class="btn btn-default" title="Zoom out">
+                                <i class="glyphicon glyphicon-zoom-out"></i>
+                            </button>
                         </div>
                     </div>
 
-                    <div class="outer">
-                        <div class="aspect-ratio-box">
-                            <div class="alignment" id="pca">
+                    <div class="col-md-6">
+                        <div class="btn-group-sm">
+                            <button id="selection-remove" class="btn btn-default spec-tool disabled" title="Delete selected regions">
+                                <i class="fa fa-eraser" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="col-md-2">
+                        <div id="spec-color" class="btn-group btn-group-sm" data-toggle="buttons">
+                            <label class="btn btn-default active">
+                                <input type="radio" name="options" id="white" autocomplete="off" checked> White
+                            </label>
+                            <label class="btn btn-default">
+                                <input type="radio" name="options" id="green" autocomplete="off"> Green
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div id="spectrogram-container">
+                    <div id="spectrogram" data-target-name="{{ target_dict['mixture']['name'] }}"> </div>
+                </div>
+            </div>
+
+            <div id='deep-clustering-tab' class="tab-pane interaction">
+                <button id="apply-selections" type="button" class="btn btn-primary disabled">Apply Selections</button>
+
+                <div class="shared-plots-spinner">
+                    <div id='pca-cont'>
+                        <div class='title-cont'>
+                            <div>Visualization of Embedding Space</div>
+
+                            <div class="hint--top hint--large hint--rounded" aria-label="Click and drag on the plot to select bins and see the corresponding points on the spectrogram highlighted. A Principal Component Analysis representation of the k-dimensional embedding space.">
+                                <i class="fa fa-info-circle"></i>
+                            </div>
+                        </div>
+
+                        <div class="outer">
+                            <div class="aspect-ratio-box">
+                                <div class="alignment" id="pca">
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
 
-                <div id='spectrogram-cont'>
-                    <div class='title-cont'>
-                        <div>Spectrogram</div>
+                    <div id='spectrogram-cont'>
+                        <div class='title-cont'>
+                            <div>Spectrogram</div>
 
-                        <div class="hint--top hint--large hint--rounded" aria-label="Visual representation of audio signal. Frequency in mels, time  in seconds. Each point on the x-axis is a single STFT taken over j samples. Intensity of a specific frequency over a specific window is given by color.">
-                            <i class="fa fa-info-circle"></i>
+                            <div class="hint--top hint--large hint--rounded" aria-label="Visual representation of audio signal. Frequency in mels, time  in seconds. Each point on the x-axis is a single STFT taken over j samples. Intensity of a specific frequency over a specific window is given by color.">
+                                <i class="fa fa-info-circle"></i>
+                            </div>
                         </div>
-                    </div>
 
-                    <div id="spectrogram"></div>
+                        <div id="dc-spectrogram"></div>
+                    </div>
+                </div>
+                <div id='plots-spinner' class='spinner-outer shared-plots-spinner'>
+                    <div class="spinner">
+                        <div class="rect1"></div>
+                        <div class="rect2"></div>
+                        <div class="rect3"></div>
+                        <div class="rect4"></div>
+                        <div class="rect5"></div>
+                    </div>
                 </div>
             </div>
-            <div id='plots-spinner' class='spinner-outer shared-plots-spinner'>
-                <div class="spinner">
-                    <div class="rect1"></div>
-                    <div class="rect2"></div>
-                    <div class="rect3"></div>
-                    <div class="rect4"></div>
-                    <div class="rect5"></div>
+
+            <div class="tab-pane" id="reqs-tab">
+                <div id="reqs-container" class="reqs-spinner">
+                    <div class="row">
+                            <div class="col-md-9 col-md-offset-1">
+                                <div class="btn-group btn-group-sm">
+                                    <button id="req-play" class="btn btn-default play-pause" title="Play">
+                                        <i class="glyphicon glyphicon-play"></i>
+                                    </button>
+                                    <button id="req-stop" class="btn btn-default" title="Stop">
+                                        <i class="glyphicon glyphicon-stop"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <button id="req-save" class="btn btn-default btn-sm" title="Save">
+                                    <i class="glyphicon glyphicon-download-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="row" id="track-container">
+                            <div class="row">
+                                <div class="col-md-10 col-md-offset-1">
+                                    <div id="ticks-wrapper">
+                                        <div id="ticks">
+                                            <div class="tick major">
+                                                <div class="time">00:00</div>
+                                            </div>
+                                            <div class="tick"></div>
+                                            <div class="tick"></div>
+                                            <div class="tick"></div>
+                                            <div class="tick"></div>
+                                            <div class="tick"></div>
+                                            <div class="tick major">
+                                                <div class="time">06:00</div>
+                                            </div>
+                                            <div class="tick"></div>
+                                            <div class="tick"></div>
+                                            <div class="tick"></div>
+                                            <div class="tick"></div>
+                                            <div class="tick"></div>
+                                            <div class="tick major">
+                                                <div class="time">12:00</div>
+                                            </div>
+                                            <div class="tick"></div>
+                                            <div class="tick"></div>
+                                            <div class="tick"></div>
+                                            <div class="tick"></div>
+                                            <div class="tick"></div>
+                                            <div class="tick major">
+                                                <div class="time">18:00</div>
+                                            </div>
+                                            <div class="tick"></div>
+                                            <div class="tick"></div>
+                                            <div class="tick"></div>
+                                            <div class="tick"></div>
+                                            <div class="tick"></div>
+                                            <div class="tick major">
+                                                <div class="time">00:00</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-10 col-md-offset-1" id="transport-slider-wrapper">
+                                    <input id="transport-slider" type="text"
+                                            data-slider-handle="custom"
+                                            data-slider-min="0.0"
+                                            data-slider-step="0.01"
+                                            data-slider-value="0.0"
+                                            data-slider-tooltip="hide"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                </div>
+                <div id='reqs-spinner' class='spinner-outer reqs-spinner'>
+                    <div class="spinner">
+                        <div class="rect1"></div>
+                        <div class="rect2"></div>
+                        <div class="rect3"></div>
+                        <div class="rect4"></div>
+                        <div class="rect5"></div>
+                    </div>
                 </div>
             </div>
         </div>
     </main>
     <footer>
-        <p>Ethan Manilow, Bryan Pardo, Darren Gergle </p>
+        <p>Ethan Manilow, Nathan Shelly, Bryan Pardo, Darren Gergle</p>
         <p>This work supported in part by NSF Award <a href=
             "https://www.nsf.gov/awardsearch/showAward?AWD_ID=1420971&HistoricalAwards=false"
             >1420971</a></p>
@@ -203,15 +339,11 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/plotly_plots.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/plot_spectrogram.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/plot_spectrogram_scatter.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/plot_2dft.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/plot_atn_delay_hist.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/plot_pca.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/modal.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/waveform.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/array.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/stft.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/csv_parse.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/audio.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/selection.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/track.js') }}"></script>

@@ -16,72 +16,54 @@ var greenFill = 'rgba(0, 255, 0, 0.35)';
 var colorDict = {'white': {'line': whiteLine, 'fill': whiteFill },
                  'green': {'line': greenLine, 'fill': greenFill } };
 
-pcaMatrixToHistogram = (pca) => {
-    return pca.map(row => row.map(inds => Math.log(inds.length + 1)))
-}
-
-var currTime = () => {
-    let time = new Date();
-    return time.getHours() + ":" + time.getMinutes() + ":" + time.getSeconds()
-}
-
 $(document).ready(function() {
 	window.AudioContext = window.AudioContext || window.webkitAudioContext;
 	online = new AudioContext();
 
-	context = online;
+    context = online;
 
-  socket_namespace = '/wut';
-  socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + socket_namespace);
+    socket_namespace = '/wut';
+    socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + socket_namespace);
 
-  socket.on('connect', function() {
-      console.log('Socket connected.');
-  });
+    socket.on('connect', () => console.log('Socket connected'));
 
-  socket.on('bad_file', function () {
-      console.log('File rejected by server');
-  });
+    socket.on('disconnect', (reason) => console.log(`Socket disconnected: ${reason}`));
 
-  socket.on('pca', function(message) {
-    indices = JSON.parse(message)
+    socket.on('pca', (message) => {
+        indices = JSON.parse(message)
 
-    pca.addTFIndices(indices);
-    let hist = pcaMatrixToHistogram(pca.TFIndices)
+        pca.addTFIndices(indices);
+        let hist = pcaMatrixToHistogram(pca.TFIndices)
 
-    // pca of size 100 x 100
-    make_pca(pca, hist, 100, 100)
-  });
+        // pca of size 100 x 100
+        make_pca(pca, hist, 100, 100)
+    });
 
-  socket.on('mel', function(message) {
-    console.log('IN MEL SOCKET ACTION')
-    let spec_data = JSON.parse(message);
-    spectrogram.dims = [spec_data.length, spec_data[0].length]
+    socket.on('mel', (message) => {
+        let spec_data = JSON.parse(message);
+        spectrogram.dims = [spec_data.length, spec_data[0].length]
 
-    // currently hardcoding in max mel freq
-    let durationInSecs = mixture_waveform.surfer.backend.getDuration();
-    getMelScatterSpectrogramAsImage(spectrogram, spectrogram.dims[1], durationInSecs, 150);
-  });
+        // currently hardcoding in max mel freq
+        let durationInSecs = mixture_waveform.surfer.backend.getDuration();
+        getMelScatterSpectrogramAsImage(spectrogram, spectrogram.dims[1], durationInSecs, 150);
+    });
 
-  socket.on('masked_audio', function(message) {
-    masked_waveform.load('./get_masked_audio?val=' + Math.random().toString(36).substring(7))
-  });
+    socket.on('masked_audio', (message) => {
+        masked_waveform.load('./get_masked_audio?val=' + Math.random().toString(36).substring(7))
+    });
 
-  socket.on('inverse_audio', function(message) {
-    inverse_waveform.load('./get_inverse_audio?val=' + Math.random().toString(36).substring(7))
-  });
-});
-
-document.addEventListener('DOMContentLoaded', function () {
-    $('#open-modal').modal({
-        backdrop: 'static',
-        keyboard: false
+    socket.on('inverse_audio', (message) => {
+        inverse_waveform.load('./get_inverse_audio?val=' + Math.random().toString(36).substring(7))
     });
 });
 
+document.addEventListener('DOMContentLoaded', function () {
+    $('#open-modal').modal({ backdrop: 'static', keyboard: false });
+});
 
 function relayoutPlots() {
-    Plotly.relayout(pca.divID, { width: pca.DOMObject.width() });
-    Plotly.relayout(spectrogram.divID, { width: spectrogram.DOMObject.width() });
+    resizeToContainer(pca);
+    resizeToContainer(spectrogram);
 }
 
 // RESIZE PLOTS ON WINDOW CHANGE
@@ -98,24 +80,6 @@ $(window).resize(_.debounce(function(){
     masked_waveform.resizeWaveform();
     inverse_waveform.resizeWaveform();
   }, 500));
-
-//  ~~~~~~~~~~~~~ MODAL ~~~~~~~~~~~~~
-
-// $('#upload').click(function(){
-//     $('#open-modal').modal({
-//         backdrop: 'static',
-//         keyboard: false
-//     });
-//     openFileDialog();
-// });
-
-// $('#open-button-modal').click(function () {
-//     openFileDialog();
-// });
-
-// function openFileDialog() {
-//     audio.import_audio();
-// }
 
 //  ~~~~~~~~~~~~~ Apply Selections button ~~~~~~~~~~~~~
 

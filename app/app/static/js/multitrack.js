@@ -7,7 +7,9 @@ function emptyMultiTrack() {
     let context = new (window.AudioContext || window.webkitAudioContext)();
 
     let sr = context.sampleRate;
-    let dur = mixture_waveform.backend.getDuration();
+    let maybeDur = mixture_waveform.surfer.backend.getDuration()
+    let defaultDur = 10;
+    let dur = maybeDur ? maybeDur : defaultDur;
 
     $.each(demoParams, function(i, algName) {
         let buffer = context.createBuffer(2, sr * dur, sr);
@@ -24,14 +26,14 @@ function initMultiTrack() {
     let demoParams = ['repet_sim', 'projet', 'melodia'];
     let demoUrl = '/separated_source_demo?method=';
 
-    // $.each(demoParams, function(_, algName) {
-    //     let url = demoUrl + algName;
-    //     loader.load(url).then(function (buffer) {
+    $.each(demoParams, function(_, algName) {
+        let url = demoUrl + algName;
+        loader.load(url).then(function (buffer) {
 
-    //         trackList[algName].changeWaveformBuffer(buffer, 0);
-    //         socket.emit('get_recommendations', {'algorithm': algName});
-    //     });
-    // });
+            trackList[algName].changeWaveformBuffer(buffer, 0);
+            socket.emit('get_recommendations', {'algorithm': algName});
+        });
+    });
 }
 
 function newTrackHTML(containerID, id, title, color) {
@@ -98,7 +100,7 @@ function addEnvelopeData(envelopeData, trackID) {
 }
 
 function makeSlider() {
-    let duration = mixture_waveform.backend.getDuration();
+    let duration = mixture_waveform.surfer.backend.getDuration();
 
     // Set the transport slider to the same width as the tracks
     let width = $('.waves-ui-track').actual( 'width' );

@@ -2,6 +2,10 @@ var mixture_waveform = new Waveform('#mixture-waveform', '#mixture-play', '#mixt
 var all_waveforms = [mixture_waveform];
 var zoomStepSize = 5;
 var mixture_spectrogram_heatmap = new SpectrogramHeatmap('spectrogram', 20000);
+var dcSpectrogram = new ScatterSpectrogram('dc-spectrogram');
+var dcPCA = new PCAHeatmap('pca');
+dcPCA.addLinkedSpectrogram(dcSpectrogram)
+
 
 var socket;
 var loader;
@@ -17,6 +21,9 @@ var colorDict = {'white': {'line': whiteLine, 'fill': whiteFill },
 
 $(document).ready(function() {
 	loader = new wavesLoaders.AudioBufferLoader();
+
+    $('#reqs-spinner').show();
+    $('#reqs-container').hide();
 
     $("#mainTabs").find("a").click(function(e){
         e.preventDefault();
@@ -48,15 +55,58 @@ $(document).ready(function() {
         getSpectrogramAsImage(mixture_spectrogram_heatmap, msg.max_freq);
     });
 
-    socket.on('ft2d', (msg) => make_2dft(JSON.parse(msg.ft2d)));
+    socket.on('pca', function(message) {
+        indices = JSON.parse(message)
 
-    socket.on('ad_hist', (msg) => make_atn_delay_hist(JSON.parse(msg.ad_hist)));
+        dcPCA.addTFIndices(indices);
+        let hist = pcaMatrixToHistogram(dcPCA.TFIndices)
+
+        // pca of size 100 x 100
+        make_pca(dcPCA, hist, 100, 100)
+    });
+
+    socket.on('mel', function(message) {
+        let spec_data = JSON.parse(message);
+        dcSpectrogram.dims = [spec_data.length, spec_data[0].length]
+
+        // currently hardcoding in max mel freq
+        let durationInSecs = mixture_waveform.surfer.backend.getDuration();
+        getMelScatterSpectrogramAsImage(dcSpectrogram, dcSpectrogram.dims[1], durationInSecs, 150);
+    });
 
     socket.on('bad_file', () => console.log('File rejected by server'));
 
     socket.on('envelope_data', (msg) => {
         addEnvelopeData(msg.envelopeData, msg.algorithm);
     });
+});
+
+function relayoutPlots() {
+    resizeToContainer(dcPCA);
+    resizeToContainer(dcSpectrogram);
+}
+
+// RESIZE PLOTS ON WINDOW CHANGE
+$(window).resize(relayoutPlots);
+
+// ~~~~~~~~~~~~~ WAVEFORM ~~~~~~~~~~~~~
+
+// resize with half second lag
+// kills audio, could have it pick up where left off later
+// also may want to write own debouncing function instead of
+// importing Lodash for it
+$(window).resize(_.debounce(() => mixture_waveform.resizeWaveform(), 500));
+
+//  ~~~~~~~~~~~~~ Apply Selections button ~~~~~~~~~~~~~
+
+$('#apply-selections').click(function(){
+    // probably a better way to check this in the future
+    if(!$('#apply-selections').hasClass('disabled')) {
+        masked_waveform.setLoading(true);
+        inverse_waveform.setLoading(true);
+
+        socket.emit('mask', { mask: spectrogram.exportSelectionMask() });
+    }
 });
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -88,7 +138,11 @@ function maybeEnable(cssIdentifier, cond) {
          : $(cssIdentifier).addClass('disabled');
 }
 
-mixture_waveform.surfer.on('ready', function() { emptyMultiTrack(); });
+mixture_waveform.surfer.on('ready', function() {
+    emptyMultiTrack();
+    $('#reqs-spinner').hide();
+    $('#reqs-container').show();
+});
 
 $('#privacy-policy-link').click(function(){
     $('#privacy-modal').modal({ backdrop: 'static' });

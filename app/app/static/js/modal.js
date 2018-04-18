@@ -136,14 +136,14 @@ document.getElementById('modal-begin').addEventListener('click', event => {
       let checks = getCheckedValues('separation-check');
       upload_to_server(audio_file, checks);
 
+      // pca.clearSelections();
+      mixture_waveform.load(URL.createObjectURL(audio_file));
+      // masked_waveform.clearSurfer()
+      // inverse_waveform.clearSurfer()
       // UI
       $('.shared-plots-spinner').hide();
       $('#plots-spinner').show();
-      $('#plots-spinner').css('display', 'flex')
-      pca.clearSelections();
-      mixture_waveform.load(URL.createObjectURL(audio_file));
-      masked_waveform.clearSurfer()
-      inverse_waveform.clearSurfer()
+      $('#plots-spinner').css('display', 'flex');
 
       // clean once data no longer needed
       grund.clean()

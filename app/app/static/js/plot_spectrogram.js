@@ -84,10 +84,7 @@ class SpectrogramHeatmap extends PlotlyHeatmap {
             "sizing": "stretch"
         }];
 
-        // Plotly.newPlot(mixture_spectrogram_heatmap, [{ x: [1, 2, 3], y: [1, 5, 10] }], 
-
         console.log("About to plot spectrogram");
-        // this.plot = Plotly.newPlot(this.divID, [{ x: [10, 15, 20], y: [100, 4000, 200] }], layout, this.plotOptions);
-        this.plot = Plotly.newPlot(this.divID, [{ x: [1, 2, 3], y: [5, 6, 7] }]);
+        this.plot = Plotly.newPlot(this.divID, [{ x: [], y: [] }], layout, this.plotOptions);
     }
 }
