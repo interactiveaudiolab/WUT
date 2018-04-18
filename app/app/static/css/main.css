@@ -11,6 +11,10 @@
 	padding-top: 5px;
 }
 
+.tab-content {
+	padding: 25px 0;
+}
+
 .track-and-controls {
 	margin: 0 5px;
 	border-bottom: 1px solid rgba(0, 0, 0, 0.25);
@@ -83,7 +87,6 @@ color: #000000 !important;
 
 .track-controls {
 	height: 100px;
-
 }
 
 #ticks-wrapper {

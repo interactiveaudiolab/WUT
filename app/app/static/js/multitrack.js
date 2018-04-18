@@ -61,7 +61,7 @@ function newTrackHTML(containerID, id, title, color) {
     });
     recommendationsButton.click(toggleReqs);
 
-    let buttonsDiv = $('<div />', {class: 'btn-group btn-group-xs'});
+    let buttonsDiv = $('<div />', {class: 'btn-group btn-group-sm'});
     buttonsDiv.append(soloButton);
     buttonsDiv.append(muteButton);
     buttonsDiv.append(recommendationsButton);
@@ -70,7 +70,7 @@ function newTrackHTML(containerID, id, title, color) {
     let maxDb = $('<div />', {class: 'db-label max-db-label', text: '0dB'});
     let minDb = $('<div />', {class: 'db-label min-db-label', text: '-80dB'});
 
-    let trackControls = $('<div />', {class: 'col-md-1 track-controls'});
+    let trackControls = $('<div />', {class: 'col-md rack-controls'});
     trackControls.append(titleHeader);
     trackControls.append(buttonsDiv);
     trackControls.append(maxDb);
@@ -81,7 +81,7 @@ function newTrackHTML(containerID, id, title, color) {
         id: id
     });
     wavesUItrack.attr('data-color', color);
-    let wavesUIcontainer = $('<div />', {class: 'col-md-10 waves-ui-container'});
+    let wavesUIcontainer = $('<div />', {class: 'col-md waves-ui-container'});
     wavesUIcontainer.append(wavesUItrack);
 
     let trackAndControls = $('<div />', {class: 'row track-and-controls'});
