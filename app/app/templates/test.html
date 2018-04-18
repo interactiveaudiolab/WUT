@@ -13,13 +13,12 @@
 
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/modernizr-2.8.3.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/vendor/jquery-3.2.0.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/plugins.js') }}"></script>
     <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <!-- <script type="text/javascript" src="https://cdn.plot.ly/plotly-latest.js"></script> -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <!-- expensive import for solely debounce, maybe just write our own? -->
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.5/lodash.min.js"></script>
 
+    <!-- <script type="text/javascript" src="https://cdn.plot.ly/plotly-latest.js"></script> -->
     <!-- Using local version of plotly because of bug in latest Plotly (as of 2/26/2018) - https://github.com/plotly/plotly.js/issues/2334
          Following the workaround mentioned by mlaily in that issue we have modified `snap:1e4` -> `snap:1e7` which fixes underrendering -->
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/plotly-latest.min.js') }}"></script>

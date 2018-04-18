@@ -7,27 +7,24 @@
     <meta name="description" content="Web Unmixing Toolbox from the Interactive Audio Lab at Northwestern University">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap-multiselect.css') }}">
+    <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"/> -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.0.0/css/bootstrap-slider.min.css">
 
+    <script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
 
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/modernizr-2.8.3.min.js') }}"></script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap-multiselect.css') }}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.0.0/bootstrap-slider.min.js"></script>
 
-    <script src="{{ url_for('static', filename='js/plugins.js') }}"></script>
-
-    <!-- <script type="text/javascript" src="https://cdn.plot.ly/plotly-latest.js"></script> -->
     <!-- expensive import for solely debounce, maybe just write our own? -->
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.5/lodash.min.js"></script>
 
+    <!-- <script type="text/javascript" src="https://cdn.plot.ly/plotly-latest.js"></script> -->
     <!-- Using local version of plotly because of bug in latest Plotly (as of 2/26/2018) - https://github.com/plotly/plotly.js/issues/2334
          Following the workaround mentioned by mlaily in that issue we have modified `snap:1e4` -> `snap:1e7` which fixes underrendering -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.0.0/bootstrap-slider.min.js"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/plotly-latest.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/wavesurfer.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/wavesurfer.regions.js') }}"></script>
@@ -68,10 +65,16 @@
         </div>
 
         <div id="tabs-wrapper">
-            <ul class="nav nav-tabs" id="mainTabs">
-                <li class="active"><a href="#spectrogram-tab">Spectrogram</a></li>
-                <li><a href="#deep-clustering-tab">Deep Clustering</a></li>
-                <li><a href="#reqs-tab">Recommendations</a></li>
+            <ul class="nav nav-tabs" id='mainTabs'>
+                <li class="nav-item">
+                    <a class="nav-link" href="#spectrogram-tab">Spectrogram</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#deep-clustering-tab">Deep Clustering</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#reqs-tab">Recommendations</a>
+                </li>
             </ul>
         </div>
 
@@ -80,33 +83,26 @@
                 <div class="row" id="spectrogram-controls">
                     <div class="col-md-1"></div>
                     <div class="col-md-1" id="waveform-zoom-buttons">
-                        <div class="btn-group btn-group-sm">
-                            <button id="mixture-zoom-in" class="btn btn-default" title="Zoom in">
-                                <i class="glyphicon glyphicon-zoom-in" id="waveform"></i>
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Zoom">
+                            <button type="button" class="btn btn-secondary" id="mixture-zoom-in" title="Zoom in">
+                                <i class="fa fa-search-plus"></i>
                             </button>
-
-                            <button id="mixture-zoom-out" class="btn btn-default" title="Zoom out">
-                                <i class="glyphicon glyphicon-zoom-out"></i>
+                            <button type="button" class="btn btn-secondary" id="mixture-zoom-out" title="Zoom out">
+                                <i class="fa fa-search-minus"></i>
                             </button>
                         </div>
                     </div>
 
                     <div class="col-md-6">
-                        <div class="btn-group-sm">
-                            <button id="selection-remove" class="btn btn-default spec-tool disabled" title="Delete selected regions">
-                                <i class="fa fa-eraser" aria-hidden="true"></i>
-                            </button>
-                        </div>
+                        <button type="button" class="btn btn-sm btn-secondary disabled" id="selection-remove">
+                            <i class="fa fa-eraser" aria-hidden="true"></i>
+                        </button>
                     </div>
 
                     <div class="col-md-2">
-                        <div id="spec-color" class="btn-group btn-group-sm" data-toggle="buttons">
-                            <label class="btn btn-default active">
-                                <input type="radio" name="options" id="white" autocomplete="off" checked> White
-                            </label>
-                            <label class="btn btn-default">
-                                <input type="radio" name="options" id="green" autocomplete="off"> Green
-                            </label>
+                        <div id="spec-color" class="btn-group btn-group-sm" role="group" aria-label="Color selection">
+                            <button type="button" class="btn btn-secondary active" id="white">White</button>
+                            <button type="button" class="btn btn-secondary" id="green">Green</button>
                         </div>
                     </div>
                 </div>
@@ -179,60 +175,8 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="row" id="track-container">
-                            <div class="row">
-                                <div class="col-md-10 col-md-offset-1">
-                                    <div id="ticks-wrapper">
-                                        <div id="ticks">
-                                            <div class="tick major">
-                                                <div class="time">00:00</div>
-                                            </div>
-                                            <div class="tick"></div>
-                                            <div class="tick"></div>
-                                            <div class="tick"></div>
-                                            <div class="tick"></div>
-                                            <div class="tick"></div>
-                                            <div class="tick major">
-                                                <div class="time">06:00</div>
-                                            </div>
-                                            <div class="tick"></div>
-                                            <div class="tick"></div>
-                                            <div class="tick"></div>
-                                            <div class="tick"></div>
-                                            <div class="tick"></div>
-                                            <div class="tick major">
-                                                <div class="time">12:00</div>
-                                            </div>
-                                            <div class="tick"></div>
-                                            <div class="tick"></div>
-                                            <div class="tick"></div>
-                                            <div class="tick"></div>
-                                            <div class="tick"></div>
-                                            <div class="tick major">
-                                                <div class="time">18:00</div>
-                                            </div>
-                                            <div class="tick"></div>
-                                            <div class="tick"></div>
-                                            <div class="tick"></div>
-                                            <div class="tick"></div>
-                                            <div class="tick"></div>
-                                            <div class="tick major">
-                                                <div class="time">00:00</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-10 col-md-offset-1" id="transport-slider-wrapper">
-                                    <input id="transport-slider" type="text"
-                                            data-slider-handle="custom"
-                                            data-slider-min="0.0"
-                                            data-slider-step="0.01"
-                                            data-slider-value="0.0"
-                                            data-slider-tooltip="hide"
-                                    />
-                                </div>
-                            </div>
-                        </div>
+                        <!-- INSERTED TRACKS GO IN HERE -->
+                        <div class="row" id="track-container"></div>
                 </div>
                 <div id='reqs-spinner' class='spinner-outer reqs-spinner'>
                     <div class="spinner">
