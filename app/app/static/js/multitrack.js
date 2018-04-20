@@ -1,10 +1,42 @@
 var trackList = {};
+var counter = 0;
+
+function AddTrack(id, name, color, url) {
+    counter++;
+    color = color !== undefined ? color : 'SkyBlue';
+    let context = new (window.AudioContext || window.webkitAudioContext)();
+    let sr = context.sampleRate;
+    let maybeDur = mixture_waveform.surfer.backend.getDuration()
+    let defaultDur = 10;
+    let dur = maybeDur ? maybeDur : defaultDur;
+
+    let buffer = context.createBuffer(2, sr * dur, sr);
+    newTrackHTML('track-container', id, name, color);
+    let trackID = $('#' + id)[0];
+    let initialEnvelope = [{x: 0, y: 0.8}, {x: buffer.duration, y: 0.8}];
+    trackList[id] = new Track(buffer, context, trackID,
+        initialEnvelope, $('#transport-slider'), audioEnded, counter);
+
+    for(track of trackList) {
+        track._gainMax = 1 / counter;
+    }
+
+    initTrack();
+}
+
+function initTrack(id, url) {
+    loader.load(url).then(function (buffer) {
+        trackList[id].changeWaveformBuffer(buffer, 0);
+        socket.emit('get_recommendations', {'algorithm': id});
+    });
+}
 
 function emptyMultiTrack() {
     let demoParams = ['repet_sim', 'projet', 'melodia'];
     let names = ['RepetSim', 'Projet', 'Melodia'];
     let colors = ['SkyBlue', 'PaleVioletRed', 'MediumSeaGreen'];
     let context = new (window.AudioContext || window.webkitAudioContext)();
+    counter = demoParams.length;
 
     let sr = context.sampleRate;
     let maybeDur = mixture_waveform.surfer.backend.getDuration()
@@ -17,7 +49,7 @@ function emptyMultiTrack() {
         let trackID = $('#' + algName)[0];
         let initialEnvelope = [{x: 0, y: 0.8}, {x: buffer.duration, y: 0.8}];
         trackList[algName] = new Track(buffer, context, trackID,
-            initialEnvelope, $('#transport-slider'), audioEnded, demoParams.length);
+            initialEnvelope, $('#transport-slider'), audioEnded, counter);
     });
     makeSlider();
 }
@@ -29,14 +61,17 @@ function initMultiTrack() {
     $.each(demoParams, function(_, algName) {
         let url = demoUrl + algName;
         loader.load(url).then(function (buffer) {
-
             trackList[algName].changeWaveformBuffer(buffer, 0);
             socket.emit('get_recommendations', {'algorithm': algName});
         });
     });
+
+    $('#reqs-tab-bootstrap').removeClass('disabled');
 }
 
 function newTrackHTML(containerID, id, title, color) {
+    let titleHeader = $('<h5 />', { text: title, class: 'algorithm' });
+
     let soloButton = $('<button />', {
         text: 'S',
         id: id + '-solo',
@@ -61,30 +96,31 @@ function newTrackHTML(containerID, id, title, color) {
     });
     recommendationsButton.click(toggleReqs);
 
-    let buttonsDiv = $('<div />', {class: 'btn-group btn-group-sm'});
+    let buttonsDiv = $('<div />', {class: 'solo-mute-recs btn-group btn-group-sm'});
     buttonsDiv.append(soloButton);
     buttonsDiv.append(muteButton);
     buttonsDiv.append(recommendationsButton);
 
-    let titleHeader = $('<h5 />', {text: title});
-    let maxDb = $('<div />', {class: 'db-label max-db-label', text: '0dB'});
-    let minDb = $('<div />', {class: 'db-label min-db-label', text: '-80dB'});
+    let maxDb = $('<div />', { class: 'db-label max-db-label', text: '0dB' });
+    let minDb = $('<div />', { class: 'db-label min-db-label', text: '-80dB' });
+    let dbLabels = $('<div />', { class: 'db-label-cont' });
+    dbLabels.append(maxDb);
+    dbLabels.append(minDb);
 
-    let trackControls = $('<div />', {class: 'col-md rack-controls'});
-    trackControls.append(titleHeader);
-    trackControls.append(buttonsDiv);
-    trackControls.append(maxDb);
-    trackControls.append(minDb);
+    let buttonsAndTitle = $('<div />', { class: 'algorithm-and-solo-mute-recs' });
+    buttonsAndTitle.append(titleHeader);
+    buttonsAndTitle.append(buttonsDiv);
 
-    let wavesUItrack = $('<div />', {
-        class: 'waves-ui-track',
-        id: id
-    });
+    let trackControls = $('<div />', {class: 'track-controls'});
+    trackControls.append(buttonsAndTitle);
+    trackControls.append(dbLabels);
+
+    let wavesUItrack = $('<div />', { class: 'waves-ui-track', id: id });
     wavesUItrack.attr('data-color', color);
-    let wavesUIcontainer = $('<div />', {class: 'col-md waves-ui-container'});
+    let wavesUIcontainer = $('<div />', {class: 'waves-ui-container'});
     wavesUIcontainer.append(wavesUItrack);
 
-    let trackAndControls = $('<div />', {class: 'row track-and-controls'});
+    let trackAndControls = $('<div />', {class: 'track-and-controls'});
     trackAndControls.append(trackControls);
     trackAndControls.append(wavesUIcontainer);
 
@@ -96,7 +132,7 @@ function addEnvelopeData(envelopeData, trackID) {
     trackList[trackID].setEnvelopeData(envelopeData);
 
     // Highlight the recommendations button
-    $('#' + trackID).parent().parent().find('.toggle-reqs').addClass('btn-primary').removeClass('disabled');
+    $('#' + trackID).parent().parent().children().find('.toggle-reqs').addClass('btn-primary').removeClass('disabled');
 }
 
 function makeSlider() {
@@ -154,14 +190,14 @@ function stopAll() {
     });
 
     // Remove the play icon
-    $('#req-play').find('i').removeClass('glyphicon glyphicon-pause').addClass('glyphicon glyphicon-play')
-            .attr('title', 'Play audio');
+    $('#req-play').find('svg').toggleClass('fa-pause fa-play');
+    $('#req-play').attr('title', `${$(this.playId).attr('title') === 'Play audio' ? 'Pause' : 'Play'} audio`)
 }
 
 function toggleReqs (eventObj) {
     let button = eventObj.target;
     if (!$(button).hasClass('disabled')) {
-        var selectedID = $(button).parent().parent().siblings().children()[0].id;
+        let selectedId = $(button).parent().parent().parent().siblings().children()[0].id
         trackList[selectedID].toggleEnvelopeData();
         togglePrimaryBtn(button);
     }
@@ -175,7 +211,7 @@ $('#req-stop').click(function () {
 function muteTrack (eventObj) {
     // THIS IS A BIG OLE HACK!
     let button = eventObj.target;
-    var selectedID = $(button).parent().parent().siblings().children()[0].id;
+    let selectedId = $(button).parent().parent().parent().siblings().children()[0].id
     togglePrimaryBtn(button);
     trackList[selectedID].muteSelected = $(button).hasClass('btn-primary');
 
@@ -199,8 +235,9 @@ function muteTrack (eventObj) {
 
 function soloTrack (eventObj) {
     let button = eventObj.target;
-    let selectedID = $(button).parent().parent().siblings().children()[0].id;
-    let unselectedIDs = $(button).parent().parent().siblings().children();
+    let selectedId = $(button).parent().parent().parent().siblings().children()[0].id
+    // TODO: implement something here
+    // let unselectedIDs = $(button).parent().parent().siblings().children();
 
     trackList[selectedID].isSoloed = !trackList[selectedID].isSoloed;
     trackList[selectedID].soloSelected = trackList[selectedID].isSoloed;
@@ -239,38 +276,20 @@ function soloTrack (eventObj) {
 }
 
 function togglePrimaryBtn(obj) {
-    // $.each(trackList, function(id, t) {
-    //     console.log('id: {0}, s: {1}, m: {2}, sel: {3}'.format(id, t.isSoloed, t.isMuted, t.muteSelected) );
-    // });
-
-    if (!$(obj).hasClass('btn-primary')) {
-        $(obj).addClass('btn-primary');
-    } else {
-        $(obj).removeClass('btn-primary');
-    }
+    !$(obj).hasClass('btn-primary')
+        ? $(obj).addClass('btn-primary')
+        : $(obj).removeClass('btn-primary');
 }
 
 $('#req-save').click(function () {
     let offline = new OfflineAudioContext(2,44100*40,44100);
 
-    $.each(trackList, function(id, t) {
-        t.prepareAudioGraph(offline);
-    });
+    $.each(trackList, (_, t) => t.prepareAudioGraph(offline));
 
-    offline.startRendering().then(function(renderedBuffer) {
-        // let bufferSrc = offline.createBuffer();
-        // bufferSrc.buffer = renderedBuffer;
-
+    offline.startRendering().then((renderedBuffer) => {
         let blob = bufferToWave(renderedBuffer, 0.0, renderedBuffer.length);
         saveAs(blob, 'wut_result.wav', false);
 
-        // let recorder = new Recorder(bufferSrc);
-        // recorder.exportWAV(function(blob) {
-        //     saveAs(blob, 'wut_result.wav', false);
-        // });
-        $.each(trackList, function(id, t) {
-            t.clearAudioGraph();
-        });
+        $.each(trackList, (_, t) => t.clearAudioGraph());
     });
-
 });

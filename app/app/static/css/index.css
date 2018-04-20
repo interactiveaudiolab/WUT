@@ -2,9 +2,19 @@
 @import url('https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css');
 @import url('https://cdnjs.cloudflare.com/ajax/libs/hint.css/2.5.0/hint.css');
 
-
 /* ETHAN CSS */
 /* INCORPORATE BETTER IN THE FUTURE */
+
+/* TODO: almost certainly a better way to do this */
+.segment {
+	fill: rgb(255, 255, 255) !important;
+}
+
+#track-container {
+	margin-left: 0;
+	margin-right: 0;
+}
+
 #tabs-wrapper {
 	padding-left: 95px;
 	padding-right: 95px;
@@ -15,11 +25,52 @@
 	padding: 25px 0;
 }
 
+#rec-btns {
+	margin-bottom: 10px;
+}
+
+/* RECOMMENDATIONS TRACK */
+
 .track-and-controls {
 	margin: 0 5px;
 	border-bottom: 1px solid rgba(0, 0, 0, 0.25);
 	border-top: 1px solid rgba(0, 0, 0, 0.25);
-	background: #9e9e9e17;
+	display: flex;
+	justify-content: space-around;
+}
+
+.track-controls {
+	height: 100px;
+	display: flex;
+	justify-content: space-between;
+}
+
+.algorithm-and-solo-mute-recs {
+	display: flex;
+	flex-flow: column;
+}
+
+.algorithm {
+	/* recenter solo mute recs */
+	margin: 2px 0 -22px 0;
+}
+
+.solo-mute-recs {
+	margin: auto;
+
+	display: flex;
+	justify-content: space-around;
+}
+
+.db-label-cont {
+	display: flex;
+	flex-flow: column;
+	justify-content: space-between;
+	text-align: right;
+}
+
+.db-label {
+	font-size: 0.75em;
 }
 
 .track-and-controls:first-child {
@@ -27,18 +78,21 @@
 }
 
 .waves-ui-container {
-	padding-left: 5px;
+	width: 1500px;
+	padding-left: 2px;
 }
 
-.waves-ui-track {
-	width: 100%
+/* SLIDER HANDLE */
+
+#slider-and-ticks {
+	margin-left: 0 0 0 0;
 }
 
 .slider-handle.custom::before {
-height: 10px;
-font-size: 20px;
-content: '\25BC' !important;
-color: #000000 !important;
+	height: 10px;
+	font-size: 20px;
+	content: '\25BC' !important;
+	color: #000000 !important;
 }
 
 .slider-tick.custom::before {
@@ -49,7 +103,6 @@ color: #000000 !important;
 }
 
 .slider-track {
-	background: #ffffff63 !important;
 	height: 4px !important;
 	margin-top: 4px !important;
 	top: 75% !important;
@@ -65,37 +118,12 @@ color: #000000 !important;
 	background: darkgray;
 }
 
-.background-blink {
-	background: gray;
-}
-
-.db-label {
-	font-size: 0.75em;
-}
-
-.max-db-label {
-	position: absolute;
-	top: 0;
-	right: 0;
-}
-
-.min-db-label {
-	position: absolute;
-	bottom: 0;
-	right: 0;
-}
-
-.track-controls {
-	height: 100px;
-}
-
 #ticks-wrapper {
 	display: flex;
 	flex-direction: column;
-	margin-top: 1em;
+	/* margin-top: 1em; */
 	padding-left: 5px;
 	padding-right: 5px;
-	background: gainsboro;
 }
 
 #ticks {
@@ -143,13 +171,6 @@ body {
 
 	min-height: 100vh;
 	min-width: 100%;
-
-	display: grid;
-	grid-template-rows: 75px 1fr 75px;
-	grid-template-columns: 1fr;
-	grid-template-areas: 	"header"
-												"main"
-												"footer";
 }
 
 header {
@@ -239,6 +260,24 @@ main .interaction {
 	margin-bottom: 30px;
 }
 
+.spectrogram-spinner {
+	align-self: stretch;
+	display: flex;
+	flex-flow: row wrap;
+	justify-content: space-around;
+	align-items: center;
+	padding: 0 20px 10px 20px;
+}
+
+main .interaction > .spectrogram-spinner .title-cont {
+	display: flex;
+	justify-content: center;
+}
+
+main .interaction > .spectrogram-spinner .title-cont > :first-child {
+	margin-right: 5px;
+}
+
 .shared-plots-spinner {
 	align-self: stretch;
 	display: flex;
@@ -286,22 +325,8 @@ main .interaction > .shared-plots-spinner > #spectrogram-cont > #apply-dc-select
 	margin: 20px 30% 0;
 }
 
-.reqs-spinner {
-	align-self: stretch;
-	display: flex;
-	flex-flow: row wrap;
-	justify-content: space-around;
-	align-items: center;
-	padding: 0 20px 10px 20px;
-}
-
-main .reqs-spinner .title-cont {
-	display: flex;
-	justify-content: center;
-}
-
-main .reqs-spinner .title-cont > :first-child {
-	margin-right: 5px;
+#apply-spec-selection {
+	margin: 0 25% 0 75%;
 }
 
 footer {
@@ -615,13 +640,15 @@ body.avgrund-active { transform: scale(0.9); }
 
 /* style wrapper class around content */
 .avgrund-content-wrapper {
-	width: 100%;
-	height: 100%;
+	width: 100vw;
+	height: 100vh;
 
-	/* display: flex;
-	flex-flow: column;
-	justify-content: center;
-	align-items: center; */
+	display: grid;
+	grid-template-rows: 75px 1fr 75px;
+	grid-template-columns: 1fr;
+	grid-template-areas: 	"header"
+												"main"
+												"footer";
 }
 
 /* set up in background */

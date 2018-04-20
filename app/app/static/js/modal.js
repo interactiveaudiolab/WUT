@@ -141,6 +141,9 @@ document.getElementById('modal-begin').addEventListener('click', event => {
       // masked_waveform.clearSurfer()
       // inverse_waveform.clearSurfer()
       // UI
+      $('.shared-spectrogram-spinner').hide();
+      $('#spectrogram-spinner').show();
+
       $('.shared-plots-spinner').hide();
       $('#plots-spinner').show();
       $('#plots-spinner').css('display', 'flex');
