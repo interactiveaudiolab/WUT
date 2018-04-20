@@ -45,6 +45,11 @@ function get_audio_data () {
     return [audio_data, bufferLoader.bufferList[0].sampleRate];
 }
 
+function togglePlayPauseIcon(obj) {
+    $(obj).find('svg').toggleClass('fa-pause fa-play');
+    $(obj).attr('title', `${$(this.playId).attr('title') === 'Play audio' ? 'Pause' : 'Play'} audio`)
+}
+
 // FROM: https://stackoverflow.com/a/30045041
 // Convert a audio-buffer segment to a Blob using WAVE representation
 function bufferToWave(abuffer, offset, len) {

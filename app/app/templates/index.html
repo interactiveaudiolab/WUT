@@ -78,9 +78,18 @@
 
         <div class="tab-content">
             <div class="tab-pane fade show active" id="spectrogram-tab" role="tabpanel" aria-labelledby="spectrogram-tab-bootstrap">
-                <div id="spectrogram-container">
-                    <div id="spectrogram" data-target-name="{{ target_dict['mixture']['name'] }}"> </div>
+                <div id="spectrogram-container" class="shared-spectrogram-spinner">
                     <button id="apply-spec-selection" type="button" class="btn btn-primary disabled">Make Audio Mask from Selection</button>
+                    <div id="spectrogram" data-target-name="{{ target_dict['mixture']['name'] }}"> </div>
+                </div>
+                <div id='spectrogram-spinner' class='spinner-outer shared-spectrogram-spinner'>
+                    <div class="spinner">
+                        <div class="rect1"></div>
+                        <div class="rect2"></div>
+                        <div class="rect3"></div>
+                        <div class="rect4"></div>
+                        <div class="rect5"></div>
+                    </div>
                 </div>
             </div>
 
@@ -130,35 +139,83 @@
             </div>
 
             <div class="tab-pane" id="reqs-tab" role="tabpanel" aria-labelledby="reqs-tab-bootstrap">
-                <div id="reqs-container" class="reqs-spinner">
-                    <div class="row">
-                            <div class="col-md-9 col-md-offset-1">
-                                <div class="btn-group btn-group-sm">
-                                    <button id="req-play" class="btn btn-default play-pause" title="Play">
-                                        <i class="glyphicon glyphicon-play"></i>
-                                    </button>
-                                    <button id="req-stop" class="btn btn-default" title="Stop">
-                                        <i class="glyphicon glyphicon-stop"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="col-md-1">
-                                <button id="req-save" class="btn btn-default btn-sm" title="Save">
-                                    <i class="glyphicon glyphicon-download-alt"></i>
+                <div id="reqs-container">
+                    <div id="rec-btns" class="row">
+                        <div class="col-md-9 offset-md-1">
+                            <div class="btn-group btn-group">
+                                <button id="req-play" class="btn btn-primary play-pause" title="Play">
+                                    <i class="fas fa-play"></i>
+                                </button>
+                                <button id="req-stop" class="btn btn-primary" title="Stop">
+                                        <i class="fas fa-stop"></i>
                                 </button>
                             </div>
                         </div>
-                        <!-- INSERTED TRACKS GO IN HERE -->
-                        <div class="row" id="track-container"></div>
-                </div>
-                <div id='reqs-spinner' class='spinner-outer reqs-spinner'>
-                    <div class="spinner">
-                        <div class="rect1"></div>
-                        <div class="rect2"></div>
-                        <div class="rect3"></div>
-                        <div class="rect4"></div>
-                        <div class="rect5"></div>
+                        <div class="col-md-1">
+                            <button id="req-save" class="btn btn-primary btn" title="Save">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
                     </div>
+
+                    <div class="row" id="track-container">
+                        <div id="slider-and-ticks" class="row">
+                            <div class="col-md-10 offset-md-1">
+                                <div id="ticks-wrapper">
+                                    <div id="ticks">
+                                        <div class="tick major">
+                                            <div class="time">00:00</div>
+                                        </div>
+                                        <div class="tick"></div>
+                                        <div class="tick"></div>
+                                        <div class="tick"></div>
+                                        <div class="tick"></div>
+                                        <div class="tick"></div>
+                                        <div class="tick major">
+                                            <div class="time">06:00</div>
+                                        </div>
+                                        <div class="tick"></div>
+                                        <div class="tick"></div>
+                                        <div class="tick"></div>
+                                        <div class="tick"></div>
+                                        <div class="tick"></div>
+                                        <div class="tick major">
+                                            <div class="time">12:00</div>
+                                        </div>
+                                        <div class="tick"></div>
+                                        <div class="tick"></div>
+                                        <div class="tick"></div>
+                                        <div class="tick"></div>
+                                        <div class="tick"></div>
+                                        <div class="tick major">
+                                            <div class="time">18:00</div>
+                                        </div>
+                                        <div class="tick"></div>
+                                        <div class="tick"></div>
+                                        <div class="tick"></div>
+                                        <div class="tick"></div>
+                                        <div class="tick"></div>
+                                        <div class="tick major">
+                                            <div class="time">00:00</div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-10 offset-md-1" id="transport-slider-wrapper">
+                                <input id="transport-slider" type="text"
+                                        data-slider-handle="custom"
+                                        data-slider-min="0.0"
+                                        data-slider-step="0.01"
+                                        data-slider-value="0.0"
+                                        data-slider-tooltip="hide"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- INSERTED TRACKS GO IN HERE -->
+                    <div id="track-container"></div>
                 </div>
             </div>
         </div>

@@ -21,9 +21,6 @@ var colorDict = {'white': {'line': whiteLine, 'fill': whiteFill },
 $(document).ready(function() {
 	loader = new wavesLoaders.AudioBufferLoader();
 
-    $('#reqs-spinner').show();
-    $('#reqs-container').hide();
-
     // Set up sockets
     socket_namespace = '/wut';
     socket = io.connect(`${location.protocol}//${document.domain}:${location.port}${socket_namespace}`);
@@ -68,12 +65,28 @@ $(document).ready(function() {
     socket.on('bad_file', () => console.log('File rejected by server'));
 
     socket.on('envelope_data', msg => addEnvelopeData(msg.envelopeData, msg.algorithm));
+
+    socket.on('masked_audio', _ => {
+        masked_waveform.load('./get_masked_audio?val=' + Math.random().toString(36).substring(7))
+    });
+
+    socket.on('inverse_audio', _ => {
+        inverse_waveform.load('./get_inverse_audio?val=' + Math.random().toString(36).substring(7))
+    });
 });
 
 function relayoutPlots() {
     resizeToContainer(dcPCA);
     resizeToContainer(dcSpectrogram);
+    resizeToContainer(mixture_spectrogram_heatmap);
 }
+
+// RESIZE ON TAB CHANGE
+// TODO: fix hacky implementation
+$('.nav-link').on('click', () => {
+    console.log('click on a tab');
+    setTimeout(relayoutPlots, 180);
+})
 
 // RESIZE PLOTS ON WINDOW CHANGE
 $(window).resize(relayoutPlots);
@@ -104,11 +117,7 @@ $('#apply-spec-selections').click(function(){
 });
 
 
-mixture_waveform.surfer.on('ready', () => {
-    emptyMultiTrack();
-    $('#reqs-spinner').hide();
-    $('#reqs-container').show();
-});
+mixture_waveform.surfer.on('ready', () => { emptyMultiTrack(); });
 
 $('#results-pill').click(() => {
     $(this).removeClass('result-ready');

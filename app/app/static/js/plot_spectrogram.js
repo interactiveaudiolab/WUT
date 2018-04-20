@@ -33,6 +33,10 @@ class SpectrogramHeatmap extends PlotlyHeatmap {
         // overlapping fields clobbered by child
         _.merge(this.plotLayout, newLayout);
 
+        this.DOMObject.on('plotly_selected', (eventData, data) => {
+            if(data || data.range) { $('#apply-spec-selection').removeClass('disabled') }
+        });
+
         this.emptyHeatmap();
     }
 
@@ -76,6 +80,13 @@ class SpectrogramHeatmap extends PlotlyHeatmap {
             "sizing": "stretch"
         }];
 
-        this.plot = Plotly.newPlot(this.divID, [{ x: [], y: [] }], layout, this.plotOptions);
+        this.plot = Plotly.newPlot(this.divID, [{ x: [], y: [] }], layout, this.plotOptions)
+            .then(() => {
+                $('#spectrogram-spinner').hide();
+                $('.shared-spectogram-spinner').show();
+                $('#spectrogram-container').css('display', 'flex');
+
+                relayoutPlots();
+            });
     }
 }
