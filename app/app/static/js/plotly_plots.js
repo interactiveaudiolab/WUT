@@ -51,17 +51,16 @@ class PlotlyHeatmap {
                 // click and drag event
                 this.selections.push(new BoxSelection(data.range));
                 this.updatePlotWithSelection();
+            } else {
+                // just a click event
+                this.resetSelections();
             }
-            // just a click event
-            else { this.resetSelections(); }
         });
     }
 
     get DOMObject() { return $(`#${this.divID}`) }
 
-    get rawData() {
-        return this._rawData;
-    }
+    get rawData() { return this._rawData; }
 
     set rawData(data) {
         this._rawData = data;
@@ -74,7 +73,6 @@ class PlotlyHeatmap {
     emptyHeatmap() {
         this.plotLayout.yaxis.autorange = false;
         this.plot = Plotly.newPlot(this.divID, [], this.plotLayout, this.plotOptions);
-        // Plotly.relayout(this.divID, { width: this.DOMObject.width() });
     }
 
     static getColor() {
@@ -120,72 +118,34 @@ class PlotlyHeatmap {
 let undoSelections = [];
 let redoSelections = [];
 
-
 $('#undo').click(function() {
-    if( $(this).hasClass("disabled") ) {
-        return;
-    }
+    if($(this).hasClass("disabled")) return;
 
     undoSelections.push(selections.shift());
 });
 
 $('#clear-selection').click(function() {
-    if( $(this).hasClass("disabled") ) {
-        return;
-    }
+    if($(this).hasClass("disabled")) return;
+
     resetSelections('spectrogram');
 });
 
 $('#mixture-spec-delete-unselected').click(function () {
-    if( $(this).hasClass("disabled") ) {
-        return;
-    }
+    if($(this).hasClass("disabled")) return;
+
     postActionAndProcess('RemoveAllButSelections', mixture_spectrogram_heatmap.divID,
         mixture_spectrogram_heatmap.selections);
 });
 
 $('#selection-remove').click(function () {
-    if( $(this).hasClass("disabled") ) {
-        return;
-    }
+    if($(this).hasClass("disabled")) return;
 
     postActionAndProcess('RemoveSelections', mixture_spectrogram_heatmap.target,
         mixture_spectrogram_heatmap.selections);
 });
 
-$('#ft2d-delete-unselected').click(function () {
-    if( $(this).hasClass("disabled") ) {
-        return;
-    }
-    postActionAndProcess('RemoveAllButSelections', ft2d_heatmap.divID, ft2d_heatmap.selections);
-});
-
-$('#ft2d-delete-selected').click(function () {
-    if( $(this).hasClass("disabled") ) {
-        return;
-    }
-
-    postActionAndProcess('RemoveSelections', ft2d_heatmap.divID, ft2d_heatmap.selections);
-});
-
-$('#duet-delete-unselected').click(function () {
-    if( $(this).hasClass("disabled") ) {
-        return;
-    }
-    postActionAndProcess('RemoveAllButSelections', duet_histogram.divID, duet_histogram.selections);
-});
-
-$('#duet-delete-selected').click(function () {
-    if( $(this).hasClass("disabled") ) {
-        return;
-    }
-
-    postActionAndProcess('RemoveSelections', duet_histogram.divID, duet_histogram.selections);
-});
-
 function postActionAndProcess(actionType, target, selections) {
     if (selections.length > 0) {
-
         let selectionData = [];
         for (let sel of selections) {
             selectionData.push(sel.data());
@@ -197,7 +157,7 @@ function postActionAndProcess(actionType, target, selections) {
             data: { selectionData: selectionData }
         };
 
-        let postUrl = '/action?val=' + Math.random().toString(36).substring(7);
+        let postUrl = `/action?val=${Math.random().toString(36).substring(7)}`;
 
         $.ajax({
             type: "POST",
@@ -208,14 +168,13 @@ function postActionAndProcess(actionType, target, selections) {
             data: JSON.stringify({actionData: actionData}),
             success: function () {}
         }).then(function(result) {
-            let url = '/process?val='+ Math.random().toString(36).substring(7);
+            let url = `/process?val=${Math.random().toString(36).substring(7)}`;
             result_waveform.load(url);
         }).then(function() {
             let res = $('#results-pill');
-            if (!res.hasClass('active')) {
-                res.addClass('result-ready');
-            }
-            var url = "/get_spectrogram?get_result=1&val=" + Math.random().toString(36).substring(7);
+            if (!res.hasClass('active')) { res.addClass('result-ready'); }
+
+            var url = `/get_spectrogram?get_result=1&val=${Math.random().toString(36).substring(7)}`;
             make_spectrogram(result_spectrogram_heatmap, url, mixture_waveform.backend.getDuration())
         });
     }

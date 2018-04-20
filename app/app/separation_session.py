@@ -68,8 +68,6 @@ class SeparationSession(object):
 
         self.user_original_file_location = None
         self.user_general_audio = None
-        self.ft2d = None
-        self.duet = None
         self.user_signal = None
         self.masked_path = None
 
@@ -96,8 +94,6 @@ class SeparationSession(object):
         This dictionary links the front end names to the back end objects
         """
         return {'mixture':  {'name': 'MixtureSpectrogram',  'object': self.user_general_audio},
-                'duet':     {'name': 'AtnDelayHistogram',   'object': self.duet},
-                'ft2d':     {'name': 'FT2D',                'object': self.ft2d},
                 'result':   {'name': 'ResultSpectrogram',   'object': None} }
 
     @property
@@ -112,10 +108,6 @@ class SeparationSession(object):
 
         self.user_signal = nussl.AudioSignal(self.user_original_file_location)
         self.user_general_audio = audio_processing.GeneralAudio(self.user_signal, self.user_original_file_folder)
-        self.ft2d = audio_processing.FT2D(self.user_signal, self.user_original_file_folder)
-
-        if self.user_signal.is_stereo:
-            self.duet = audio_processing.Duet(self.user_signal, self.user_original_file_folder)
 
         self.sdr_predictor = recommendations.SDRPredictor(self.user_general_audio.audio_signal_copy,
                                                           self.base_audio_path, self.user_goals, {})
