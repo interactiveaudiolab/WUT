@@ -80,12 +80,11 @@
             <div class="tab-pane fade show active" id="spectrogram-tab" role="tabpanel" aria-labelledby="spectrogram-tab-bootstrap">
                 <div id="spectrogram-container">
                     <div id="spectrogram" data-target-name="{{ target_dict['mixture']['name'] }}"> </div>
+                    <button id="apply-spec-selection" type="button" class="btn btn-primary disabled">Make Audio Mask from Selection</button>
                 </div>
             </div>
 
             <div class="tab-pane interaction" id="deep-clustering-tab" role="tabpanel" aria-labelledby="deep-clustering-tab-bootstrap">
-                <button id="apply-selections" type="button" class="btn btn-primary disabled">Apply Selections</button>
-
                 <div class="shared-plots-spinner">
                     <div id='pca-cont'>
                         <div class='title-cont'>
@@ -115,6 +114,8 @@
                         </div>
 
                         <div id="dc-spectrogram"></div>
+
+                        <button id="apply-dc-selections" type="button" class="btn btn-primary disabled">Make Audio Mask from Selection</button>
                     </div>
                 </div>
                 <div id='plots-spinner' class='spinner-outer shared-plots-spinner'>

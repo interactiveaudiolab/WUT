@@ -88,15 +88,21 @@ $(window).resize(_.debounce(() => mixture_waveform.resizeWaveform(), 500));
 
 //  ~~~~~~~~~~~~~ Apply Selections button ~~~~~~~~~~~~~
 
-$('#apply-selections').click(function(){
+$('#apply-dc-selections').click(function(){
     // probably a better way to check this in the future
-    if(!$('#apply-selections').hasClass('disabled')) {
+    if(!$('#apply-dc-selections').hasClass('disabled')) {
         masked_waveform.setLoading(true);
         inverse_waveform.setLoading(true);
 
         socket.emit('mask', { mask: spectrogram.exportSelectionMask() });
     }
 });
+
+$('#apply-spec-selections').click(function(){
+    // TODO: actually implement this after demo
+    // currently do nothing, button not in use
+});
+
 
 mixture_waveform.surfer.on('ready', () => {
     emptyMultiTrack();
