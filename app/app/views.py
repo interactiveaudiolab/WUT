@@ -123,10 +123,6 @@ def initialize(audio_file_data):
         **{ 'socket': socketio, 'namespace': WUT_SOCKET_NAMESPACE,
             'file_path': file_path })
 
-    # Compute and send the AD histogram, Asynchronously
-    logger.info('Computing and sending AD histogram for {}'.format(filename))
-    socketio.start_background_task(separation_sess.duet.send_ad_histogram_json,
-                                   **{'socket': socketio, 'namespace': WUT_SOCKET_NAMESPACE})
     # Save the session
     save_session(separation_sess)
 

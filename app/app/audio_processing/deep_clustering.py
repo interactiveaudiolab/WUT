@@ -81,27 +81,9 @@ class DeepClustering(audio_processing_base.InteractiveAudioProcessingBase):
 
     def make_mask(self, selections):
         # TODO: Make a mask here from deep clustering results
-
         pass
 
-        # if not self._mask_sanity_check(selections):
-        #     return nussl.separation.BinaryMask.ones(self.audio_signal_copy.stft_data.shape)
-
-        # final_mask = np.zeros_like(self.audio_signal_copy.get_stft_channel(0), dtype=float)
-        # ad_hist = self.atn_delay_hist
-        # for sel in selections:
-        #     mask = sel.make_mask(np.linspace(-3, 3, ad_hist.shape[1]), np.linspace(-3, 3, ad_hist.shape[0]))
-        #     applied_mask = ad_hist * mask
-        #     peaks = nussl.utils.find_peak_indices(applied_mask, 1)
-        #     peaks.append(nussl.utils.find_peak_indices(ad_hist * np.logical_not(mask), 1)[0])
-        #     duet_mask = self.duet.convert_peaks_to_masks(peak_indices=peaks)[1]
-        #     final_mask += duet_mask.get_channel(0)
-
-        # return self._mask_post_processing(final_mask)
-
-
     # UTILITIES BELOW HERE
-
 
     def _massage_data(self, data):
         # Scale and bin PCA points
