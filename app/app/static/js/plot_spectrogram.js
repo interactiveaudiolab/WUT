@@ -2,14 +2,8 @@ function make_spectrogram(heatmap, results, audioLength) {
     let logY = false;
     let freqMax = 150;
 
-    console.log('Got spectrogram from server!');
-    let status = $('#general-status');
-    status.text('Drawing Spectrogram...');
-
     heatmap.rawData = results;
     heatmap.drawHeatmap(audioLength, freqMax, logY);
-
-    status.text('Ready...');
 }
 
 function getSpectrogramAsImage(heatmap, freqMax) {
@@ -17,11 +11,9 @@ function getSpectrogramAsImage(heatmap, freqMax) {
     let duration = mixture_waveform.surfer.backend.getDuration();
 
     heatmap.drawImage(url, duration, freqMax);
-    enableTools(true, '.spec-tool');
 }
 
 class SpectrogramHeatmap extends PlotlyHeatmap {
-
     constructor(divID, yMax) {
         super(divID, yMax);
         this.audioLength = null;
@@ -84,7 +76,6 @@ class SpectrogramHeatmap extends PlotlyHeatmap {
             "sizing": "stretch"
         }];
 
-        console.log("About to plot spectrogram");
         this.plot = Plotly.newPlot(this.divID, [{ x: [], y: [] }], layout, this.plotOptions);
     }
 }

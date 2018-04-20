@@ -21,7 +21,7 @@ class Avgrund {
   show() {
     this._setListeners(true)
     this.container.classList.add(this.active);
-    }
+  }
 
   hide(dontClean) {
     this._setListeners(false)

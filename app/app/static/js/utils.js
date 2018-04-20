@@ -12,9 +12,7 @@ function namespace(namespaceString) {
     return parent;
 }
 
-function truncateFloat(val, trunc) {
-    return Number(val.toFixed(trunc));
-}
+function truncateFloat(val, trunc) { return Number(val.toFixed(trunc)); }
 
 function getLastObject(obj) {
     // Fancy little one liner to get the LAST object in a JS obj
@@ -22,22 +20,14 @@ function getLastObject(obj) {
     return obj[Object.keys(obj)[Object.keys(obj).length - 1]];
 }
 
-function getLastItemInArray(arr) {
-    return arr[arr.length - 1];
-}
+function getLastItemInArray(arr) { return arr[arr.length - 1]; }
 
-function getFirstObject(obj) {
-    // Fancy little one liner to get the FIRST object in a JS obj
-    return obj[Object.keys(obj)[0]];
-}
+// Fancy little one liner to get the FIRST object in a JS obj
+function getFirstObject(obj) { return obj[Object.keys(obj)[0]]; }
 
-function numberOfRegions() {
-    return objectLength(mixture_waveform.regions.list);
-}
+function numberOfRegions() { return objectLength(mixture_waveform.regions.list); }
 
-function objectLength(obj) {
-    return Object.keys(obj).length;
-}
+function objectLength(obj) { return Object.keys(obj).length; }
 
 function arange(start, stop, num_steps) {
     var result = [];
@@ -53,10 +43,8 @@ function arange(start, stop, num_steps) {
 }
 
 function findClosestIndexInSortedArray(sortedArray, target) {
-    if (!(sortedArray) || sortedArray.length === 0)
-        return null;
-    if (sortedArray.length === 1)
-        return arr[0];
+    if (!(sortedArray) || sortedArray.length === 0) return null;
+    if (sortedArray.length === 1) return arr[0];
 
     var i = 1;
     for (; i < sortedArray.length; i++) {
@@ -86,10 +74,6 @@ function generateTicks(xaxisRange, duration) {
 }
 
 // converts matrix of index lists to matrix of density values for plotting
-pcaMatrixToHistogram = (pca) => {
-    return pca.map(row => row.map(inds => Math.log(inds.length + 1)))
-}
+pcaMatrixToHistogram = (pca) => pca.map(row => row.map(inds => Math.log(inds.length + 1)))
 
-resizeToContainer = (plot) => {
-    Plotly.relayout(plot.divID, { width: plot.DOMObject.width() });
-}
+resizeToContainer = (plot) => Plotly.relayout(plot.divID, { width: plot.DOMObject.width() });

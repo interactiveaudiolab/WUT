@@ -8,16 +8,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap-multiselect.css') }}">
-    <!-- <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"/> -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.0.0/css/bootstrap-slider.min.css">
 
     <script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
 
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/modernizr-2.8.3.min.js') }}"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.0.0/bootstrap-slider.min.js"></script>
+
 
     <!-- expensive import for solely debounce, maybe just write our own? -->
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.5/lodash.min.js"></script>
@@ -30,7 +29,6 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/wavesurfer.regions.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/wavesurfer.timeline.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/FileSaver.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/bootstrap-multiselect.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/socket.io.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/waves-loaders.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/waves-ui.min.js') }}"></script>
@@ -65,53 +63,27 @@
         </div>
 
         <div id="tabs-wrapper">
-            <ul class="nav nav-tabs" id='mainTabs'>
+            <ul class="nav nav-tabs" id='mainTabs' role='tablist'>
                 <li class="nav-item">
-                    <a class="nav-link" href="#spectrogram-tab">Spectrogram</a>
+                    <a class="nav-link active" id="spectrogram-tab-bootstrap" data-toggle="tab" href="#spectrogram-tab" role="tab" aria-selected="true">Spectrogram</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#deep-clustering-tab">Deep Clustering</a>
+                    <a class="nav-link" id="deep-clustering-tab-bootstrap" data-toggle="tab" href="#deep-clustering-tab" role="tab">Deep Clustering</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#reqs-tab">Recommendations</a>
+                    <a class="nav-link" id="reqs-tab-bootstrap" data-toggle="tab" href="#reqs-tab" role="tab">Recommendations</a>
                 </li>
             </ul>
         </div>
 
         <div class="tab-content">
-            <div class="tab-pane active" id="spectrogram-tab">
-                <div class="row" id="spectrogram-controls">
-                    <div class="col-md-1"></div>
-                    <div class="col-md-1" id="waveform-zoom-buttons">
-                        <div class="btn-group btn-group-sm" role="group" aria-label="Zoom">
-                            <button type="button" class="btn btn-secondary" id="mixture-zoom-in" title="Zoom in">
-                                <i class="fa fa-search-plus"></i>
-                            </button>
-                            <button type="button" class="btn btn-secondary" id="mixture-zoom-out" title="Zoom out">
-                                <i class="fa fa-search-minus"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <button type="button" class="btn btn-sm btn-secondary disabled" id="selection-remove">
-                            <i class="fa fa-eraser" aria-hidden="true"></i>
-                        </button>
-                    </div>
-
-                    <div class="col-md-2">
-                        <div id="spec-color" class="btn-group btn-group-sm" role="group" aria-label="Color selection">
-                            <button type="button" class="btn btn-secondary active" id="white">White</button>
-                            <button type="button" class="btn btn-secondary" id="green">Green</button>
-                        </div>
-                    </div>
-                </div>
+            <div class="tab-pane fade show active" id="spectrogram-tab" role="tabpanel" aria-labelledby="spectrogram-tab-bootstrap">
                 <div id="spectrogram-container">
                     <div id="spectrogram" data-target-name="{{ target_dict['mixture']['name'] }}"> </div>
                 </div>
             </div>
 
-            <div id='deep-clustering-tab' class="tab-pane interaction">
+            <div class="tab-pane interaction" id="deep-clustering-tab" role="tabpanel" aria-labelledby="deep-clustering-tab-bootstrap">
                 <button id="apply-selections" type="button" class="btn btn-primary disabled">Apply Selections</button>
 
                 <div class="shared-plots-spinner">
@@ -135,7 +107,7 @@
 
                     <div id='spectrogram-cont'>
                         <div class='title-cont'>
-                            <div>Spectrogram</div>
+                            <div>Mel Spectrogram</div>
 
                             <div class="hint--top hint--large hint--rounded" aria-label="Visual representation of audio signal. Frequency in mels, time  in seconds. Each point on the x-axis is a single STFT taken over j samples. Intensity of a specific frequency over a specific window is given by color.">
                                 <i class="fa fa-info-circle"></i>
@@ -156,7 +128,7 @@
                 </div>
             </div>
 
-            <div class="tab-pane" id="reqs-tab">
+            <div class="tab-pane" id="reqs-tab" role="tabpanel" aria-labelledby="reqs-tab-bootstrap">
                 <div id="reqs-container" class="reqs-spinner">
                     <div class="row">
                             <div class="col-md-9 col-md-offset-1">
@@ -277,7 +249,6 @@
 
     <!-- modal cover behind -->
     <div class="avgrund-cover"></div>
-
 
     <script type="text/javascript" src="{{ url_for('static', filename='js/utils.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/plotly_plots.js') }}"></script>

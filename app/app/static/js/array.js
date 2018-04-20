@@ -14,9 +14,7 @@ function zeros_like(array) {
 	return Array.matrix(array.length, array[0].length, 0.0);
 }
 
-function zeros(numrows, numcols){
-	return Array.matrix(numrows, numcols, 0.0);
-}
+function zeros(numrows, numcols) { return Array.matrix(numrows, numcols, 0.0); }
 
 function abs_matrix(mat) {
     var magnitude = zeros_like(mat);
@@ -30,11 +28,9 @@ function abs_matrix(mat) {
     return magnitude;
 }
 
-var reverse_range = function(a, b) {
-	return range(a,b).reverse();
-};
+var reverse_range = (a, b) => range(a,b).reverse();
 
-var range = function(a, b) {
+var range = (a, b) => {
   var d = [];
   var c = b - a + 1;
   while (c--) {
@@ -57,16 +53,12 @@ function add_matrix(mat1, mat2) {
     return result;
 }
 
-function transpose(a)
-{
-  return a[0].map(function (_, c) { return a.map(function (r) { return r[c]; }); });
-}
-
+function transpose(a) { return a[0].map(_, c => a.map(r => r[c])); }
 
 function minMax2D(a) {
     var min, max;
-    a.forEach(function(itm) {
-        itm.forEach(function(itmInner) {
+    a.forEach(itm => {
+        itm.forEach(itmInner => {
             min = (min === undefined || itmInner < min) ? itmInner : min;
             max = (max === undefined || itmInner > max) ? itmInner : max;
         });
@@ -76,17 +68,11 @@ function minMax2D(a) {
 }
 
 function squareTypedArray(array) {
-    array.forEach(function (elt, idx, arr) {
-        arr[idx] = elt * elt;
-    });
+    array.forEach((elt, idx, arr) => arr[idx] = elt * elt);
     return array;
 }
 
-function add_arrays(arr1, arr2) {
-    return arr1.map(function(a, i) {
-        return a + arr2[i];
-    });
-}
+function add_arrays(arr1, arr2) { return arr1.map((a, i) => a + arr2[i]); }
 
 function mvg_avg_derivative(array, n) {
     var mvg_avg = [];
@@ -103,7 +89,5 @@ function mvg_avg_derivative(array, n) {
         result.push(mvg_avg[i] - mvg_avg[i - 1]);
     }
 
-    return result.filter(function (value) {
-        return !Number.isNaN(value);
-    });
+    return result.filter(value => !Number.isNaN(value));
 }

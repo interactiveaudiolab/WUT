@@ -1,14 +1,9 @@
 var audio = { waveforms: all_waveforms };
 var mixture_audio_file = {file:null, url:null};
-var AUDIOFILES;
-var BUFFERS;
 var context;
 
 var bufferLoader;
 var spec_data;
-
-var DO_STFT_ON_CLIENT = false;
-
 
 audio.import_audio = function() {
     for(let waveform of audio.waveforms) {
@@ -20,39 +15,17 @@ audio.import_audio = function() {
     $('input[type=file]').click();
 }
 
-// $('#input_audio_file').change(function () {
-//     // if user clicks upload but then cancels
-//     if(this.files.length == 0) { return; }
-
-//     mixture_audio_file.file = this.files[0];
-//     mixture_audio_file.url = URL.createObjectURL(mixture_audio_file.file);
-
-//     $("#filename").text(mixture_audio_file.file.name);
-//     $('#extraction-goal').multiselect('enable');
-
-//     // $('.shared-plots-spinner').hide();
-//     // $('#plots-spinner').show();
-//     // $('#plots-spinner').css('display', 'flex')
-//     // pca.clearSelections();
-
-//     mixture_audio_file.upload_to_server(this);
-
-//     // masked_waveform.clearSurfer()
-//     // inverse_waveform.clearSurfer()
-// });
-
 mixture_audio_file.upload_to_server = function (obj) {
-    if($(obj).prop('files').length > 0)
-    {
+    if($(obj).prop('files').length > 0) {
         file = $(obj).prop('files')[0];
         file_with_metadata = {
             'file_name': file.name,
             'file_size': file.size,
             'file_type': file.type,
-            'file_data': file };
+            'file_data': file
+        };
         socket.compress(true).emit('audio_upload', {'audio_file': file_with_metadata});
-    }
-    else {
+    } else {
         socket.emit('audio_upload', {'audio_file': null});
     }
 }
