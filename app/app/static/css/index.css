@@ -190,10 +190,6 @@ main > .waveform-cont > :first-child {
 	flex: 0 0 80px;
 }
 
-/* main > .waveform-cont > #upload {
-	cursor: pointer;
-} */
-
 main > .waveform-cont > .waveform-title {
 	font-size: 1em;
 	font-family: Arial, Helvetica, sans-serif;
@@ -222,7 +218,7 @@ main > .waveform-cont > #mixture-waveform, .shared-waveform-spinner {
 	flex: 1;
 }
 
-main > .interaction {
+main .interaction {
 	flex: 1 0 auto;
 	display: flex;
 	flex-flow: column;
@@ -231,8 +227,16 @@ main > .interaction {
 	align-items: center;
 }
 
-main > .interaction > #apply-selections {
-	margin: 10px 0 30px 0;
+#spectrogram-container {
+	display: flex;
+	flex-flow: column;
+	justify-content: space-around;
+	align-items: center;
+}
+
+#spectrogram {
+	align-self: stretch;
+	margin-bottom: 30px;
 }
 
 .shared-plots-spinner {
@@ -244,26 +248,26 @@ main > .interaction > #apply-selections {
 	padding: 0 20px 10px 20px;
 }
 
-main > .interaction > .shared-plots-spinner .title-cont {
+main .interaction > .shared-plots-spinner .title-cont {
 	display: flex;
 	justify-content: center;
 }
 
-main > .interaction > .shared-plots-spinner .title-cont > :first-child {
+main .interaction > .shared-plots-spinner .title-cont > :first-child {
 	margin-right: 5px;
 }
 
-main > .interaction > .shared-plots-spinner > #pca-cont, #spectrogram-cont {
+main .interaction > .shared-plots-spinner > #pca-cont, #spectrogram-cont {
 	display: flex;
 	flex-flow: column;
 	justify-content: space-around;
 }
 
-main > .interaction > .shared-plots-spinner > #pca-cont {
+main .interaction > .shared-plots-spinner > #pca-cont {
 	flex: 0 1 29%;
 }
 
-main > .interaction > .shared-plots-spinner > #spectrogram-cont {
+main .interaction > .shared-plots-spinner > #spectrogram-cont {
 	flex: 0 1 65%;
 
 	/*
@@ -275,6 +279,11 @@ main > .interaction > .shared-plots-spinner > #spectrogram-cont {
 		plots become unusably small, corresponds to window width of 1280
 	*/
 	min-width: 850px;
+}
+
+main .interaction > .shared-plots-spinner > #spectrogram-cont > #apply-dc-selections {
+	min-width: 0px;
+	margin: 20px 30% 0;
 }
 
 .reqs-spinner {
@@ -405,16 +414,16 @@ footer p {
 	min-width on spectrogram
 */
 @media screen and (max-width: 1280px) {
-	main > .interaction > .shared-plots-spinner {
+	main .interaction > .shared-plots-spinner {
 		align-content: center;
 	}
 
-	main > .interaction > .shared-plots-spinner > #pca-cont {
+	main .interaction > .shared-plots-spinner > #pca-cont {
 		flex: 0 1 45%;
 		margin-bottom: 50px;
 	}
 
-	main > .interaction > .shared-plots-spinner > #spectrogram-cont {
+	main .interaction > .shared-plots-spinner > #spectrogram-cont {
 		min-width: 0;
 		flex: 0 1 90%;
 	}
@@ -493,7 +502,7 @@ body.avgrund-active { transform: scale(0.9); }
 	/* Note: this justify-content has no effect if uncommented due to
 		 `margin: auto` on next button. Auto margins are idiomatic method for making
 		 specific alignments along main axis */
-	justify-content: space-around;
+	/* justify-content: space-around; */
 }
 
 /* uploading or recording audio page */

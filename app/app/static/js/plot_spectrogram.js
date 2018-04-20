@@ -15,23 +15,23 @@ function getSpectrogramAsImage(heatmap, freqMax) {
 
 class SpectrogramHeatmap extends PlotlyHeatmap {
     constructor(divID, yMax) {
-        super(divID, yMax);
+        super(divID);
+
+        yMax = yMax !== undefined ? yMax : 20000.0;
         this.audioLength = null;
         this.freqMax = null;
 
-        this.plotLayout = {
-            xaxis: {
-                title: "Time (s)",
-                type: "linear",
-                range: [0.0, 1.0],
-            },
+        let newLayout = {
+            xaxis: { title: "Time (s)" },
             yaxis: {
                 title: "Frequency (Hz)",
-                type: "linear",
-                autorange: true,
-                range: [0.0, 20000.0]
+                range: [0.0, yMax]
             }
         };
+
+        // merges super and child layouts
+        // overlapping fields clobbered by child
+        _.merge(this.plotLayout, newLayout);
 
         this.emptyHeatmap();
     }

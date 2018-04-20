@@ -7,13 +7,9 @@ class ScatterSpectrogram extends PlotlyHeatmap {
     constructor(divID) {
         super(divID);
         let newLayout = {
-            xaxis: {
-                title: "Time (s)"
-            },
-            yaxis: {
-                title: "Frequency (Mel)",
-            },
-            showlegend: false,
+            xaxis: { title: "Time (s)" },
+            yaxis: { title: "Frequency (Mel)" },
+            showlegend: false
         };
 
         // merges super and child layouts
@@ -22,7 +18,7 @@ class ScatterSpectrogram extends PlotlyHeatmap {
 
         // maybe somehow deal with duplicate markers?
         // for now just add them on top
-        this.markers = []
+        this.markers = [];
 
         this.DOMObject.on('plotly_selected', (eventData, data) => {
             if(!data || !data.range) { this.clearMarkers(); }
@@ -37,8 +33,8 @@ class ScatterSpectrogram extends PlotlyHeatmap {
     }
 
     addMarkers(x_marks, y_marks, color) {
-        let coords = x_marks.map((x, i) => [x, y_marks[i]])
-        this.markers = this.markers.concat(coords)
+        let coords = x_marks.map((x, i) => [x, y_marks[i]]);
+        this.markers = this.markers.concat(coords);
 
         let data = {
             x: x_marks,
@@ -58,7 +54,7 @@ class ScatterSpectrogram extends PlotlyHeatmap {
     // returns TF mel matrix with 1s in all TF bins
     // currently selected
     exportSelectionMask() {
-        let matrix = [...new Array(this.dims[1])].map(() => [... new Array(this.dims[0])].map(() => 0))
+        let matrix = [...new Array(this.dims[1])].map(() => [... new Array(this.dims[0])].map(() => 0));
         this.markers.forEach(([x, y]) => { matrix[x][y] = 1 });
         return matrix;
     }
@@ -67,7 +63,10 @@ class ScatterSpectrogram extends PlotlyHeatmap {
         if(aboutToLoad) {
             // do nothing for now
         } else {
+            // TODO: don't do both test and index versions here, super hacky
+            $('#apply-dc-selections').removeClass('disabled');
             $('#apply-selections').removeClass('disabled');
+
             $('.shared-plots-spinner').show();
             $('#plots-spinner').hide();
             relayoutPlots();
