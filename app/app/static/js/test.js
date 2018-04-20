@@ -23,14 +23,14 @@ $(document).ready(function() {
     context = online;
 
     socket_namespace = '/wut';
-    socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + socket_namespace);
+    socket = io.connect(`${location.protocol}//${document.domain}:${location.port}${socket_namespace}`);
 
     socket.on('connect', () => console.log('Socket connected'));
 
-    socket.on('disconnect', (reason) => console.log(`Socket disconnected: ${reason}`));
+    socket.on('disconnect', why => console.log(`Socket disconnected: ${why}`));
 
-    socket.on('pca', (message) => {
-        indices = JSON.parse(message)
+    socket.on('pca', msg => {
+        indices = JSON.parse(msg)
 
         pca.addTFIndices(indices);
         let hist = pcaMatrixToHistogram(pca.TFIndices)
@@ -39,8 +39,8 @@ $(document).ready(function() {
         make_pca(pca, hist, 100, 100)
     });
 
-    socket.on('mel', (message) => {
-        let spec_data = JSON.parse(message);
+    socket.on('mel', msg => {
+        let spec_data = JSON.parse(msg);
         spectrogram.dims = [spec_data.length, spec_data[0].length]
 
         // currently hardcoding in max mel freq
@@ -48,17 +48,13 @@ $(document).ready(function() {
         getMelScatterSpectrogramAsImage(spectrogram, spectrogram.dims[1], durationInSecs, 150);
     });
 
-    socket.on('masked_audio', (message) => {
+    socket.on('masked_audio', _ => {
         masked_waveform.load('./get_masked_audio?val=' + Math.random().toString(36).substring(7))
     });
 
-    socket.on('inverse_audio', (message) => {
+    socket.on('inverse_audio', _ => {
         inverse_waveform.load('./get_inverse_audio?val=' + Math.random().toString(36).substring(7))
     });
-});
-
-document.addEventListener('DOMContentLoaded', function () {
-    $('#open-modal').modal({ backdrop: 'static', keyboard: false });
 });
 
 function relayoutPlots() {

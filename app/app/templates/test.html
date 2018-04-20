@@ -9,11 +9,9 @@
 
     <script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/test.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/vendor/bootstrap-multiselect.css') }}">
 
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/modernizr-2.8.3.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/vendor/jquery-3.2.0.js') }}"></script>
-    <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+    <script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <!-- expensive import for solely debounce, maybe just write our own? -->
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.5/lodash.min.js"></script>
@@ -25,8 +23,6 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/wavesurfer.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/wavesurfer.regions.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/wavesurfer.timeline.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/FileSaver.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/bootstrap-multiselect.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/socket.io.js') }}"></script>
 </head>
 </head>
@@ -238,7 +234,6 @@
     <!-- modal cover behind -->
     <div class="avgrund-cover"></div>
 
-
     <script type="text/javascript" src="{{ url_for('static', filename='js/utils.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/plotly_plots.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/plot_spectrogram.js') }}"></script>
@@ -248,8 +243,6 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/waveform.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/test.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/array.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/stft.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/csv_parse.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/audio.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/selection.js') }}"></script>
 </body>

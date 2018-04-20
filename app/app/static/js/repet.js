@@ -1,4 +1,3 @@
-
 self.addEventListener('message', function (e) {
     var data = e.data;
     switch (data.cmd) {
@@ -18,39 +17,26 @@ var beat_spectrum = {};
 
 beat_spectrum.compute = function() {
     var audio_data = get_audio_data();
-    if (audio_data == -1) {
-        // TODO: error message here
-        return;
-    }
+    // TODO: error message here
+    if (audio_data == -1) { return; }
     var audio_array_data = audio_data[0];
 
     var window_size = 2048, hop_size = window_size / 2, sample_rate = audio_data[1];
     var spectrogram_data = STFT(audio_array_data, window_size, hop_size, '', sample_rate);
-    // show_spectrogram(JSON.stringify(spectrogram_data));
     show_spectrogram_plotly(spectrogram_data);
 
     var start = 0;
     var end = audio_array_data.length;
     var ten_seconds_index = 10.0 * sample_rate;
-    if (end > ten_seconds_index) {
-        end = audio_array_data.splice(0, end);
-    }
+    if (end > ten_seconds_index) { end = audio_array_data.splice(0, end); }
 
     var b = compute_beat_spectrum(spectrogram_data, sample_rate, start, end);
     show_beat_spectrum_plotly(b);
-
 };
 
-beat_spectrum.plot = function () {
-
-};
-
-function do_run_repet() {
-    beat_spectrum.compute();
-}
+function do_run_repet() { beat_spectrum.compute(); }
 
 function compute_beat_spectrum(stft, sample_rate, start, end) {
-
     var n_time_bins = stft[0].length;
 
     // twice stft length, but then we need to go to the next highest power of 2
@@ -99,6 +85,4 @@ function compute_beat_spectrum(stft, sample_rate, start, end) {
     }
 
     return result;
-
 }
-

@@ -1,13 +1,10 @@
-
 const PLAY_STATUS = {
     PLAYING: "PLAYING",
     STOPPED: "STOPPED",
     PAUSED: "PAUSED"
 };
 
-
 class Track {
-
     constructor(buffer, context, trackID, envelopeData, slider, audioEndCallback, totalTracks) {
         this._buffer = buffer;
         this._trackID = trackID;
@@ -49,11 +46,9 @@ class Track {
         this._pausedAt = 0;
 
         this._drawWholeTrack();
-
     }
 
     _drawWholeTrack() {
-
         var width = $(this._trackID).actual( 'width' );
         var pixelsPerSecond = width / this._buffer.duration;
 
@@ -95,47 +90,29 @@ class Track {
         this._timeContext.start = 0.0;
 
         this._waveformLayer.setTimeContext(this._timeContext);
-        this._waveformLayer.configureShape(wavesUI.shapes.Waveform, {
-            y: function (d) {
-                return d;
-            },
-        }, {
-            color: waveformColor
-        });
+        this._waveformLayer.configureShape(wavesUI.shapes.Waveform,
+            { y: d => d }, { color: waveformColor });
         // as the waveform is an `entity` layer, we have to edit the context directly
         this._waveformLayer.setContextEditable(true);
     }
 
     _makeNewBreakpointLayer(breakpointColor) {
+        if (!this._timeline) throw Error('this._timeline is null!')
+        if (!this._timeContext) throw Error('this._timeContext is null!')
 
-        if (!this._timeline) {
-            throw Error('this._timeline is null!')
-        }
-
-        if (!this._timeContext) {
-            throw Error('this._timeContext is null!')
-        }
-
-        this._breakpointLayer = new wavesUI.core.Layer('collection', this._envelopeData, {
-            height: this._height
-        });
+        this._breakpointLayer = new wavesUI.core.Layer('collection',
+            this._envelopeData, { height: this._height });
 
         let accessors = {
             cx: function (d, v) {
-                if (v !== undefined) {
-                    d.x = v;
-                }
+                if (v !== undefined) { d.x = v; }
                 return d.x;
             },
             cy: function (d, v) {
-                if (v !== undefined) {
-                    d.y = v;
-                }
+                if (v !== undefined) { d.y = v; }
                 return d.y;
             },
-            color: function (d) {
-                return breakpointColor;
-            }
+            color: _ => breakpointColor
         };
 
         this._breakpointLayer.setTimeContext(this._timeContext);
@@ -143,10 +120,9 @@ class Track {
         this._breakpointLayer.configureShape(wavesUI.shapes.Dot, accessors);
         this._breakpointLayer.setBehavior(new wavesUI.behaviors.BreakpointBehavior());
 
-        this._timeline.state = new wavesUI.states.BreakpointState(this._timeline, function (x, y) {
-            // this callback allow to create a datum from values represented by the new dot
-            return {x: x, y: y};
-        });
+        // this callback allow to create a datum from values represented by the new dot
+        this._timeline.state = new wavesUI.states.BreakpointState(this._timeline,
+            (x, y) => { return {x: x, y: y}; });
     }
 
     _makeNewCursorLayer() {
@@ -156,17 +132,11 @@ class Track {
         });
 
         this._cursorLayer.setTimeContext(this._timeContext);
-        this._cursorLayer.configureShape(wavesUI.shapes.Cursor, {
-            x: function (d) {
-                return d.currentPosition;
-            }
-        }, {
-            color: 'black'
-        });
+        this._cursorLayer.configureShape(wavesUI.shapes.Cursor,
+            { x: d => d.currentPosition }, { color: 'black' });
     }
 
     _animateCursor() {
-
         if (this.isPlaying()) {
             this.cursorPosition = this.getCurrentTime() + this._pausedAt;
 
@@ -175,16 +145,12 @@ class Track {
                 return;
             }
 
-            requestAnimationFrame($.proxy(function () {
-                this._animateCursor()
-            }, this));
+            requestAnimationFrame($.proxy(() => this._animateCursor(), this));
         }
     }
 
     set cursorPosition(value) {
-        if (value >= this._buffer.duration) {
-            value = this._buffer.duration;
-        }
+        if (value >= this._buffer.duration) { value = this._buffer.duration; }
 
         this._cursorData.currentPosition = value;
         this._timeline.tracks.update(this._cursorLayer);
@@ -196,9 +162,7 @@ class Track {
         }
     }
 
-    get cursorPosition() {
-        return this._cursorData.currentPosition;
-    }
+    get cursorPosition() { return this._cursorData.currentPosition; }
 
     setEnvelopeData(data) {
         this.clearAllEnvelopeData();
@@ -238,11 +202,7 @@ class Track {
     }
 
     toggleEnvelopeData() {
-        if (this._envelopeDataHidden) {
-            this.showEnvelopeData();
-        } else {
-            this.hideEnvelopeData();
-        }
+        this._envelopeDataHidden ? this.showEnvelopeData() : this.hideEnvelopeData();
     }
 
     muteEnvelopeData() {
@@ -256,7 +216,6 @@ class Track {
     }
 
     _changeBreakpointColor(envelopeColor, waveformOpacity) {
-
         this._timeline.tracks.layers[0].params.opacity = waveformOpacity;
 
         this._envelopeData = this._breakpointLayer.data; // save current data
@@ -271,11 +230,7 @@ class Track {
     }
 
     toggleEnvelopeColor() {
-        if (this._envelopeDataColorMuted) {
-            this.unmuteEnvelopeData();
-        } else {
-            this.muteEnvelopeData();
-        }
+        this._envelopeDataColorMuted ? this.unmuteEnvelopeData() : this.muteEnvelopeData();
     }
 
     changeWaveformBuffer(buffer, ch) {
@@ -284,14 +239,7 @@ class Track {
         this._redrawLayer(this._waveformLayer);
     }
 
-    togglePlayPause() {
-        if (this.isPlaying()) {
-            this.pause();
-
-        } else {
-            this.play();
-        }
-    }
+    togglePlayPause() { this.isPlaying() ? this.pause() : this.play(); }
 
     play() {
         this._status = PLAY_STATUS.PLAYING;
@@ -309,17 +257,11 @@ class Track {
         this._stopAudio();
     }
 
-    isPlaying() {
-        return this._status === PLAY_STATUS.PLAYING;
-    }
+    isPlaying() { return this._status === PLAY_STATUS.PLAYING; }
 
-    isPaused() {
-        return this._status === PLAY_STATUS.PAUSED;
-    }
+    isPaused() { return this._status === PLAY_STATUS.PAUSED; }
 
-    isStopped() {
-        return this._status === PLAY_STATUS.STOPPED;
-    }
+    isStopped() { return this._status === PLAY_STATUS.STOPPED; }
 
     mute() {
         this.isMuted = true;
@@ -331,9 +273,7 @@ class Track {
 
     unmute() {
         this.isMuted = false;
-        if (this._gainNode) {
-            this._setGains(this._context.currentTime);
-        }
+        if (this._gainNode) { this._setGains(this._context.currentTime); }
     }
 
     toggleMuteUnmute() {
@@ -347,20 +287,15 @@ class Track {
     }
 
     prepareAudioGraph(context) {
-
-        if (context === undefined)
-            context = this._context;
+        if (context === undefined) context = this._context;
 
         this._sourceNode = context.createBufferSource();
         this._sourceNode.buffer = this._buffer;
 
         let this_ = this;
-        this._sourceNode.onended = function() {
-            this_._audioEnded();
-        };
+        this._sourceNode.onended = () => this_._audioEnded();
 
-        if (!context.createGain)
-            context.createGain = context.createGainNode;
+        if (!context.createGain) context.createGain = context.createGainNode;
 
         this._gainNode = context.createGain();
 
@@ -369,11 +304,9 @@ class Track {
         this._gainNode.connect(context.destination);
 
         this._setGains(context.currentTime);
-
     }
 
     _setGains(currentTime) {
-
         let envelopeData = this._timeline.tracks[0].layers[2].data;
 
         var this_ = this;
@@ -387,9 +320,7 @@ class Track {
             envelopeData[i] = {x: x_, y: y_};
         });
 
-        if (!this._gainNode) {
-            return;
-        }
+        if (!this._gainNode) { return; }
 
         if (this.isMuted) {
             this._gainNode.gain.setValueAtTime(0, currentTime);
@@ -435,17 +366,12 @@ class Track {
 
         this._startedAt = this._context.currentTime - offset;
         this._pausedAt = 0;
-
     }
 
     getCurrentTime() {
-        if(this._pausedAt) {
-            return this._pausedAt;
-        }
-        if(this._startedAt) {
-            return this._context.currentTime - this._startedAt;
-        }
-        return 0;
+        if(this._pausedAt) return this._pausedAt;
+        else if(this._startedAt) return this._context.currentTime - this._startedAt;
+        else return 0;
     }
 
     _pauseAudio() {

@@ -6,7 +6,6 @@ var dcSpectrogram = new ScatterSpectrogram('dc-spectrogram');
 var dcPCA = new PCAHeatmap('pca');
 dcPCA.addLinkedSpectrogram(dcSpectrogram)
 
-
 var socket;
 var loader;
 
@@ -25,38 +24,30 @@ $(document).ready(function() {
     $('#reqs-spinner').show();
     $('#reqs-container').hide();
 
-    $("#mainTabs").find("a").click(function(e){
-        e.preventDefault();
-        $(this).tab('show');
-    });
-
     // Set up sockets
-
     socket_namespace = '/wut';
-    socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + socket_namespace);
+    socket = io.connect(`${location.protocol}//${document.domain}:${location.port}${socket_namespace}`);
 
     socket.on('connect', () => console.log('Socket connected'));
 
-    socket.on('disconnect', (reason) => console.log(`Socket disconnected: ${reason}`));
+    socket.on('disconnect', why => console.log(`Socket disconnected: ${why}`));
 
-    socket.on('audio_upload_ok', function () {
-        console.log('Audio uploaded to server.');
-        $('#general-status').text('Audio uploaded to server.');
+    socket.on('audio_upload_ok', () => {
+        console.log('Audio uploaded to server');
         initMultiTrack();
     });
 
-    socket.on('spectrogram', (msg) => {
+    socket.on('spectrogram', msg => {
         var data = JSON.parse(msg.spectrogram);
         make_spectrogram(mixture_spectrogram_heatmap, data, mixture_waveform.surfer.backend.getDuration());
     });
 
-    socket.on('spectrogram_image_ready', (msg) => {
-        console.log('Spectrogram image ready!')
+    socket.on('spectrogram_image_ready', msg => {
         getSpectrogramAsImage(mixture_spectrogram_heatmap, msg.max_freq);
     });
 
-    socket.on('pca', function(message) {
-        indices = JSON.parse(message)
+    socket.on('pca', msg => {
+        indices = JSON.parse(msg)
 
         dcPCA.addTFIndices(indices);
         let hist = pcaMatrixToHistogram(dcPCA.TFIndices)
@@ -65,8 +56,8 @@ $(document).ready(function() {
         make_pca(dcPCA, hist, 100, 100)
     });
 
-    socket.on('mel', function(message) {
-        let spec_data = JSON.parse(message);
+    socket.on('mel', msg => {
+        let spec_data = JSON.parse(msg);
         dcSpectrogram.dims = [spec_data.length, spec_data[0].length]
 
         // currently hardcoding in max mel freq
@@ -76,9 +67,7 @@ $(document).ready(function() {
 
     socket.on('bad_file', () => console.log('File rejected by server'));
 
-    socket.on('envelope_data', (msg) => {
-        addEnvelopeData(msg.envelopeData, msg.algorithm);
-    });
+    socket.on('envelope_data', msg => addEnvelopeData(msg.envelopeData, msg.algorithm));
 });
 
 function relayoutPlots() {
@@ -109,93 +98,13 @@ $('#apply-selections').click(function(){
     }
 });
 
-document.addEventListener('DOMContentLoaded', function () {
-    //  ~~~~~~~~~~~~~   MODAL STUFF   ~~~~~~~~~~~~~~~~
-    $('#open-modal').modal({
-        backdrop: 'static',
-        keyboard: false
-    });
-
-    $('#extraction-goal').multiselect({
-        enableCollapsibleOptGroups: true,
-        maxHeight: 300,
-        buttonWidth: '300px',
-        enableFiltering: false,
-        onChange: function(element, checked) { enableSurveyDoneButton(); }
-    });
-
-    $("#survey :input").prop('readonly', true);
-    $('#extraction-goal').multiselect('disable');
-    $('[data-toggle="popover"]').popover();
-});
-
-function enableSurveyDoneButton() {
-    maybeEnable('#survey-done', $('#extraction-goal option:selected').length > 0);
-}
-
-function maybeEnable(cssIdentifier, cond) {
-    cond ? $(cssIdentifier).removeClass('disabled')
-         : $(cssIdentifier).addClass('disabled');
-}
-
-mixture_waveform.surfer.on('ready', function() {
+mixture_waveform.surfer.on('ready', () => {
     emptyMultiTrack();
     $('#reqs-spinner').hide();
     $('#reqs-container').show();
 });
 
-$('#privacy-policy-link').click(function(){
-    $('#privacy-modal').modal({ backdrop: 'static' });
-});
-
-$('#mixture-zoom-in').click(function(){
-    mixture_waveform.zoom(mixture_waveform.params.minPxPerSec + zoomStepSize);
-});
-
-$('#mixture-zoom-out').click(function(){
-    mixture_waveform.zoom(mixture_waveform.params.minPxPerSec - zoomStepSize);
-});
-
-$('#save-result').click(function() {
-    if (!result_waveform.backend.buffer) return;
-
-    let blob = bufferToWave(result_waveform.backend.buffer, 0.0, result_waveform.backend.buffer.length);
-    saveAs(blob, 'wut_result.wav', false);
-});
-
-function enableTools(enabled, className) { maybeEnable(enabled, className) }
-
-$('#results-pill').click(function() {
+$('#results-pill').click(() => {
     $(this).removeClass('result-ready');
     result_waveform.drawBuffer();
 });
-
-$('#import-audio').click(function(){
-    $('#open-modal').modal({ backdrop: 'static', keyboard: false });
-    openFileDialog();
-});
-
-$('#open-button-modal').click(function () { openFileDialog(); });
-
-function openFileDialog() {
-    $('#survey')[0].reset();
-    $('#extraction-goal').multiselect('deselectAll', false);
-    audio.import_audio();
-    $('#general-status').text('Uploading audio to server...');
-}
-
-$('#survey-done').click(function () {
-    if (!$(this).hasClass('disabled')) {
-        $('#open-modal').modal('toggle');
-        sendSurveyResults();
-    }
-});
-
-function sendSurveyResults() {
-    let extraction_goals = $('#extraction-goal').find('option:selected').map(function() {
-        return $(this).val();
-    }).get();
-
-    let survey_data = { extraction_goals: extraction_goals };
-    socket.emit('survey_results', survey_data);
-}
