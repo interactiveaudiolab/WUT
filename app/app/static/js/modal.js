@@ -198,7 +198,6 @@ document.getElementById('modal-upload-audio-input').
 var recorder;
 var blob;
 var audio_file;
-var context = new AudioContext();
 
 document.getElementById('modal-record').addEventListener('click', function(event){
   let toggle = (elem) => {

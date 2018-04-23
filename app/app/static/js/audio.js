@@ -50,6 +50,12 @@ function togglePlayPauseIcon(obj) {
     $(obj).attr('title', `${$(this.playId).attr('title') === 'Play audio' ? 'Pause' : 'Play'} audio`)
 }
 
+function setPauseIcon(obj) {
+    $(obj).find('svg').removeClass('fa-play'); // fa-play');
+    $(obj).find('svg').addClass('fa-pause');
+    $(obj).attr('title', 'Pause audio');
+}
+
 // FROM: https://stackoverflow.com/a/30045041
 // Convert a audio-buffer segment to a Blob using WAVE representation
 function bufferToWave(abuffer, offset, len) {
