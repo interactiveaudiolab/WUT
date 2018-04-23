@@ -11,8 +11,10 @@
 }
 
 #track-container {
+	display: flex;
 	margin-left: 0;
 	margin-right: 0;
+	flex-flow: column;
 }
 
 #tabs-wrapper {
@@ -26,10 +28,14 @@
 }
 
 #rec-btns {
-	margin-bottom: 10px;
+	margin-bottom: 25px;
 }
 
 /* RECOMMENDATIONS TRACK */
+
+#reqs-container {
+	margin: 20px;
+}
 
 .track-and-controls {
 	margin: 0 5px;
@@ -43,6 +49,11 @@
 	height: 100px;
 	display: flex;
 	justify-content: space-between;
+	width: 140.52px;
+}
+
+.waves-ui-container {
+	width: 2370px;
 }
 
 .algorithm-and-solo-mute-recs {
@@ -77,15 +88,11 @@
 	border-top: 1px solid rgba(0, 0, 0, 0.25);
 }
 
-.waves-ui-container {
-	width: 1500px;
-	padding-left: 2px;
-}
-
 /* SLIDER HANDLE */
 
 #slider-and-ticks {
-	margin-left: 0 0 0 0;
+	margin: 0 5px;
+	position: relative;
 }
 
 .slider-handle.custom::before {
@@ -110,24 +117,35 @@
 }
 
 .slider {
-	width: 100% !important;
-	margin: 0 12px;
+	flex: 1;
+	margin-left: 2.5px;
 }
 
 .slider-selection {
 	background: darkgray;
 }
 
+.spacer {
+	width: 140px;
+}
+
+#ticks-spacer {
+	width: 140px;
+}
+
+#ticks-spacer-wrapper {
+	display: flex;
+}
+
 #ticks-wrapper {
 	display: flex;
-	flex-direction: column;
-	/* margin-top: 1em; */
-	padding-left: 5px;
-	padding-right: 5px;
+	flex: 1;
 }
 
 #ticks {
 	height: 10px;
+	flex: 1;
+
 	display: flex;
 	justify-content: space-between;
 }
@@ -146,15 +164,18 @@
 
 .time {
 	position: absolute;
-	bottom: 100%;
+	bottom: 140%;
 	left: 50%;
 	transform: translateX(-50%);
 	font-size: 80%;
 }
 
 #transport-slider-wrapper {
+	display: flex;
 	z-index: 1;
+	width: 100%;
 	position: absolute;
+	top: -10px;
 }
 
 /* **************** */
@@ -663,13 +684,6 @@ body.avgrund-active { transform: scale(0.9); }
 	height: 100%;
 	top: 0;
 	left: 0;
-
-	/* position:absolute;
-	top:0;
-	bottom:0;
-	left:0;
-	right:0;
-	overflow:hidden; */
 
 	/* above content & below modal */
 	z-index: 1;

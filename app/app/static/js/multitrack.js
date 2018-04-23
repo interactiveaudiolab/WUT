@@ -1,10 +1,9 @@
 var trackList = {};
-var counter = 0;
+var numTracks = 0;
 
-function AddTrack(id, name, color, url) {
-    counter++;
+function addTrack(id, name, url, color) {
+    numTracks++;
     color = color !== undefined ? color : 'SkyBlue';
-    let context = new (window.AudioContext || window.webkitAudioContext)();
     let sr = context.sampleRate;
     let maybeDur = mixture_waveform.surfer.backend.getDuration()
     let defaultDur = 10;
@@ -15,56 +14,42 @@ function AddTrack(id, name, color, url) {
     let trackID = $('#' + id)[0];
     let initialEnvelope = [{x: 0, y: 0.8}, {x: buffer.duration, y: 0.8}];
     trackList[id] = new Track(buffer, context, trackID,
-        initialEnvelope, $('#transport-slider'), audioEnded, counter);
+        initialEnvelope, $('#transport-slider'), audioEnded, numTracks);
 
-    for(track of trackList) {
-        track._gainMax = 1 / counter;
+    for(let k of Object.keys(trackList)) {
+        trackList[k]._gainMax = 1 / numTracks;
     }
 
-    initTrack();
+    url != undefined && initTrack(id, url);
 }
 
 function initTrack(id, url) {
-    loader.load(url).then(function (buffer) {
+    loader.load(url).then(buffer => {
+        console.log(`ID: ${id}, buffer: ${buffer}`)
+        console.log(buffer);
         trackList[id].changeWaveformBuffer(buffer, 0);
         socket.emit('get_recommendations', {'algorithm': id});
     });
 }
 
 function emptyMultiTrack() {
+    makeSlider();
+
     let demoParams = ['repet_sim', 'projet', 'melodia'];
     let names = ['RepetSim', 'Projet', 'Melodia'];
     let colors = ['SkyBlue', 'PaleVioletRed', 'MediumSeaGreen'];
-    let context = new (window.AudioContext || window.webkitAudioContext)();
-    counter = demoParams.length;
+    numTracks = demoParams.length;
 
-    let sr = context.sampleRate;
-    let maybeDur = mixture_waveform.surfer.backend.getDuration()
-    let defaultDur = 10;
-    let dur = maybeDur ? maybeDur : defaultDur;
-
-    $.each(demoParams, function(i, algName) {
-        let buffer = context.createBuffer(2, sr * dur, sr);
-        newTrackHTML('track-container', algName, names[i], colors[i]);
-        let trackID = $('#' + algName)[0];
-        let initialEnvelope = [{x: 0, y: 0.8}, {x: buffer.duration, y: 0.8}];
-        trackList[algName] = new Track(buffer, context, trackID,
-            initialEnvelope, $('#transport-slider'), audioEnded, counter);
-    });
-    makeSlider();
+    $.each(demoParams,
+        (i, algName) => addTrack(algName, names[i], undefined, colors[i]));
 }
 
 function initMultiTrack() {
     let demoParams = ['repet_sim', 'projet', 'melodia'];
     let demoUrl = '/separated_source_demo?method=';
 
-    $.each(demoParams, function(_, algName) {
-        let url = demoUrl + algName;
-        loader.load(url).then(function (buffer) {
-            trackList[algName].changeWaveformBuffer(buffer, 0);
-            socket.emit('get_recommendations', {'algorithm': algName});
-        });
-    });
+    $.each(demoParams,
+        (_, algName) => initTrack(algName, demoUrl + algName));
 
     $('#reqs-tab-bootstrap').removeClass('disabled');
 }
@@ -139,9 +124,9 @@ function makeSlider() {
     let duration = mixture_waveform.surfer.backend.getDuration();
 
     // Set the transport slider to the same width as the tracks
-    let width = $('.waves-ui-track').actual( 'width' );
-    $('#transport-slider-wrapper').width(width);
-    $('#ticks-wrapper').width(width);
+    // let width = $('.waves-ui-track').actual( 'width' );
+    // $('#transport-slider-wrapper').width(width);
+    // $('#ticks-wrapper').width(width);
 
     let slider = $('#transport-slider');
     let ticks = $('.time');
@@ -180,9 +165,7 @@ $('#req-play').click(function () {
 
 });
 
-function audioEnded() {
-    togglePlayPauseIcon($('#req-play'));
-}
+function audioEnded() { setPauseIcon($('#req-play')); }
 
 function stopAll() {
     $.each(trackList, function (_, track) {
@@ -198,22 +181,19 @@ function toggleReqs (eventObj) {
     let button = eventObj.target;
     if (!$(button).hasClass('disabled')) {
         let selectedId = $(button).parent().parent().parent().siblings().children()[0].id
-        trackList[selectedID].toggleEnvelopeData();
+        trackList[selectedId].toggleEnvelopeData();
         togglePrimaryBtn(button);
     }
 }
-
-$('#req-stop').click(function () {
-    // Make this look like an 'event'...
-    setTransport({value: {newValue: 0.0}});
-});
+// Make this look like an 'event'...
+$('#req-stop').click(() => setTransport({ value: { newValue: 0.0 } }));
 
 function muteTrack (eventObj) {
     // THIS IS A BIG OLE HACK!
     let button = eventObj.target;
     let selectedId = $(button).parent().parent().parent().siblings().children()[0].id
     togglePrimaryBtn(button);
-    trackList[selectedID].muteSelected = $(button).hasClass('btn-primary');
+    trackList[selectedId].muteSelected = $(button).hasClass('btn-primary');
 
     let anySoloed = false, noneSoloed = true;
     for (let t in trackList) {
@@ -222,14 +202,14 @@ function muteTrack (eventObj) {
         noneSoloed &= !t.soloSelected;
     }
 
-    if (trackList[selectedID].muteSelected) {
-        trackList[selectedID].mute();
-        trackList[selectedID].muteEnvelopeData();
-    }  else if((anySoloed && !trackList[selectedID].isSoloed) || noneSoloed) {
+    if (trackList[selectedId].muteSelected) {
+        trackList[selectedId].mute();
+        trackList[selectedId].muteEnvelopeData();
+    }  else if((anySoloed && !trackList[selectedId].isSoloed) || noneSoloed) {
         // mute unselected
         // Only time we unmute is if any track is soloed and it is not this track, or if no one is soloed
-        trackList[selectedID].unmute();
-        trackList[selectedID].unmuteEnvelopeData();
+        trackList[selectedId].unmute();
+        trackList[selectedId].unmuteEnvelopeData();
     }
 }
 
@@ -237,10 +217,10 @@ function soloTrack (eventObj) {
     let button = eventObj.target;
     let selectedId = $(button).parent().parent().parent().siblings().children()[0].id
     // TODO: implement something here
-    // let unselectedIDs = $(button).parent().parent().siblings().children();
+    // let unselectedIds = $(button).parent().parent().siblings().children();
 
-    trackList[selectedID].isSoloed = !trackList[selectedID].isSoloed;
-    trackList[selectedID].soloSelected = trackList[selectedID].isSoloed;
+    trackList[selectedId].isSoloed = !trackList[selectedId].isSoloed;
+    trackList[selectedId].soloSelected = trackList[selectedId].isSoloed;
 
     let allSoloed = true, noneSoloed = true, anySoloed = false;
     for (let t in trackList) {

@@ -71,13 +71,13 @@
                     <a class="nav-link" id="deep-clustering-tab-bootstrap" data-toggle="tab" href="#deep-clustering-tab" role="tab">Deep Clustering</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="reqs-tab-bootstrap" data-toggle="tab" href="#reqs-tab" role="tab">Recommendations</a>
+                    <a class="nav-link disabled" id="reqs-tab-bootstrap" data-toggle="tab" href="#reqs-tab" role="tab">Recommendations</a>
                 </li>
             </ul>
         </div>
 
         <div class="tab-content">
-            <div class="tab-pane fade show active" id="spectrogram-tab" role="tabpanel" aria-labelledby="spectrogram-tab-bootstrap">
+            <div class="tab-pane active" id="spectrogram-tab" role="tabpanel" aria-labelledby="spectrogram-tab-bootstrap">
                 <div id="spectrogram-container" class="shared-spectrogram-spinner">
                     <button id="apply-spec-selection" type="button" class="btn btn-primary disabled">Make Audio Mask from Selection</button>
                     <div id="spectrogram" data-target-name="{{ target_dict['mixture']['name'] }}"> </div>
@@ -158,9 +158,10 @@
                         </div>
                     </div>
 
-                    <div class="row" id="track-container">
-                        <div id="slider-and-ticks" class="row">
-                            <div class="col-md-10 offset-md-1">
+                    <div id="track-container">
+                        <div id="slider-and-ticks">
+                            <div id='ticks-spacer-wrapper'>
+                                <div id="ticks-spacer" class="spacer"></div>
                                 <div id="ticks-wrapper">
                                     <div id="ticks">
                                         <div class="tick major">
@@ -198,11 +199,11 @@
                                         <div class="tick major">
                                             <div class="time">00:00</div>
                                         </div>
-
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-10 offset-md-1" id="transport-slider-wrapper">
+                            <div id="transport-slider-wrapper">
+                                <div class="spacer"></div>
                                 <input id="transport-slider" type="text"
                                         data-slider-handle="custom"
                                         data-slider-min="0.0"

@@ -8,6 +8,7 @@ dcPCA.addLinkedSpectrogram(dcSpectrogram)
 
 var socket;
 var loader;
+var context;
 
 // colors
 var whiteLine = 'rgba(245, 245, 245, 1)';
@@ -19,6 +20,7 @@ var colorDict = {'white': {'line': whiteLine, 'fill': whiteFill },
                  'green': {'line': greenLine, 'fill': greenFill } };
 
 $(document).ready(function() {
+    context = new (window.AudioContext || window.webkitAudioContext)();
 	loader = new wavesLoaders.AudioBufferLoader();
 
     // Set up sockets
@@ -67,11 +69,13 @@ $(document).ready(function() {
     socket.on('envelope_data', msg => addEnvelopeData(msg.envelopeData, msg.algorithm));
 
     socket.on('masked_audio', _ => {
-        masked_waveform.load('./get_masked_audio?val=' + Math.random().toString(36).substring(7))
+        let url = `./get_masked_audio?val=${Math.random().toString(36).substring(7)}`;
+        addTrack('dc-selected', 'Selected Cluster', url);
     });
 
     socket.on('inverse_audio', _ => {
-        inverse_waveform.load('./get_inverse_audio?val=' + Math.random().toString(36).substring(7))
+        let url = `./get_inverse_audio?val=${Math.random().toString(36).substring(7)}`;
+        addTrack('dc-unselected', 'Unselected Cluster', url, 'MediumSeaGreen');
     });
 });
 
@@ -83,10 +87,7 @@ function relayoutPlots() {
 
 // RESIZE ON TAB CHANGE
 // TODO: fix hacky implementation
-$('.nav-link').on('click', () => {
-    console.log('click on a tab');
-    setTimeout(relayoutPlots, 180);
-})
+$('.nav-link').on('click', () => { setTimeout(relayoutPlots, 180); })
 
 // RESIZE PLOTS ON WINDOW CHANGE
 $(window).resize(relayoutPlots);
@@ -104,10 +105,7 @@ $(window).resize(_.debounce(() => mixture_waveform.resizeWaveform(), 500));
 $('#apply-dc-selections').click(function(){
     // probably a better way to check this in the future
     if(!$('#apply-dc-selections').hasClass('disabled')) {
-        masked_waveform.setLoading(true);
-        inverse_waveform.setLoading(true);
-
-        socket.emit('mask', { mask: spectrogram.exportSelectionMask() });
+        socket.emit('mask', { mask: dcSpectrogram.exportSelectionMask() });
     }
 });
 
