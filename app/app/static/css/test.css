@@ -305,8 +305,13 @@ body.modal-active { transform: scale(0.9); }
 	transform: scale(0.8);
 }
 
+/* <<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>> */
+/* <<<<<<<<< MAGIC HAPPENS BELOW >>>>>>>> */
+/* <<<< and above to a lesser extent >>>> */
+/* <<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>> */
+
 /* show modal */
-.modal-active .modal {
+.audio-upload-modal-active #audio-upload-modal {
 	/* make visible */
 	visibility: visible;
 	opacity: 1;
@@ -314,6 +319,21 @@ body.modal-active { transform: scale(0.9); }
 	/* transform to *pop* out of screen (1.1 to cancel out shrinking of body) */
 	transform: scale(1.1);
 }
+
+/* show modal */
+.pca-selection-modal-active #pca-selection-modal {
+	/* make visible */
+	visibility: visible;
+	opacity: 1;
+
+	/* transform to *pop* out of screen (1.1 to cancel out shrinking of body) */
+	transform: scale(1.1);
+}
+
+/* <<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>> */
+/* <<<<<<<<< MAGIC HAPPENS ABOVE >>>>>>>> */
+/* <<<< and below to a lesser extent >>>> */
+/* <<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>> */
 
 /* holds back and close buttons */
 #audio-upload-modal-header {

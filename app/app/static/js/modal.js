@@ -1,12 +1,12 @@
 // adapted from https://github.com/hakimel/audioUploadModal
 class Modal {
-  constructor(modal, cover, active, ready, open, close) {
+  constructor(generalModalActive, active, cover, ready, open, close) {
     document.getElementById(open).addEventListener('click', () => this.show())
     document.getElementById(close, '#').addEventListener('click', () => this.hide())
 
     this.container = document.body;
-    this.modal = document.getElementById(modal);
     this.cover = document.querySelector(this._makeSelector(cover, '.'));
+    this.generalModalActive = generalModalActive;
     this.active = active;
 
     this.container.classList.add(ready);
@@ -21,11 +21,13 @@ class Modal {
   show() {
     this._setListeners(true)
     this.container.classList.add(this.active);
+    this.container.classList.add(this.generalModalActive);
   }
 
   hide(dontClean) {
     this._setListeners(false)
     this.container.classList.remove(this.active);
+    this.container.classList.remove(this.generalModalActive);
 
     // cleaner removes unwanted state on modal (such as checked checkboxes)
     if(!dontClean) { this.clean() }
