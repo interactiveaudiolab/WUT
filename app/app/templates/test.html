@@ -158,7 +158,7 @@
     <!-- audio upload modal -->
     <!-- <<<<<<<<<>>>>>>>>> -->
 
-    <div class="modal">
+    <div class="modal" id="audio-upload-modal">
         <div id='audio-upload-modal-header'>
           <button id="audio-upload-modal-back" type="button" class="btn btn-primary" title="Back">
             <i class="fas fa-chevron-left"></i>
@@ -235,6 +235,33 @@
     <!-- <<<<<<<<<<<<>>>>>>>>>>>>> -->
     <!-- end of audio upload modal -->
     <!-- <<<<<<<<<<<<>>>>>>>>>>>>> -->
+
+    <!-- <<<<<<<<<<<<<<>>>>>>>>>>>>>>> -->
+    <!-- pca dimension selection modal -->
+    <!-- <<<<<<<<<<<<<<>>>>>>>>>>>>>>> -->
+
+    <div class="modal" id="pca-selection-modal">
+        <div id='pca-selection-modal-header'>
+          <button id="pca-selection-modal-close" type="button" class="btn btn-primary" title="Close Modal">
+              <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <!-- audio upload modal first page -->
+        <div id='pca-selection-modal-plot-wrapper'>
+            <div class='modal-info-text'>Please select the <b>two</b> PCA dimensions you would like to plot the clustering on.</div>
+
+            <div id='pca-dimensions'></div>
+
+            <button id="pca-selection-modal-begin" type="button" class="btn btn-primary disabled" title="Modal Begin">
+                Begin
+            </button>
+        </div>
+    </div>
+
+    <!-- <<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>> -->
+    <!-- end of pca dimension selection modal -->
+    <!-- <<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>> -->
 
     <!-- modal cover behind -->
     <div class="modal-cover"></div>
