@@ -29,15 +29,14 @@
 <body>
 
 <script>window.jQuery || document.write('<script src="js/vendor/jquery-{{JQUERY_VERSION}}.min.js"><\/script>')</script>
-    <div class="avgrund-content-wrapper">
+    <div class="modal-content-wrapper">
     <header>
         <div>Web Unmixing Toolbox</div>
     </header>
 
     <main>
         <div class="waveform-cont">
-            <!-- <div id='upload'><i class="fas fa-upload fa-lg"></i></div> -->
-            <button id="modal-open" type="button" class="btn btn-primary" title="Open Modal">
+            <button id="audio-upload-modal-open" type="button" class="btn btn-primary" title="Open Modal">
                 Begin
             </button>
 
@@ -147,7 +146,7 @@
         </div>
     </main>
     <footer>
-        <p>Ethan Manilow, Bryan Pardo, Darren Gergle </p>
+        <p>Ethan Manilow, Nathan Shelly, Bryan Pardo, Darren Gergle </p>
         <p>This work supported in part by NSF Award <a href=
             "https://www.nsf.gov/awardsearch/showAward?AWD_ID=1420971&HistoricalAwards=false"
             >1420971</a></p>
@@ -155,24 +154,26 @@
     </footer>
     </div>
 
-    <!-- MODAL -->
+    <!-- <<<<<<<<<>>>>>>>>> -->
+    <!-- audio upload modal -->
+    <!-- <<<<<<<<<>>>>>>>>> -->
 
-    <div id="modal" class="avgrund-modal">
-        <div id='modal-header'>
-          <button id="modal-back" type="button" class="btn btn-primary" title="Back">
+    <div class="modal">
+        <div id='audio-upload-modal-header'>
+          <button id="audio-upload-modal-back" type="button" class="btn btn-primary" title="Back">
             <i class="fas fa-chevron-left"></i>
           </button>
 
-          <button id="modal-close" type="button" class="btn btn-primary" title="Close Modal">
+          <button id="audio-upload-modal-close" type="button" class="btn btn-primary" title="Close Modal">
               <i class="fas fa-times"></i>
           </button>
         </div>
 
-        <!-- modal first page -->
-        <div id='modal-separation'>
+        <!-- audio upload modal first page -->
+        <div id='audio-upload-modal-separation'>
             <div class='modal-info-text'>What would you like to separate?</div>
 
-            <div id='modal-separation-checks'>
+            <div id='audio-upload-modal-separation-checks'>
                 <div class="form-check">
                     <input class="form-check-input separation-check" type="checkbox" value="vocals" id="vocals">
                     <label class="form-check-label" for="vocals">Vocals</label>
@@ -199,40 +200,44 @@
                 </div>
             </div>
 
-            <button id="modal-next" type="button" class="btn btn-primary disabled" title="Modal Next">
+            <button id="audio-upload-modal-next" type="button" class="btn btn-primary disabled" title="Modal Next">
                 Next
             </button>
         </div>
 
-        <!-- modal second page -->
-        <div id='modal-audio'>
+        <!-- audio upload modal second page -->
+        <div id='audio-upload-modal-audio'>
             <div class='modal-info-text'>Upload or Record Audio</div>
 
-            <div id='modal-upload-or-record'>
-                <div id='modal-upload'><i class="fas fa-upload fa-2x"></i></div>
+            <div id='audio-upload-audio-upload-modal-upload-or-record'>
+                <div id='audio-upload-modal-upload'><i class="fas fa-upload fa-2x"></i></div>
                 <!-- HIDDEN -->
                 <!-- there's probably a better way to do this -->
-                <form id="modal-audio-upload-form" method="post" role="form" enctype="multipart/form-data">
-                    <input id="modal-upload-audio-input" accept="audio/*" type="file" />
+                <form id="audio-upload-modal-upload-form" method="post" role="form" enctype="multipart/form-data">
+                    <input id="audio-upload-modal-upload-input" accept="audio/*" type="file" />
                 </form>
 
                 <div>or</div>
 
-                <div id="modal-record" class='modal-record-off'></div>
+                <div id="audio-upload-modal-record" class='audio-upload-modal-record-off'></div>
             </div>
 
-            <div id='modal-results'>
-                <audio id="modal-final-audio" controls></audio>
+            <div id='audio-upload-modal-results'>
+                <audio id="audio-upload-modal-final" controls></audio>
             </div>
 
-            <button id="modal-begin" type="button" class="btn btn-primary disabled" title="Modal Begin">
+            <button id="audio-upload-modal-begin" type="button" class="btn btn-primary disabled" title="Modal Begin">
                 Begin
             </button>
         </div>
     </div>
 
+    <!-- <<<<<<<<<<<<>>>>>>>>>>>>> -->
+    <!-- end of audio upload modal -->
+    <!-- <<<<<<<<<<<<>>>>>>>>>>>>> -->
+
     <!-- modal cover behind -->
-    <div class="avgrund-cover"></div>
+    <div class="modal-cover"></div>
 
     <script type="text/javascript" src="{{ url_for('static', filename='js/utils.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/plotly_plots.js') }}"></script>
@@ -240,6 +245,7 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/plot_spectrogram_scatter.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/plot_pca.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/modal.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/audio_modal.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/waveform.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/test.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/array.js') }}"></script>

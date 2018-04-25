@@ -1,8 +1,10 @@
+/* establishes basic defaults across browsers */
 @import url('https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.css');
 @import url('https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css');
+/* for info bubble popups */
 @import url('https://cdnjs.cloudflare.com/ajax/libs/hint.css/2.5.0/hint.css');
 
-.avgrund-contents {
+.modal-contents {
 	width: 100%;
 	height: 100%;
 }
@@ -12,13 +14,6 @@ body {
 
 	min-height: 100vh;
 	min-width: 100%;
-
-	display: grid;
-	grid-template-rows: 75px 1fr 75px;
-	grid-template-columns: 1fr;
-	grid-template-areas: 	"header"
-												"main"
-												"footer";
 }
 
 header {
@@ -272,19 +267,14 @@ footer p {
 }
 
 /* MODAL */
-/* establishes basic defaults across browsers */
-@import url('https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.css');
-@import url('https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css');
-
-/* MODAL */
 /* adapted from https://github.com/hakimel/Avgrund */
 /* apparently Avgrund means abyss in Swedish */
 
 /* shrink body when active */
-body.avgrund-active { transform: scale(0.9); }
+body.modal-active { transform: scale(0.9); }
 
 /* modal styling */
-.avgrund-modal {
+.modal {
 	position: absolute;
 	width: 50%;
 	/* make more responsive here */
@@ -316,7 +306,7 @@ body.avgrund-active { transform: scale(0.9); }
 }
 
 /* show modal */
-.avgrund-active .avgrund-modal {
+.modal-active .modal {
 	/* make visible */
 	visibility: visible;
 	opacity: 1;
@@ -326,7 +316,7 @@ body.avgrund-active { transform: scale(0.9); }
 }
 
 /* holds back and close buttons */
-#modal-header {
+#audio-upload-modal-header {
 	display: flex;
 	justify-content: space-between;
 	align-items: stretch;
@@ -335,7 +325,7 @@ body.avgrund-active { transform: scale(0.9); }
 }
 
 /* choosing separation types page */
-#modal-separation {
+#audio-upload-modal-separation {
 	display: flex;
 	flex-flow: column;
 	align-items: center;
@@ -348,7 +338,7 @@ body.avgrund-active { transform: scale(0.9); }
 }
 
 /* uploading or recording audio page */
-#modal-audio {
+#audio-upload-modal-audio {
 	flex: 1;
 	display: none;
 
@@ -365,7 +355,7 @@ body.avgrund-active { transform: scale(0.9); }
 	margin-bottom: 10px;
 }
 
-#modal-upload-or-record {
+#audio-upload-audio-upload-modal-upload-or-record {
 	align-self: stretch;
 
 	display: flex;
@@ -373,7 +363,7 @@ body.avgrund-active { transform: scale(0.9); }
 	align-items: center;
 }
 
-#modal-upload-or-record > #modal-upload, #modal-record {
+#audio-upload-audio-upload-modal-upload-or-record > #audio-upload-modal-upload, #audio-upload-modal-record {
 	cursor: pointer;
 
 	/* child elements surrounding middle element need to be same size
@@ -384,19 +374,19 @@ body.avgrund-active { transform: scale(0.9); }
 	height: 70px;
 }
 
-#modal-upload {
+#audio-upload-modal-upload {
 	display: flex;
 	justify-content: center;
 	align-items: center;
 }
 
-#modal-audio-upload-form {
+#audio-upload-modal-upload-form {
 	display: none;
 }
 
 /* record */
 
-#modal-record {
+#audio-upload-modal-record {
 	font-size: 0;
 	background-color: red;
 	border: 0;
@@ -404,9 +394,9 @@ body.avgrund-active { transform: scale(0.9); }
 	outline: none;
 }
 
-#modal-record.modal-record-off { background-color: darkred; }
+#audio-upload-modal-record.audio-upload-modal-record-off { background-color: darkred; }
 
-#modal-record.modal-record-on {
+#audio-upload-modal-record.audio-upload-modal-record-on {
 	animation-name: pulse;
 	animation-duration: 1.5s;
 	animation-iteration-count: infinite;
@@ -421,53 +411,55 @@ body.avgrund-active { transform: scale(0.9); }
 
 /* on upload/record finished */
 
-#modal-results {
+#audio-upload-modal-results {
 	visibility: hidden;
 	display: flex;
 	align-self: stretch;
 }
 
-#modal-final-audio {
+#audio-upload-modal-final {
 	width: 80%;
 	margin: auto;
 }
 
 /* modal buttons */
 
-#modal-close {
+#audio-upload-modal-close {
 	border-radius: 0 0 0 .25rem;
 }
 
-#modal-back {
+#audio-upload-modal-back {
 	border-radius: 0 0 .25rem 0;
 	visibility: hidden;
 }
 
-#modal-next, #modal-begin {
+#audio-upload-modal-next, #audio-upload-modal-begin {
 	border-radius: 0;
 	align-self: stretch;
 }
 
-#modal-next {
+#audio-upload-modal-next {
 	/* force to bottom and other children to top */
 	margin-top: auto;
 }
 
-/* misc avgrund styling around modal */
+/* misc modal styling around modal */
 
 /* style wrapper class around content */
-.avgrund-content-wrapper {
-	width: 100%;
-	height: 100%;
+.modal-content-wrapper {
+	width: 100vw;
+	height: 100vh;
 
-	/* display: flex;
-	flex-flow: column;
-	justify-content: center;
-	align-items: center; */
+	display: grid;
+	grid-template-rows: 75px 1fr 75px;
+	grid-template-columns: 1fr;
+	grid-template-areas: 	"header"
+												"main"
+												"footer";
 }
 
 /* set up in background */
-.avgrund-cover {
+.modal-cover {
 	/* initially hidden */
 	visibility: hidden;
 	opacity: 0;
@@ -495,20 +487,20 @@ body.avgrund-active { transform: scale(0.9); }
 }
 
 /* make cover visible when modal active */
-.avgrund-active .avgrund-cover {
+.modal-active .modal-cover {
 	visibility: visible;
 	opacity: 1;
 }
 
 /* blur out content */
-.avgrund-active .avgrund-content-wrapper {
+.modal-active .modal-content-wrapper {
 	filter: blur(2px);
 }
 
-/* set all transitions once avgrund is ready */
-body.avgrund-ready,
-.avgrund-ready .avgrund-content-wrapper,
-.avgrund-ready .avgrund-modal,
-.avgrund-ready .avgrund-cover {
+/* set all transitions once modal is ready */
+body.modal-ready,
+.modal-ready .modal-content-wrapper,
+.modal-ready .modal,
+.modal-ready .modal-cover {
 	transition: 0.5s all cubic-bezier(0.250, 0.460, 0.450, 0.940);
 }
