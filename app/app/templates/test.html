@@ -101,8 +101,6 @@
         </div>
 
         <div class="interaction">
-            <button id="apply-selections" type="button" class="btn btn-primary disabled">Apply Selections</button>
-
             <div class="shared-plots-spinner">
                 <div id='pca-cont'>
                     <div class='title-cont'>
@@ -119,6 +117,8 @@
                             </div>
                         </div>
                     </div>
+
+                    <button id="pca-selection-modal-open" type="button" class="btn btn-primary">Select PCA Dimensions</button>
                 </div>
 
 
@@ -132,6 +132,8 @@
                     </div>
 
                     <div id="spectrogram"></div>
+
+                    <button id="apply-selections" type="button" class="btn btn-primary disabled">Apply Selections</button>
                 </div>
             </div>
             <div id='plots-spinner' class='spinner-outer shared-plots-spinner'>
@@ -200,7 +202,7 @@
                 </div>
             </div>
 
-            <button id="audio-upload-modal-next" type="button" class="btn btn-primary disabled" title="Modal Next">
+            <button id="audio-upload-modal-next" type="button" class="modal-bottom-button btn btn-primary disabled" title="Modal Next">
                 Next
             </button>
         </div>
@@ -226,7 +228,7 @@
                 <audio id="audio-upload-modal-final" controls></audio>
             </div>
 
-            <button id="audio-upload-modal-begin" type="button" class="btn btn-primary disabled" title="Modal Begin">
+            <button id="audio-upload-modal-begin" type="button" class="modal-bottom-button btn btn-primary disabled" title="Modal Begin">
                 Begin
             </button>
         </div>
@@ -241,19 +243,20 @@
     <!-- <<<<<<<<<<<<<<>>>>>>>>>>>>>>> -->
 
     <div class="modal" id="pca-selection-modal">
+        <!-- header -->
         <div id='pca-selection-modal-header'>
           <button id="pca-selection-modal-close" type="button" class="btn btn-primary" title="Close Modal">
               <i class="fas fa-times"></i>
           </button>
         </div>
 
-        <!-- audio upload modal first page -->
+        <!-- body -->
         <div id='pca-selection-modal-plot-wrapper'>
-            <div class='modal-info-text'>Please select the <b>two</b> PCA dimensions you would like to plot the clustering on.</div>
+            <p>Please select the <b>two</b> PCA dimensions you would like to plot the clustering on.</p>
 
             <div id='pca-dimensions'></div>
 
-            <button id="pca-selection-modal-begin" type="button" class="btn btn-primary disabled" title="Modal Begin">
+            <button id="pca-selection-modal-begin" type="button" class="modal-bottom-button btn btn-primary disabled" title="Modal Begin">
                 Begin
             </button>
         </div>
