@@ -67,4 +67,10 @@ class Modal {
   }
 
   _makeSelector(clss, pref) { return clss[0] === pref ? clss : `${pref}${clss}` }
+
+  // makes this a more powerful class
+  // also definitely harder to debug/understand
+  // probably would be good to subclass in future instead
+  // just adding arbitrary callbacks/functions
+  _addArbitraryFunction(anon, args) { anon(...args); }
 }
