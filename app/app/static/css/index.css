@@ -53,7 +53,15 @@
 }
 
 .waves-ui-container {
-	width: 2370px;
+	/* currently horrifying hardcoding */
+	/* width: 2370px; */ /* monitor */
+	width: 1490px; /* laptop */
+	/* flex: 1; */
+}
+
+#dc-button-wrapper {
+	display: flex;
+	justify-content: space-around;
 }
 
 .algorithm-and-solo-mute-recs {
@@ -120,6 +128,7 @@
 	flex: 1;
 	margin-left: 2.5px;
 }
+
 
 .slider-selection {
 	background: darkgray;
@@ -344,6 +353,10 @@ main .interaction > .shared-plots-spinner > #spectrogram-cont {
 main .interaction > .shared-plots-spinner > #spectrogram-cont > #apply-dc-selections {
 	min-width: 0px;
 	margin: 20px 30% 0;
+}
+
+#dc-button-wrapper {
+	display: flex;
 }
 
 #apply-spec-selection {

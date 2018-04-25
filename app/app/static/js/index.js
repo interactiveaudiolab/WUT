@@ -19,6 +19,8 @@ var greenFill = 'rgba(0, 255, 0, 0.35)';
 var colorDict = {'white': {'line': whiteLine, 'fill': whiteFill },
                  'green': {'line': greenLine, 'fill': greenFill } };
 
+var bothSelected = false;
+
 $(document).ready(function() {
     context = new (window.AudioContext || window.webkitAudioContext)();
 	loader = new wavesLoaders.AudioBufferLoader();
@@ -70,12 +72,24 @@ $(document).ready(function() {
 
     socket.on('masked_audio', _ => {
         let url = `./get_masked_audio?val=${Math.random().toString(36).substring(7)}`;
-        addTrack('dc-selected', 'Selected Cluster', url);
+        addTrack('dc-selected', 'Selected Cluster', url, 'RebeccaPurple');
+
+        if(bothSelected) {
+            $('#see-results').removeClass('disabled');
+        } else {
+            bothSelected = true;
+        }
     });
 
     socket.on('inverse_audio', _ => {
         let url = `./get_inverse_audio?val=${Math.random().toString(36).substring(7)}`;
-        addTrack('dc-unselected', 'Unselected Cluster', url, 'MediumSeaGreen');
+        addTrack('dc-unselected', 'Unselected Cluster', url, 'HotPink');
+
+        if(bothSelected) {
+            $('#see-results').removeClass('disabled');
+        } else {
+            bothSelected = true;
+        }
     });
 });
 
@@ -88,6 +102,18 @@ function relayoutPlots() {
 // RESIZE ON TAB CHANGE
 // TODO: fix hacky implementation
 $('.nav-link').on('click', () => { setTimeout(relayoutPlots, 180); })
+
+$('#see-results').on('click', () => {
+    $('#deep-clustering-tab').removeClass('active');
+    $('#deep-clustering-tab').removeClass('show');
+    $('#deep-clustering-tab-bootstrap').removeClass('active');
+    $('#deep-clustering-tab-bootstrap').removeClass('show');
+
+    $('#reqs-tab').addClass('active');
+    $('#reqs-tab').addClass('show');
+    $('#reqs-tab-bootstrap').addClass('active');
+    $('#reqs-tab-bootstrap').addClass('show');
+})
 
 // RESIZE PLOTS ON WINDOW CHANGE
 $(window).resize(relayoutPlots);
