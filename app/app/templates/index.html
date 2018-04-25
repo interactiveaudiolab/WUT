@@ -71,7 +71,7 @@
                     <a class="nav-link" id="deep-clustering-tab-bootstrap" data-toggle="tab" href="#deep-clustering-tab" role="tab">Deep Clustering</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link disabled" id="reqs-tab-bootstrap" data-toggle="tab" href="#reqs-tab" role="tab">Recommendations</a>
+                    <a class="nav-link disabled" id="reqs-tab-bootstrap" data-toggle="tab" href="#reqs-tab" role="tab">Results</a>
                 </li>
             </ul>
         </div>
@@ -124,7 +124,10 @@
 
                         <div id="dc-spectrogram"></div>
 
-                        <button id="apply-dc-selections" type="button" class="btn btn-primary disabled">Make Audio Mask from Selection</button>
+                        <div id="dc-button-wrapper">
+                            <button id="apply-dc-selections" type="button" class="btn btn-primary disabled">Make Audio Mask from Selection</button>
+                            <button id="see-results" type="button" class="btn btn-primary disabled">See Results</button>
+                        </div>
                     </div>
                 </div>
                 <div id='plots-spinner' class='spinner-outer shared-plots-spinner'>

@@ -51,9 +51,9 @@ function togglePlayPauseIcon(obj) {
 }
 
 function setPauseIcon(obj) {
-    $(obj).find('svg').removeClass('fa-play'); // fa-play');
-    $(obj).find('svg').addClass('fa-pause');
-    $(obj).attr('title', 'Pause audio');
+    $(obj).find('svg').removeClass('fa-pause');
+    $(obj).find('svg').addClass('fa-play');
+    $(obj).attr('title', 'Play audio');
 }
 
 // FROM: https://stackoverflow.com/a/30045041

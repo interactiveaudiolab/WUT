@@ -173,8 +173,9 @@ function stopAll() {
     });
 
     // Remove the play icon
-    $('#req-play').find('svg').toggleClass('fa-pause fa-play');
-    $('#req-play').attr('title', `${$(this.playId).attr('title') === 'Play audio' ? 'Pause' : 'Play'} audio`)
+    setPauseIcon($('#req-play'));
+    // $('#req-play').find('svg').('fa-pause fa-play');
+    // $('#req-play').attr('title', `${$(this.playId).attr('title') === 'Play audio' ? 'Pause' : 'Play'} audio`)
 }
 
 function toggleReqs (eventObj) {
