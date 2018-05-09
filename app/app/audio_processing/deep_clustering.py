@@ -47,7 +47,7 @@ class DeepClustering(audio_processing_base.InteractiveAudioProcessingBase):
 
     def perform_deep_clustering(self):
         self.dc.run()
-        return self.dc.project_embeddings(2), self.dc.mel_spectrogram
+        return self.dc.project_arbitrary_embeddings(), self.dc.mel_spectrogram
 
     # remove reliance on user_original_file_folder here
     def send_deep_clustering_results(self, socket, namespace, file_path):
