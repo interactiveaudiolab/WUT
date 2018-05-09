@@ -255,6 +255,37 @@ def get_action(action_):
     sess.push_action(action_dict)
     save_session(sess)
 
+@socketio.on('set_pca_dims', namespace=WUT_SOCKET_NAMESPACE)
+def get_embeddings(dims):
+    dims = sorted(dims['dims'])
+    logger.info("Dimensions")
+    logger.info(dims)
+
+    sess = awaken_session()
+
+    logger.info('spinning up deep clusterer')
+
+    logger.info('checks:')
+    logger.info(sess.checks)
+    isSpeech = 'speech' in sess.checks
+
+    path = os.path.join(HOME, 'data/models/', ('deep_clustering_speech.model' if isSpeech else 'deep_clustering_vocal_44k_long.model'))
+    hidden_size = 300 if isSpeech else 500
+    resample_rate = 16000 if isSpeech else 44100
+    num_layers = 2 if isSpeech else 4
+
+    logger.info(path)
+    logger.info(hidden_size)
+    logger.info(resample_rate)
+    logger.info(num_layers)
+
+    dc = audio_processing.DeepClustering(sess.user_signal, sess.user_original_file_folder, path, hidden_size, resample_rate, num_layers)
+
+    dc.dc.run()
+    logger.info('done spinning up deep clusterer')
+
+    dc.update_dimensions(dims, socketio, WUT_SOCKET_NAMESPACE)
+
 @socketio.on('mask', namespace=WUT_SOCKET_NAMESPACE)
 def generate_mask(mask):
     logger.info('receiving mask')
