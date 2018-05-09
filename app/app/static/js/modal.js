@@ -80,5 +80,5 @@ class Modal {
   // also definitely harder to debug/understand
   // probably would be good to subclass in future instead
   // just adding arbitrary callbacks/functions
-  _addArbitraryFunction(anon, args) { anon(...args); }
+  _addArbitraryFunction(anon, args) { anon(this, ...args); }
 }

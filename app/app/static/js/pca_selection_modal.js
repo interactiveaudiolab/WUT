@@ -2,8 +2,8 @@ let pcaSelectionModal = new Modal('pca-selection-modal', 'modal-active',
 'pca-selection-modal-active', 'modal-cover', 'modal-ready',
 'pca-selection-modal-open', 'pca-selection-modal-close')
 
-let setupPlotly = (plotId) => {
-  this.layout = {
+let setupPlotly = (_this, plotId) => {
+  _this.layout = {
     shapes: []
   };
 
@@ -22,16 +22,17 @@ let setupPlotly = (plotId) => {
     displaylogo: false,
     displayModeBar: false
   };
-  let plot = Plotly.newPlot(plotId, data, undefined, plotOptions);
+
+  let plot = Plotly.newPlot(plotId, data, _this.layout, plotOptions);
 
   gd.on('plotly_click', (data) => {
     let pointIndex = data.points[0].pointIndex;
-    let index = this.layout.shapes.findIndex(shape => shape.x0 + .5 === pointIndex);
+    let index = _this.layout.shapes.findIndex(shape => shape.x0 + .5 === pointIndex);
 
     if(index !== -1) {
-      this.layout.shapes.splice(index, 1);
+      _this.layout.shapes.splice(index, 1);
     } else {
-      if(this.layout.shapes.length > 1) this.layout.shapes.shift();
+      if(_this.layout.shapes.length > 1) _this.layout.shapes.shift();
 
       let shape = {
         type: 'rect',
@@ -43,16 +44,16 @@ let setupPlotly = (plotId) => {
         y1: 1,
         opacity: 1
       }
-      this.layout.shapes.push(shape);
+      _this.layout.shapes.push(shape);
     }
 
-    Plotly.relayout(gd, this.layout);
+    Plotly.relayout(gd, _this.layout);
 
-    let cl = document.getElementById('modal-begin').classList
-    cl.remove('disabled') ? this.layout.shape.length > 1 : cl.add('disabled');
+    let cl = document.getElementById('pca-selection-modal-begin').classList
+    cl.remove('disabled') ? _this.layout.shape.length > 1 : cl.add('disabled');
   });
 }
 
-// executes passed in function with `this` as
+// executes passed in function with `_this` as
 // the calling object (pcaSelectionModal)
 pcaSelectionModal._addArbitraryFunction(setupPlotly, ['pca-dimensions']);
