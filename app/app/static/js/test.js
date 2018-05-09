@@ -18,9 +18,6 @@ var colorDict = {'white': {'line': whiteLine, 'fill': whiteFill },
 
 $(document).ready(function() {
 	window.AudioContext = window.AudioContext || window.webkitAudioContext;
-	online = new AudioContext();
-
-    context = online;
 
     socket_namespace = '/wut';
     socket = io.connect(`${location.protocol}//${document.domain}:${location.port}${socket_namespace}`);
