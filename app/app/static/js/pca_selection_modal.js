@@ -1,5 +1,6 @@
-let pcaSelectionModal = new Modal('modal-active', 'pca-selection-modal-active', 'modal-cover',
-'modal-ready', 'pca-selection-modal-open', 'pca-selection-modal-close')
+let pcaSelectionModal = new Modal('pca-selection-modal', 'modal-active',
+'pca-selection-modal-active', 'modal-cover', 'modal-ready',
+'pca-selection-modal-open', 'pca-selection-modal-close')
 
 let setupPlotly = (plotId) => {
   this.layout = {

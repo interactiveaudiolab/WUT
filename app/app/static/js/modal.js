@@ -1,15 +1,21 @@
-// adapted from https://github.com/hakimel/audioUploadModal
+// adapted from https://github.com/hakimel/Avgrund
 class Modal {
-  constructor(generalModalActive, active, cover, ready, open, close) {
-    document.getElementById(open).addEventListener('click', () => this.show())
-    document.getElementById(close, '#').addEventListener('click', () => this.hide())
+  constructor(id, generalModalActive, active, cover, ready, open, close,
+  displayType) {
+    document.getElementById(open).addEventListener('click',
+      (data) => !data.currentTarget.classList.contains('disabled') && this.show());
+    document.getElementById(close, '#').addEventListener('click', () => this.hide());
 
-    this.container = document.body;
+    this.id = id;
+    this.modalElement = document.getElementById(this.id);
+    this.surroundingContainer = document.body;
     this.cover = document.querySelector(this._makeSelector(cover, '.'));
     this.generalModalActive = generalModalActive;
     this.active = active;
+    this.displayType = displayType || this.modalElement.style.display;
+    this.modalElement.style.display = 'none';
 
-    this.container.classList.add(ready);
+    this.surroundingContainer.classList.add(ready);
 
     // listeners below added on show
     // hide on esc
@@ -20,14 +26,16 @@ class Modal {
 
   show() {
     this._setListeners(true)
-    this.container.classList.add(this.active);
-    this.container.classList.add(this.generalModalActive);
+    this.surroundingContainer.classList.add(this.active);
+    this.surroundingContainer.classList.add(this.generalModalActive);
+    this.modalElement.style.display = this.displayType;
   }
 
   hide(dontClean) {
     this._setListeners(false)
-    this.container.classList.remove(this.active);
-    this.container.classList.remove(this.generalModalActive);
+    this.surroundingContainer.classList.remove(this.active);
+    this.surroundingContainer.classList.remove(this.generalModalActive);
+    this.modalElement.style.display = 'none';
 
     // cleaner removes unwanted state on modal (such as checked checkboxes)
     if(!dontClean) { this.clean() }

@@ -1,5 +1,6 @@
-let audioUploadModal = new Modal('modal-active', 'audio-upload-modal-active', 'modal-cover',
-'modal-ready', 'audio-upload-modal-open', 'audio-upload-modal-close')
+let audioUploadModal = new Modal('audio-upload-modal', 'modal-active',
+'audio-upload-modal-active', 'modal-cover', 'modal-ready',
+'audio-upload-modal-open', 'audio-upload-modal-close')
 
 let uncheckCheckboxes = (checkboxClass) =>
   Array.from(document.getElementsByClassName(checkboxClass)).
