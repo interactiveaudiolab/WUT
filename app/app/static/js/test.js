@@ -32,6 +32,8 @@ $(document).ready(function() {
         pca.addTFIndices(indices);
         let hist = pcaMatrixToHistogram(pca.TFIndices)
 
+        document.getElementById('pca-selection-modal-open').classList.remove('disabled');
+
         // pca of size 100 x 100
         make_pca(pca, hist, 100, 100)
     });
