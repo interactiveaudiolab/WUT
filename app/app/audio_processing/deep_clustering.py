@@ -42,7 +42,7 @@ class DeepClustering(audio_processing_base.InteractiveAudioProcessingBase):
               hidden_size=hidden_size,
               num_layers=num_layers,
               resample_rate=resample_rate,
-            # how to handle stero?
+              # how to handle stero?
               do_mono = True)
 
     def perform_deep_clustering(self):
@@ -52,11 +52,13 @@ class DeepClustering(audio_processing_base.InteractiveAudioProcessingBase):
     # remove reliance on user_original_file_folder here
     def send_deep_clustering_results(self, socket, namespace, file_path):
         dc_results = self.perform_deep_clustering()
-        pca, mel = self._massage_data(dc_results)
+        binned_embeddings, mel = self._massage_data(dc_results)
 
         self._save_mel_image(mel, file_path)
 
-        socket.emit('pca', json.dumps(pca), namespace=namespace)
+        socket.emit('binned_embeddings', json.dumps(binned_embeddings), namespace=namespace)
+        explained_variance = self.dc.get_pca().explained_variance_ratio_
+        socket.emit('pca_explained_variance', json.dumps(list(explained_variance)), namespace=namespace)
         socket.emit('mel', json.dumps(mel.tolist()), namespace=namespace)
 
         logger.info('Sent Deep Clustering for {}'.format(self.user_audio_signal.file_name))

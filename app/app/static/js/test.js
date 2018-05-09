@@ -26,16 +26,23 @@ $(document).ready(function() {
 
     socket.on('disconnect', why => console.log(`Socket disconnected: ${why}`));
 
-    socket.on('pca', msg => {
+    socket.on('binned_embeddings', msg => {
         indices = JSON.parse(msg)
 
         pca.addTFIndices(indices);
         let hist = pcaMatrixToHistogram(pca.TFIndices)
 
-        document.getElementById('pca-selection-modal-open').classList.remove('disabled');
-
         // pca of size 100 x 100
         make_pca(pca, hist, 100, 100)
+    });
+
+    socket.on('pca_explained_variance', msg => {
+        explained_variance = JSON.parse(msg)
+
+        console.log('Got variance');
+        console.log(explained_variance);
+
+        document.getElementById('pca-selection-modal-open').classList.remove('disabled');
     });
 
     socket.on('mel', msg => {
