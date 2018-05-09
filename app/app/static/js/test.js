@@ -94,3 +94,16 @@ $('#apply-selections').click(function(){
         socket.emit('mask', { mask: spectrogram.exportSelectionMask() });
     }
 });
+
+$('#pca-selection-modal-begin').click(() => {
+    if(!$('#pca-selection-modal-begin').hasClass('disabled')) {
+        socket.emit('set_pca_dims', {
+            dims: pcaSelectionModal.layout.shapes.map(shape => Math.floor(shape.x1))
+        });
+        pcaSelectionModal.hide();
+
+        $('.shared-plots-spinner').hide();
+        $('#plots-spinner').show();
+        $('#plots-spinner').css('display', 'flex');
+    }
+});
