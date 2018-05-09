@@ -49,6 +49,11 @@ class DeepClustering(audio_processing_base.InteractiveAudioProcessingBase):
         self.dc.run()
         return self.dc.project_arbitrary_embeddings(), self.dc.mel_spectrogram
 
+    def update_dimensions(self, dims, socket, namespace):
+        embeddings = self.dc.project_arbitrary_embeddings(dims)
+        massaged = self._massage_pca(embeddings)
+        socket.emit('binned_embeddings', json.dumps(massaged), namespace=namespace)
+
     # remove reliance on user_original_file_folder here
     def send_deep_clustering_results(self, socket, namespace, file_path):
         dc_results = self.perform_deep_clustering()
@@ -86,6 +91,16 @@ class DeepClustering(audio_processing_base.InteractiveAudioProcessingBase):
         pass
 
     # UTILITIES BELOW HERE
+
+    def _massage_pca(self, embeddings):
+        # Scale and bin PCA points
+
+        dim = 99
+        scaled = self._scale_pca(embeddings, dim)
+        binned = self._bin_matrix(scaled, self._make_square_matrix(dim + 1))
+
+        return binned
+
 
     def _massage_data(self, data):
         # Scale and bin PCA points
