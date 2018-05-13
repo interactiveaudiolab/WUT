@@ -328,7 +328,7 @@ main .interaction > .shared-plots-spinner .title-cont > :first-child {
 	margin-right: 5px;
 }
 
-main .interaction > .shared-plots-spinner > #pca-cont, #spectrogram-cont {
+main .interaction > .shared-plots-spinner > #cont, #pca-cont, #spectrogram-cont {
 	display: flex;
 	flex-flow: column;
 	justify-content: space-around;
@@ -363,6 +363,14 @@ main .interaction > .shared-plots-spinner > #spectrogram-cont > #apply-dc-select
 
 #apply-spec-selection {
 	margin: 0 25% 0 75%;
+}
+
+/* BUTTONS */
+#pca-selection-modal-open, #apply-spec-selection, #apply-dc-selections {
+	margin-top: 20px;
+	align-self: center;
+	padding-left: 10px;
+	padding-right: 10px;
 }
 
 footer {
@@ -476,7 +484,7 @@ footer p {
 */
 @media screen and (max-width: 1280px) {
 	main .interaction > .shared-plots-spinner {
-		align-content: center;
+		align-items: center;
 	}
 
 	main .interaction > .shared-plots-spinner > #pca-cont {
@@ -493,20 +501,22 @@ footer p {
 /* MODAL */
 /* adapted from https://github.com/hakimel/Avgrund */
 /* apparently Avgrund means abyss in Swedish */
-
-/* shrink body when active */
-body.modal-active { transform: scale(0.9); }
+/* remove all transformations as they affect `position: fixed` behavior of
+descendants (essentially makes `position: fixed` act like `position: absolute`
+with the transformed ancestor as the container positioned within */
 
 /* modal styling */
 .modal {
-	position: absolute;
+	/* center horizontally and kinda vertically */
+	position: fixed;
+	left: 25%;
+	top: 25%;
+
 	width: 50%;
 	/* make more responsive here */
 	height: 45vh;
 	min-width: 350px;
 	min-height: 300px;
-	left: 25%;
-	top: 35%;
 
 	display: flex;
 	flex-flow: column;
@@ -524,20 +534,52 @@ body.modal-active { transform: scale(0.9); }
 	background: white;
 	box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.6);
 	border-radius: 3px;
-
-	/* shrink to enlarge later for prettier animation */
-	transform: scale(0.8);
 }
 
-/* show modal */
-.modal-active .modal {
+/* <<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>> */
+/* <<<<<<<<< MAGIC HAPPENS BELOW >>>>>>>> */
+/* <<<< and above to a lesser extent >>>> */
+/* <<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>> */
+
+.audio-upload-modal-active .modal,
+.pca-selection-modal-active .modal {
 	/* make visible */
 	visibility: visible;
 	opacity: 1;
 
-	/* transform to *pop* out of screen (1.1 to cancel out shrinking of body) */
-	transform: scale(1.1);
+	animation: fadein .75s;
 }
+
+.pca-selection-modal-active #pca-selection-modal {
+	min-height: 600px;
+}
+
+@keyframes fadein {
+  from { opacity: 0; filter: blur(5px); }
+  to   { opacity: 1; }
+}
+
+/* <<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>> */
+/* <<<<<<<<< MAGIC HAPPENS ABOVE >>>>>>>> */
+/* <<<< and below to a lesser extent >>>> */
+/* <<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>> */
+
+/* <<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>> */
+/* <<<<<<<<<<< general modal >>>>>>>>>>>> */
+/* <<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>> */
+
+.modal-bottom-button {
+	border-radius: 0;
+	align-self: stretch;
+}
+
+/* <<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>> */
+/* <<<<<<<<<<< general modal >>>>>>>>>>>> */
+/* <<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>> */
+
+/* <<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>> */
+/* <<<<<<<<< audio upload modal >>>>>>>>> */
+/* <<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>> */
 
 /* holds back and close buttons */
 #audio-upload-modal-header {
@@ -558,7 +600,7 @@ body.modal-active { transform: scale(0.9); }
 	/* Note: this justify-content has no effect if uncommented due to
 		 `margin: auto` on next button. Auto margins are idiomatic method for making
 		 specific alignments along main axis */
-	/* justify-content: space-around; */
+	/* justify-content: space-between; */
 }
 
 /* uploading or recording audio page */
@@ -657,15 +699,36 @@ body.modal-active { transform: scale(0.9); }
 	visibility: hidden;
 }
 
-#audio-upload-modal-next, #audio-upload-modal-begin {
-	border-radius: 0;
-	align-self: stretch;
-}
-
 #audio-upload-modal-next {
 	/* force to bottom and other children to top */
 	margin-top: auto;
 }
+
+/* <<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>> */
+/* <<<<<<<<< audio upload modal >>>>>>>>> */
+/* <<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>> */
+
+/* <<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>> */
+/* <<<<<<<< pca selection modal >>>>>>>>> */
+/* <<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>> */
+
+/* choosing separation types page */
+#pca-selection-modal-plot-wrapper {
+	display: flex;
+	flex-flow: column;
+	justify-content: space-between;
+	align-items: center;
+
+	flex: 1;
+}
+
+#pca-selection-modal-plot-wrapper p {
+	padding: 5px;
+}
+
+/* <<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>> */
+/* <<<<<<<< pca selection modal >>>>>>>>> */
+/* <<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>> */
 
 /* misc modal styling around modal */
 
@@ -711,7 +774,7 @@ body.modal-active { transform: scale(0.9); }
 
 /* blur out content */
 .modal-active .modal-content-wrapper {
-	filter: blur(2px);
+	filter: blur(5px);
 }
 
 /* set all transitions once modal is ready */
@@ -719,5 +782,5 @@ body.modal-ready,
 .modal-ready .modal-content-wrapper,
 .modal-ready .modal,
 .modal-ready .modal-cover {
-	transition: 0.5s all cubic-bezier(0.250, 0.460, 0.450, 0.940);
+	transition: 0.75s all cubic-bezier(0.250, 0.460, 0.450, 0.940);
 }
