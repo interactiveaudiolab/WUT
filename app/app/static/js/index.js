@@ -9,6 +9,7 @@ dcPCA.addLinkedSpectrogram(dcSpectrogram)
 var socket;
 var loader;
 var context;
+var firstUpload = false;
 
 // colors
 var whiteLine = 'rgba(245, 245, 245, 1)';
@@ -22,7 +23,11 @@ var colorDict = {'white': {'line': whiteLine, 'fill': whiteFill },
 var bothSelected = false;
 
 $(document).ready(function() {
-    context = new (window.AudioContext || window.webkitAudioContext)();
+    $('#audio-upload-modal-open').click(() => { if(!firstUpload) {
+        context = new (window.AudioContext || window.webkitAudioContext)();
+        firstUpload = true;
+    }});
+
 	loader = new wavesLoaders.AudioBufferLoader();
 
     // Set up sockets
@@ -47,7 +52,7 @@ $(document).ready(function() {
         getSpectrogramAsImage(mixture_spectrogram_heatmap, msg.max_freq);
     });
 
-    socket.on('pca', msg => {
+    socket.on('binned_embeddings', msg => {
         indices = JSON.parse(msg)
 
         dcPCA.addTFIndices(indices);
@@ -55,6 +60,17 @@ $(document).ready(function() {
 
         // pca of size 100 x 100
         make_pca(dcPCA, hist, 100, 100)
+
+        dcSpectrogram.setLoading(false);
+    });
+
+    socket.on('pca_explained_variance', msg => {
+        // executes passed in function with `_this` as
+        // the calling object (pcaSelectionModal)
+        pcaSelectionModal._addArbitraryFunction(setupPlotly,
+            ['pca-dimensions', JSON.parse(msg)]);
+
+        document.getElementById('pca-selection-modal-open').classList.remove('disabled');
     });
 
     socket.on('mel', msg => {
@@ -97,6 +113,8 @@ function relayoutPlots() {
     resizeToContainer(dcPCA);
     resizeToContainer(dcSpectrogram);
     resizeToContainer(mixture_spectrogram_heatmap);
+    document.getElementById('pca-dimensions').layout !== undefined &&
+        Plotly.relayout('pca-dimensions', { width: $('#pca-selection-modal-plot-wrapper').width() });
 }
 
 // RESIZE ON TAB CHANGE
@@ -146,4 +164,20 @@ mixture_waveform.surfer.on('ready', () => { emptyMultiTrack(); });
 $('#results-pill').click(() => {
     $(this).removeClass('result-ready');
     result_waveform.drawBuffer();
+});
+
+$('#pca-selection-modal-begin').click(() => {
+    if(!$('#pca-selection-modal-begin').hasClass('disabled')) {
+        let dims = pcaSelectionModal.layout.shapes.map(shape => Math.floor(shape.x1));
+        socket.emit('set_pca_dims', { dims: dims });
+
+        pcaSelectionModal.hide();
+
+        $('.shared-plots-spinner').hide();
+        $('#plots-spinner').show();
+        $('#plots-spinner').css('display', 'flex');
+        dcPCA.plotLayout.xaxis.title = `Principal Component ${dims[0]}`
+        dcPCA.plotLayout.yaxis.title = `Principal Component ${dims[1]}`
+        dcPCA.clearSelections();
+    }
 });

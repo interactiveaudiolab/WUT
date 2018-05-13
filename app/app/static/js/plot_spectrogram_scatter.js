@@ -63,9 +63,7 @@ class ScatterSpectrogram extends PlotlyHeatmap {
         if(aboutToLoad) {
             // do nothing for now
         } else {
-            // TODO: don't do both test and index versions here, super hacky
             $('#apply-dc-selections').removeClass('disabled');
-            $('#apply-selections').removeClass('disabled');
 
             $('.shared-plots-spinner').show();
             $('#plots-spinner').hide();
