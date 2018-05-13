@@ -39,13 +39,15 @@ $(document).ready(function() {
 
         // pca of size 100 x 100
         make_pca(pca, hist, 100, 100)
+
+        spectrogram.setLoading(false);
     });
 
     socket.on('pca_explained_variance', msg => {
-        explained_variance = JSON.parse(msg)
-
-        console.log('Got variance');
-        console.log(explained_variance);
+        // executes passed in function with `_this` as
+        // the calling object (pcaSelectionModal)
+        pcaSelectionModal._addArbitraryFunction(setupPlotly,
+            ['pca-dimensions', JSON.parse(msg)]);
 
         document.getElementById('pca-selection-modal-open').classList.remove('disabled');
     });
@@ -104,13 +106,16 @@ $('#apply-selections').click(function(){
 
 $('#pca-selection-modal-begin').click(() => {
     if(!$('#pca-selection-modal-begin').hasClass('disabled')) {
-        socket.emit('set_pca_dims', {
-            dims: pcaSelectionModal.layout.shapes.map(shape => Math.floor(shape.x1))
-        });
+        let dims = pcaSelectionModal.layout.shapes.map(shape => Math.floor(shape.x1));
+        socket.emit('set_pca_dims', { dims: dims });
+
         pcaSelectionModal.hide();
 
         $('.shared-plots-spinner').hide();
         $('#plots-spinner').show();
         $('#plots-spinner').css('display', 'flex');
+        pca.plotLayout.xaxis.title = `Principal Component ${dims[0]}`
+        pca.plotLayout.yaxis.title = `Principal Component ${dims[1]}`
+        pca.clearSelections();
     }
 });
