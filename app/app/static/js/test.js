@@ -7,6 +7,8 @@ var spectrogram = new ScatterSpectrogram('spectrogram');
 var pca = new PCAHeatmap('pca');
 pca.addLinkedSpectrogram(spectrogram)
 var socket;
+var context;
+var firstUpload = false;
 
 var whiteLine = 'rgba(245, 245, 245, 1)';
 var whiteFill = 'rgba(255, 255, 255, 0.35)';
@@ -17,7 +19,10 @@ var colorDict = {'white': {'line': whiteLine, 'fill': whiteFill },
                  'green': {'line': greenLine, 'fill': greenFill } };
 
 $(document).ready(function() {
-	window.AudioContext = window.AudioContext || window.webkitAudioContext;
+    $('#audio-upload-modal-open').click(() => { if(!firstUpload) {
+        context = new (window.AudioContext || window.webkitAudioContext)();
+        firstUpload = true;
+    }});
 
     socket_namespace = '/wut';
     socket = io.connect(`${location.protocol}//${document.domain}:${location.port}${socket_namespace}`);
