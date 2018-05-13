@@ -66,6 +66,8 @@ $(document).ready(function() {
 function relayoutPlots() {
     resizeToContainer(pca);
     resizeToContainer(spectrogram);
+    document.getElementById('pca-dimensions').layout !== undefined &&
+        Plotly.relayout('pca-dimensions', { width: $('#pca-selection-modal-plot-wrapper').width() });
 }
 
 // RESIZE PLOTS ON WINDOW CHANGE
@@ -77,11 +79,11 @@ $(window).resize(relayoutPlots);
 // kills audio, could have it pick up where left off later
 // also may want to write own debouncing function instead of
 // importing Lodash for it
-$(window).resize(_.debounce(function(){
+$(window).resize(_.debounce(function() {
     mixture_waveform.resizeWaveform();
     masked_waveform.resizeWaveform();
     inverse_waveform.resizeWaveform();
-  }, 500));
+}, 500));
 
 //  ~~~~~~~~~~~~~ Apply Selections button ~~~~~~~~~~~~~
 

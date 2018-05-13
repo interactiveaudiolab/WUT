@@ -281,7 +281,7 @@ with the transformed ancestor as the container positioned within */
 	/* center horizontally and kinda vertically */
 	position:fixed;
 	left: 25%;
-	top: 35%;
+	top: 25%;
 
 	width: 50%;
 	/* make more responsive here */
@@ -322,8 +322,7 @@ with the transformed ancestor as the container positioned within */
 }
 
 .pca-selection-modal-active #pca-selection-modal {
-	/* override default height */
-	/* height: initial; */
+	min-height: 600px;
 }
 
 @keyframes fadein {
@@ -492,6 +491,10 @@ with the transformed ancestor as the container positioned within */
 	align-items: center;
 
 	flex: 1;
+}
+
+#pca-selection-modal-plot-wrapper p {
+	padding: 5px;
 }
 
 /* <<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>> */
