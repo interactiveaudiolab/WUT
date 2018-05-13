@@ -37,14 +37,6 @@ def index():
     save_session(separation_sess)
     return render_template('index.html', target_dict=separation_sess.target_name_dict)
 
-@app_.route('/test')
-def test():
-    new_sess = separation_session.SeparationSession()
-    session['session_id'] = new_sess.url_safe_id
-    session.modified = True
-    save_session(new_sess)
-    return render_template('test.html')
-
 @app_.errorhandler(404)
 def page_not_found(e):
     logger.warn('404! {}'.format(request.full_path))
