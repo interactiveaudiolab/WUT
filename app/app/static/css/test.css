@@ -272,20 +272,22 @@ footer p {
 /* MODAL */
 /* adapted from https://github.com/hakimel/Avgrund */
 /* apparently Avgrund means abyss in Swedish */
-
-/* shrink body when active */
-body.modal-active { transform: scale(0.9); }
+/* remove all transformations as they affect `position: fixed` behavior of
+descendants (essentially makes `position: fixed` act like `position: absolute`
+with the transformed ancestor as the container positioned within */
 
 /* modal styling */
 .modal {
-	position: absolute;
+	/* center horizontally and kinda vertically */
+	position:fixed;
+	left: 25%;
+	top: 35%;
+
 	width: 50%;
 	/* make more responsive here */
 	height: 45vh;
 	min-width: 350px;
 	min-height: 300px;
-	left: 25%;
-	top: 35%;
 
 	display: flex;
 	flex-flow: column;
@@ -303,9 +305,6 @@ body.modal-active { transform: scale(0.9); }
 	background: white;
 	box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.6);
 	border-radius: 3px;
-
-	/* shrink to enlarge later for prettier animation */
-	transform: scale(0.8);
 }
 
 /* <<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>> */
@@ -313,24 +312,23 @@ body.modal-active { transform: scale(0.9); }
 /* <<<< and above to a lesser extent >>>> */
 /* <<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>> */
 
-/* show modal */
-.audio-upload-modal-active #audio-upload-modal {
+.audio-upload-modal-active .modal,
+.pca-selection-modal-active .modal {
 	/* make visible */
 	visibility: visible;
 	opacity: 1;
 
-	/* transform to *pop* out of screen (1.1 to cancel out shrinking of body) */
-	transform: scale(1.1);
+	animation: fadein .75s;
 }
 
-/* show modal */
 .pca-selection-modal-active #pca-selection-modal {
-	/* make visible */
-	visibility: visible;
-	opacity: 1;
+	/* override default height */
+	/* height: initial; */
+}
 
-	/* transform to *pop* out of screen (1.1 to cancel out shrinking of body) */
-	transform: scale(1.1);
+@keyframes fadein {
+  from { opacity: 0; filter: blur(5px); }
+  to   { opacity: 1; }
 }
 
 /* <<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>> */
@@ -551,7 +549,7 @@ body.modal-active { transform: scale(0.9); }
 
 /* blur out content */
 .modal-active .modal-content-wrapper {
-	filter: blur(2px);
+	filter: blur(5px);
 }
 
 /* set all transitions once modal is ready */
@@ -559,5 +557,5 @@ body.modal-ready,
 .modal-ready .modal-content-wrapper,
 .modal-ready .modal,
 .modal-ready .modal-cover {
-	transition: 0.5s all cubic-bezier(0.250, 0.460, 0.450, 0.940);
+	transition: .75s all cubic-bezier(0.250, 0.460, 0.450, 0.940);
 }
