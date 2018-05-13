@@ -1,6 +1,5 @@
 var audio = { waveforms: all_waveforms };
 var mixture_audio_file = {file:null, url:null};
-var context;
 
 var bufferLoader;
 var spec_data;
