@@ -8,10 +8,10 @@ class PCAHeatmap extends PlotlyHeatmap {
 
     let newLayout = {
       xaxis: {
-        title: 'Principal Component 1'
+        title: 'Principal Component 0'
       },
       yaxis: {
-        title: 'Principal Component 2'
+        title: 'Principal Component 1'
       },
       showlegend: false,
     };
