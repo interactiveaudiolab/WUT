@@ -122,7 +122,7 @@ document.getElementById('audio-upload-modal-upload-input').
 });
 
 // on recording finish
-// must be a way to avoid global recorder here (maybe context too?)
+// must be a way to avoid global recorder here
 var recorder;
 var blob;
 var audio_file;

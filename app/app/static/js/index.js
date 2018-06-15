@@ -38,10 +38,7 @@ $(document).ready(function() {
 
     socket.on('disconnect', why => console.log(`Socket disconnected: ${why}`));
 
-    socket.on('audio_upload_ok', () => {
-        console.log('Audio uploaded to server');
-        initMultiTrack();
-    });
+    socket.on('audio_upload_ok', () => console.log('Audio uploaded'));
 
     socket.on('spectrogram', msg => {
         var data = JSON.parse(msg.spectrogram);

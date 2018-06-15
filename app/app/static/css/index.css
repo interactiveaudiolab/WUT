@@ -57,7 +57,7 @@
 .waves-ui-container {
 	/* currently horrifying hardcoding */
 	/* width: 2370px; */ /* monitor */
-	width: 1490px; /* laptop */
+	width: 1250px; /* laptop */
 	/* flex: 1; */
 }
 

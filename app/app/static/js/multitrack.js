@@ -1,7 +1,7 @@
 var trackList = {};
 var numTracks = 0;
 
-function addTrack(id, name, url, color) {
+function addTrack(id, name, url, color, load_recs=False) {
     numTracks++;
     color = color !== undefined ? color : 'SkyBlue';
     let sr = context.sampleRate;
@@ -20,38 +20,32 @@ function addTrack(id, name, url, color) {
         trackList[k]._gainMax = 1 / numTracks;
     }
 
-    url != undefined && initTrack(id, url);
+    url != undefined && initTrack(id, url, load_recs);
 }
 
-function initTrack(id, url) {
+function initTrack(id, url, load_recs=False) {
     loader.load(url).then(buffer => {
         console.log(`ID: ${id}, buffer: ${buffer}`)
         console.log(buffer);
         trackList[id].changeWaveformBuffer(buffer, 0);
-        socket.emit('get_recommendations', {'algorithm': id});
+        if(load_recs) socket.emit('get_recommendations', {'algorithm': id});
     });
 }
 
 function emptyMultiTrack() {
     makeSlider();
+    $('#reqs-tab-bootstrap').removeClass('disabled');
+}
 
+function loadRecs() {
     let demoParams = ['repet_sim', 'projet', 'melodia'];
     let names = ['RepetSim', 'Projet', 'Melodia'];
     let colors = ['SkyBlue', 'PaleVioletRed', 'MediumSeaGreen'];
+    let demoUrl = '/separated_source_demo?method=';
     numTracks = demoParams.length;
 
     $.each(demoParams,
-        (i, algName) => addTrack(algName, names[i], undefined, colors[i]));
-}
-
-function initMultiTrack() {
-    let demoParams = ['repet_sim', 'projet', 'melodia'];
-    let demoUrl = '/separated_source_demo?method=';
-
-    $.each(demoParams,
-        (_, algName) => initTrack(algName, demoUrl + algName));
-
-    $('#reqs-tab-bootstrap').removeClass('disabled');
+        (i, algName) => addTrack(algName, names[i], demoUrl + algName, colors[i], true));
 }
 
 function newTrackHTML(containerID, id, title, color) {
@@ -188,6 +182,7 @@ function toggleReqs (eventObj) {
 }
 // Make this look like an 'event'...
 $('#req-stop').click(() => setTransport({ value: { newValue: 0.0 } }));
+$('#req-load').click(() => loadRecs());
 
 function muteTrack (eventObj) {
     // THIS IS A BIG OLE HACK!
