@@ -60,6 +60,7 @@ let getSelectedValue = function(radioClass) {
 // on begin
 document.getElementById('audio-upload-modal-begin').addEventListener('click', event => {
   if(!event.currentTarget.classList.contains('disabled')) {
+      selectionCounter = 0;
       audioUploadModal.hide(true);
 
       // send radio selection + audio to server

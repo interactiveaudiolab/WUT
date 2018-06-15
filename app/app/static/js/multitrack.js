@@ -84,7 +84,9 @@ $('#req-play').click(function () {
 
     let num_soloed = Object.values(trackList).filter(x => x.isSoloed).length;
     let num_muted = Object.values(trackList).filter(x => x.isMuted).length;
-    let num_playing = num_soloed > 0 ? num_soloed : trackList.length - num_muted;
+    let num_playing = num_soloed > 0
+        ? num_soloed
+        : Object.keys(trackList).length - num_muted;
     for(let track of Object.values(trackList))
         track._gainMax = 1 / num_playing;
 
