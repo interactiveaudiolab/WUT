@@ -44,8 +44,8 @@ function loadRecs() {
     let demoUrl = '/separated_source_demo?method=';
     numTracks = demoParams.length;
 
-    $.each(demoParams,
-        (i, algName) => addTrack(algName, names[i], demoUrl + algName, colors[i], true));
+    $.each(demoParams, (i, algName) =>
+        addTrack(algName, names[i], demoUrl + algName, colors[i], true));
 }
 
 function addEnvelopeData(envelopeData, trackID) {
@@ -55,17 +55,10 @@ function addEnvelopeData(envelopeData, trackID) {
 function makeSlider() {
     let duration = mixture_waveform.surfer.backend.getDuration();
 
-    // Set the transport slider to the same width as the tracks
-    // let width = $('.waves-ui-track').actual( 'width' );
-    // $('#transport-slider-wrapper').width(width);
-    // $('#ticks-wrapper').width(width);
-
     let slider = $('#transport-slider');
     let ticks = $('.time');
     let numTicks = ticks.length;
-    ticks.each(function(i, v) {
-        $(v).text(formatTick((i / (numTicks - 1)) * duration));
-    });
+    ticks.each((i, v) => $(v).text(formatTick((i / (numTicks - 1)) * duration)));
 
     slider.bootstrapSlider({ max: duration });
     slider.on("change", setTransport);
@@ -83,31 +76,26 @@ function addZero(value) {
 
 function setTransport(event) {
     stopAll();
-    $.each(trackList, function(_, track) {
-        track.cursorPosition = event.value.newValue;
-    });
+    $.each(trackList, (_, track) => track.cursorPosition = event.value.newValue);
 }
 
 $('#req-play').click(function () {
     togglePlayPauseIcon(this);
 
-    $.each(trackList, function(_, track) {
-        track.togglePlayPause();
-    });
+    let num_soloed = Object.values(trackList).filter(x => x.isSoloed).length;
+    let num_muted = Object.values(trackList).filter(x => x.isMuted).length;
+    let num_playing = num_soloed > 0 ? num_soloed : trackList.length - num_muted;
+    for(let track of Object.values(trackList))
+        track._gainMax = 1 / num_playing;
 
+    $.each(trackList, (_, track) => track.togglePlayPause());
 });
 
 function audioEnded() { setPauseIcon($('#req-play')); }
 
 function stopAll() {
-    $.each(trackList, function (_, track) {
-        if (!track.isStopped()) track.stop();
-    });
-
-    // Remove the play icon
+    $.each(trackList, (_, track) => !track.isStopped() && track.stop());
     setPauseIcon($('#req-play'));
-    // $('#req-play').find('svg').('fa-pause fa-play');
-    // $('#req-play').attr('title', `${$(this.playId).attr('title') === 'Play audio' ? 'Pause' : 'Play'} audio`)
 }
 
 // Make this look like an 'event'...
@@ -125,7 +113,7 @@ $('#req-save').click(function () {
 
     $.each(trackList, (_, t) => t.prepareAudioGraph(offline));
 
-    offline.startRendering().then((renderedBuffer) => {
+    offline.startRendering().then(renderedBuffer => {
         let blob = bufferToWave(renderedBuffer, 0.0, renderedBuffer.length);
         saveAs(blob, 'wut_result.wav', false);
 
