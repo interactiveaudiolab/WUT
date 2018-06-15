@@ -9,7 +9,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 import numpy as np
-
+import utils
 from flask import render_template, request, flash, session, abort, send_file, make_response
 from werkzeug.utils import secure_filename
 from flask_socketio import emit
@@ -67,6 +67,7 @@ def initialize(audio_file_data):
 
     # Retrieve the session from memory
     separation_sess = awaken_session()
+
     path = os.path.join(separation_sess.user_original_file_folder, filename)
     logger.info('Saving at {}'.format(path))
 
@@ -90,19 +91,13 @@ def initialize(audio_file_data):
         {'max_freq': separation_sess.user_general_audio.max_frequency_displayed}, namespace=WUT_SOCKET_NAMESPACE)
     logger.info('Sent spectrogram image info for {}'.format(filename))
 
-    # Initialize other representations
+    # compute and send Deep Clustering PCA visualization and mel spectrogram
+    separation_sess.model_type = audio_file_data['radio_selection']
+    model_path = utils.get_deep_clustering_model_path(separation_sess.model_type)
+    logger.info('model_type: {}'.format(separation_sess.model_type))
+    logger.info('path: {}'.format(model_path))
 
-    # Compute and send Deep Clustering PCA visualization and mel spectrogram
-    # separation_sess.checks = audio_file_data['selections']
-    # isSpeech = 'speech' in separation_sess.checks
-    isSpeech = False
-
-    path = os.path.join(HOME, 'data/models/', ('deep_clustering_speech.model' if isSpeech else 'deep_clustering_vocal_44k_long.model'))
-    hidden_size = 300 if isSpeech else 500
-    resample_rate = 16000 if isSpeech else 44100
-    num_layers = 2 if isSpeech else 4
-
-    dc = audio_processing.DeepClustering(separation_sess.user_signal, separation_sess.user_original_file_folder, path, hidden_size, resample_rate, num_layers)
+    dc = audio_processing.DeepClustering(separation_sess.user_signal, separation_sess.user_original_file_folder, model_path)
     logger.info('Computing and sending clusters for {}'.format(filename))
 
     # currently kind of ugly hack for mel spectrogram image
@@ -250,30 +245,14 @@ def get_action(action_):
 @socketio.on('set_pca_dims', namespace=WUT_SOCKET_NAMESPACE)
 def get_embeddings(dims):
     dims = sorted(dims['dims'])
-    logger.info("Dimensions")
-    logger.info(dims)
-
     sess = awaken_session()
 
     logger.info('spinning up deep clusterer')
+    model_path = utils.get_deep_clustering_model_path(sess.model_type)
 
-    logger.info('checks:')
-    logger.info(sess.checks)
-    isSpeech = 'speech' in sess.checks
-
-    path = os.path.join(HOME, 'data/models/', ('deep_clustering_speech.model' if isSpeech else 'deep_clustering_vocal_44k_long.model'))
-    hidden_size = 300 if isSpeech else 500
-    resample_rate = 16000 if isSpeech else 44100
-    num_layers = 2 if isSpeech else 4
-
-    logger.info(path)
-    logger.info(hidden_size)
-    logger.info(resample_rate)
-    logger.info(num_layers)
-
-    dc = audio_processing.DeepClustering(sess.user_signal, sess.user_original_file_folder, path, hidden_size, resample_rate, num_layers)
-
+    dc = audio_processing.DeepClustering(sess.user_signal, sess.user_original_file_folder, model_path)
     dc.dc.run()
+
     logger.info('done spinning up deep clusterer')
 
     dc.update_dimensions(dims, socketio, WUT_SOCKET_NAMESPACE)
@@ -286,21 +265,9 @@ def generate_mask(mask):
 
     logger.info('spinning up deep clusterer')
 
-    logger.info('checks:')
-    logger.info(sess.checks)
-    isSpeech = 'speech' in sess.checks
+    model_path = utils.get_deep_clustering_model_path(sess.model_type)
 
-    path = os.path.join(HOME, 'data/models/', ('deep_clustering_speech.model' if isSpeech else 'deep_clustering_vocal_44k_long.model'))
-    hidden_size = 300 if isSpeech else 500
-    resample_rate = 16000 if isSpeech else 44100
-    num_layers = 2 if isSpeech else 4
-
-    logger.info(path)
-    logger.info(hidden_size)
-    logger.info(resample_rate)
-    logger.info(num_layers)
-
-    dc = audio_processing.DeepClustering(sess.user_signal, sess.user_original_file_folder, path, hidden_size, resample_rate, num_layers)
+    dc = audio_processing.DeepClustering(sess.user_signal, sess.user_original_file_folder, model_path)
 
     dc.dc.run()
     logger.info('done spinning up deep clusterer')

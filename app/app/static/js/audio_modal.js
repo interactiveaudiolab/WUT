@@ -8,7 +8,7 @@ let uncheckCheckboxes = (checkboxClass) =>
 
 let cleaner = () => {
   // checkboxes
-  uncheckCheckboxes('separation-check');
+  uncheckCheckboxes('separation-radio');
   document.getElementById('audio-upload-modal-back').click();
 
   // audio
@@ -39,22 +39,22 @@ audioUploadModal.setNaivePageTransitions(transitions)
 
 // checkboxes
 
-// enable/disable next on checkboxes
-let boxes = Array.from(document.getElementsByClassName('separation-check'));
+// enable/disable next on radio button selection
+let boxes = Array.from(document.getElementsByClassName('separation-radio'));
 boxes.forEach(function(element) {
   element.addEventListener('click', () => {
-      if(boxes.some(elem => elem.checked)) {
-          document.getElementById('audio-upload-modal-next').classList.remove('disabled')
-      } else {
-          document.getElementById('audio-upload-modal-next').classList.add('disabled')
-      }
+      nextClasses = document.getElementById('audio-upload-modal-next').classList;
+      boxes.some(elem => elem.checked)
+        ? nextClasses.remove('disabled')
+        : nextClasses.add('disabled');
   });
 });
 
-// get values of all checked boxes of a particular class
-let getCheckedValues = function(checkboxClass) {
-  return Array.from(document.getElementsByClassName(checkboxClass)).
-      filter(elem => elem.checked).map(elem => elem.value);
+// get radio button value
+// assumes there will always be at least and only one radio selected
+let getSelectedValue = function(radioClass) {
+  return Array.from(document.getElementsByClassName(radioClass)).
+      find(elem => elem.checked).value;
 }
 
 // on begin
@@ -62,15 +62,12 @@ document.getElementById('audio-upload-modal-begin').addEventListener('click', ev
   if(!event.currentTarget.classList.contains('disabled')) {
       audioUploadModal.hide(true);
 
-      // send checkboxes + audio to server
+      // send radio selection + audio to server
       // leave to specific implementations
-      let checks = getCheckedValues('separation-check');
-      upload_to_server(audio_file, checks);
+      let selected = getSelectedValue('separation-radio');
+      upload_to_server(audio_file, selected);
 
-      // pca.clearSelections();
       mixture_waveform.load(URL.createObjectURL(audio_file));
-      // masked_waveform.clearSurfer()
-      // inverse_waveform.clearSurfer()
       // UI
       $('.shared-spectrogram-spinner').hide();
       $('#spectrogram-spinner').show();
@@ -84,7 +81,7 @@ document.getElementById('audio-upload-modal-begin').addEventListener('click', ev
   }
 })
 
-function upload_to_server(file, checks) {
+function upload_to_server(file, selection) {
   file_with_metadata = {
       'file_name': file.name,
       'file_size': file.size,
@@ -94,7 +91,7 @@ function upload_to_server(file, checks) {
 
   socket.compress(true).emit('audio_upload', {
       'audio_file': file_with_metadata,
-      'selections': checks
+      'radio_selection': selection
   });
 }
 
