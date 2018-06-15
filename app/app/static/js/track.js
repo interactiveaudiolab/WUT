@@ -5,10 +5,10 @@ const PLAY_STATUS = {
 };
 
 class Track {
-    constructor(buffer, context, trackID, envelopeData, slider, audioEndCallback, totalTracks) {
+    constructor(buffer, audioContext, trackID, containerID, trackName,
+        waveformColor, envelopeData, slider, audioEndCallback, totalTracks) {
         this._buffer = buffer;
-        this._trackID = trackID;
-        this._waveformColor = $(this._trackID).data('color');
+        this._waveformColor = waveformColor;
         this._envelopeData = envelopeData;
         this._envelopeDataHidden = false;
         this._envelopeDataColorMuted = false;
@@ -32,7 +32,7 @@ class Track {
         this.isSoloed = false;
         this.soloSelected = false;
 
-        this._context = context;
+        this._context = audioContext;
         this._sourceNode = null;
         this._gainNode = null;
         this._pausedPosition = 0;
@@ -45,15 +45,151 @@ class Track {
         this._startedAt = 0;
         this._pausedAt = 0;
 
+        this._soloButton;
+        this._muteButton;
+        this._recButton;
+
+        this._newTrackHTML(containerID, trackID, trackName, waveformColor)
+        this._trackId = trackID;
+        this._trackElement = $(`#${trackID}`)[0];
         this._drawWholeTrack();
     }
 
+    _newTrackHTML(containerID, id, title, color) {
+        let titleHeader = $('<h5 />', { text: title, class: 'algorithm' });
+
+        this._soloButton = $('<button />', {
+            text: 'S',
+            id: id + '-solo',
+            class: 'btn solo-track',
+            title: 'Solo'
+        });
+        this._soloButton.click((click_event) => this.soloTrack(click_event));
+
+        this._muteButton = $('<button />', {
+            text: 'M',
+            id: id + '-mute',
+            class: 'btn mute-track',
+            title: 'Mute'
+        });
+        this._muteButton.click((click_event) => this.muteTrack(click_event));
+
+        this._recButton = $('<button />', {
+            text: 'Recs',
+            id: id + '-req',
+            class: 'btn disabled toggle-reqs',
+            title: 'Toggle Recommendations'
+        });
+        this._recButton.click((click_event) => this.toggleReqs(click_event));
+
+        let buttonsDiv = $('<div />', {class: 'solo-mute-recs btn-group btn-group-sm'});
+        buttonsDiv.append(this._soloButton);
+        buttonsDiv.append(this._muteButton);
+        buttonsDiv.append(this._recButton);
+
+        let maxDb = $('<div />', { class: 'db-label max-db-label', text: '0dB' });
+        let minDb = $('<div />', { class: 'db-label min-db-label', text: '-80dB' });
+        let dbLabels = $('<div />', { class: 'db-label-cont' });
+        dbLabels.append(maxDb);
+        dbLabels.append(minDb);
+
+        let buttonsAndTitle = $('<div />', { class: 'algorithm-and-solo-mute-recs' });
+        buttonsAndTitle.append(titleHeader);
+        buttonsAndTitle.append(buttonsDiv);
+
+        let trackControls = $('<div />', {class: 'track-controls'});
+        trackControls.append(buttonsAndTitle);
+        trackControls.append(dbLabels);
+
+        let wavesUItrack = $('<div />', { class: 'waves-ui-track', id: id });
+        wavesUItrack.attr('data-color', color);
+        let wavesUIcontainer = $('<div />', {class: 'waves-ui-container'});
+        wavesUIcontainer.append(wavesUItrack);
+
+        let trackAndControls = $('<div />', {class: 'track-and-controls'});
+        trackAndControls.append(trackControls);
+        trackAndControls.append(wavesUIcontainer);
+
+        let containerObj = $('#' + containerID);
+        containerObj.append(trackAndControls);
+    }
+
+    soloTrack(eventObj) {
+        let button = eventObj.target;
+        this.isSoloed = !this.isSoloed;
+        this.soloSelected = this.isSoloed;
+
+        let allSoloed = true, noneSoloed = true, anySoloed = false;
+        for (let t in trackList) {
+            t = trackList[t];
+            allSoloed &= t.isSoloed;
+            noneSoloed &= !t.soloSelected;
+            anySoloed |= t.isSoloed;
+        }
+
+        for (let t in trackList) {
+            t = trackList[t];
+
+            if (allSoloed || noneSoloed) {
+                t.unmute();
+                t.unmuteEnvelopeData();
+            } else {
+                if (t.isSoloed) {
+                    t.unmute();
+                    t.unmuteEnvelopeData();
+                } else {
+                    t.mute();
+                    t.muteEnvelopeData();
+                }
+            }
+
+            if (t.muteSelected) {
+                t.mute();
+                t.muteEnvelopeData();
+            }
+        }
+
+        togglePrimaryBtn(button);
+    }
+
+    muteTrack(eventObj) {
+        // THIS IS A BIG OLE HACK!
+        let button = eventObj.target;
+        togglePrimaryBtn(button);
+        this.muteSelected = $(button).hasClass('btn-primary');
+
+        let anySoloed = false, noneSoloed = true;
+        for (let t in trackList) {
+            t = trackList[t];
+            anySoloed |= t.isSoloed;
+            noneSoloed &= !t.soloSelected;
+        }
+
+        if (this.muteSelected) {
+            this.mute();
+            this.muteEnvelopeData();
+        }  else if((anySoloed && !this.isSoloed) || noneSoloed) {
+            // mute unselected. only time we unmute is if any track is soloed
+            // and it is not this track, or if no one is soloed
+            this.unmute();
+            this.unmuteEnvelopeData();
+        }
+    }
+
+    toggleReqs(eventObj) {
+        let button = eventObj.target;
+        if (!$(button).hasClass('disabled')) {
+            this.toggleEnvelopeData();
+            togglePrimaryBtn(button);
+        }
+    }
+
     _drawWholeTrack() {
-        var width = $(this._trackID).actual( 'width' );
+        var width = $(this._trackElement).actual( 'width' );
         var pixelsPerSecond = width / this._buffer.duration;
 
         this._timeline = new wavesUI.core.Timeline(pixelsPerSecond, width);
-        this._wavesUITrack = new wavesUI.core.Track(this._trackID, this._height);
+        this._wavesUITrack = new wavesUI.core.Track(this._trackElement, this._height);
 
         this._makeNewWaveformLayer(this._waveformColor);
         this._makeNewBreakpointLayer(this._defaultEnvelopeColor);
@@ -80,10 +216,12 @@ class Track {
     }
 
     _makeNewWaveformLayer(waveformColor) {
-        this._waveformLayer = new wavesUI.core.Layer('entity', this._buffer.getChannelData(0), {
-            height: this._height,
-            yDomain: [-1.05, 1.05]
-        });
+        this._waveformLayer = new wavesUI.core.Layer('entity',
+            this._buffer.getChannelData(0), {
+                height: this._height,
+                yDomain: [-1.05, 1.05]
+            }
+        );
 
         this._timeContext = new wavesUI.core.LayerTimeContext(this._timeline.timeContext);
         this._timeContext.duration = this._buffer.duration;
@@ -169,6 +307,8 @@ class Track {
         this._recommendationData = data;
         this._breakpointLayer.data = data;
         this._redrawLayer(this._breakpointLayer);
+        togglePrimaryBtn(this._recButton);
+        this._recButton.removeClass('disabled');
     }
 
     _redrawLayer(layer) {
@@ -188,7 +328,9 @@ class Track {
 
     hideEnvelopeData() {
         this._envelopeData = this._breakpointLayer.data;
-        this._breakpointLayer.data = [{x: 0.0, y: 0.8}, {x: this._buffer.duration, y: 0.8}];
+        this._breakpointLayer.data = [
+            { x: 0.0, y: 0.8 }, { x: this._buffer.duration, y: 0.8 }
+        ];
         this._envelopeDataHidden = true;
 
         this._redrawLayer(this._breakpointLayer);
@@ -299,7 +441,8 @@ class Track {
 
         this._gainNode = context.createGain();
 
-        // Source --> Gain Node --> MultiTrack Gain Node (--> AudioContext, this happens in multitrack.js)
+        // Source --> Gain Node --> MultiTrack Gain Node
+        // (--> AudioContext, this happens in multitrack.js)
         this._sourceNode.connect(this._gainNode);
         this._gainNode.connect(context.destination);
 
