@@ -22,6 +22,8 @@ var colorDict = {'white': {'line': whiteLine, 'fill': whiteFill },
 
 var bothSelected = false;
 
+var selectionCounter = 0;
+
 $(document).ready(function() {
     $('#audio-upload-modal-open').click(() => { if(!firstUpload) {
         context = new (window.AudioContext || window.webkitAudioContext)();
@@ -85,24 +87,24 @@ $(document).ready(function() {
 
     socket.on('masked_audio', _ => {
         let url = `./get_masked_audio?val=${Math.random().toString(36).substring(7)}`;
-        addTrack('dc-selected', 'Selected Cluster', url, 'RebeccaPurple');
+        let num = selectionCounter.toString();
+        addTrack('dc-selected-' + num, 'Selected Cluster #' + num, url, 'RebeccaPurple');
 
-        if(bothSelected) {
+        if(bothSelected)
             $('#see-results').removeClass('disabled');
-        } else {
+        else
             bothSelected = true;
-        }
     });
 
     socket.on('inverse_audio', _ => {
         let url = `./get_inverse_audio?val=${Math.random().toString(36).substring(7)}`;
-        addTrack('dc-unselected', 'Unselected Cluster', url, 'HotPink');
+        let num = selectionCounter.toString();
+        addTrack('dc-unselected-' + num, 'Unselected Cluster #' + num, url, 'HotPink');
 
-        if(bothSelected) {
+        if(bothSelected)
             $('#see-results').removeClass('disabled');
-        } else {
+        else
             bothSelected = true;
-        }
     });
 });
 
@@ -146,6 +148,7 @@ $(window).resize(_.debounce(() => mixture_waveform.resizeWaveform(), 500));
 $('#apply-dc-selections').click(function(){
     // probably a better way to check this in the future
     if(!$('#apply-dc-selections').hasClass('disabled')) {
+        ++selectionCounter;
         socket.emit('mask', { mask: dcSpectrogram.exportSelectionMask() });
     }
 });
