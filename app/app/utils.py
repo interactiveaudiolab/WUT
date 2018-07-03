@@ -37,5 +37,5 @@ def get_deep_clustering_model_path(model_type, base_path=None,
     if base_path == None:
         base_path = os.path.expanduser(os.path.join('~', '.nussl', 'models'))
 
-    model = "{}{}.model".format(model_prefix, model_type)
+    model = "{}{}_44k_long.model".format(model_prefix, model_type)
     return os.path.join(base_path, model)

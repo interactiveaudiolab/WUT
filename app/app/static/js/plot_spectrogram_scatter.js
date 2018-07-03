@@ -28,7 +28,7 @@ class ScatterSpectrogram extends PlotlyHeatmap {
     }
 
     clearMarkers() {
-        this.markers = []
+        this.markers = [];
         this.plot = Plotly.newPlot(this.divID, [], this.plotLayout, this.plotOptions);
     }
 
@@ -46,7 +46,7 @@ class ScatterSpectrogram extends PlotlyHeatmap {
                 color: color !== undefined ? color : '#ffffff',
                 opacity: 1
             }
-        }
+        };
 
         Plotly.addTraces(this.divID, data);
     }
@@ -98,7 +98,7 @@ class ScatterSpectrogram extends PlotlyHeatmap {
                 "sizing": "stretch",
                 "layer": "below"
             }]
-        }
+        };
 
         _.merge(this.plotLayout, newLayout);
 

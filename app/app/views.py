@@ -93,7 +93,8 @@ def initialize(audio_file_data):
 
     # compute and send Deep Clustering PCA visualization and mel spectrogram
     separation_sess.model_type = audio_file_data['radio_selection']
-    model_path = utils.get_deep_clustering_model_path(separation_sess.model_type)
+    model_path = utils.get_deep_clustering_model_path(separation_sess.model_type,
+                                                      base_path=os.path.join(HOME, 'data', 'models'))
     logger.info('model_type: {}'.format(separation_sess.model_type))
     logger.info('path: {}'.format(model_path))
 
@@ -248,7 +249,8 @@ def get_embeddings(dims):
     sess = awaken_session()
 
     logger.info('spinning up deep clusterer')
-    model_path = utils.get_deep_clustering_model_path(sess.model_type)
+    model_path = utils.get_deep_clustering_model_path(sess.model_type,
+                                                      base_path=os.path.join(HOME, 'data', 'models'))
 
     dc = audio_processing.DeepClustering(sess.user_signal, sess.user_original_file_folder, model_path)
     dc.dc.run()
@@ -265,7 +267,8 @@ def generate_mask(mask):
 
     logger.info('spinning up deep clusterer')
 
-    model_path = utils.get_deep_clustering_model_path(sess.model_type)
+    model_path = utils.get_deep_clustering_model_path(sess.model_type,
+                                                      base_path=os.path.join(HOME, 'data', 'models'))
 
     dc = audio_processing.DeepClustering(sess.user_signal, sess.user_original_file_folder, model_path)
 

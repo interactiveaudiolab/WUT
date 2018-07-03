@@ -1,6 +1,6 @@
 class Waveform {
   constructor(surferContainer, playId, stopId, spinnerId, surferOptions) {
-    this.waveformId = this._addPoundToIds(surferContainer);
+    this.waveformId = Waveform._addPoundToIds(surferContainer);
     let options = surferOptions !== undefined ? surferOptions : {
       waveColor: 'grey',
       progressColor: 'black',
@@ -15,9 +15,9 @@ class Waveform {
     options.container = this.waveformId;
 
     this.surfer = WaveSurfer.create(options);
-    this.playId = this._addPoundToIds(playId);
-    this.stopId = this._addPoundToIds(stopId);
-    this.spinnerId = spinnerId === undefined ? undefined : this._addPoundToIds(spinnerId);
+    this.playId = Waveform._addPoundToIds(playId);
+    this.stopId = Waveform._addPoundToIds(stopId);
+    this.spinnerId = spinnerId === undefined ? undefined : Waveform._addPoundToIds(spinnerId);
 
     $(this.playId).click(() => {
       if (!this.surfer.backend.buffer || $(this.playId).hasClass('disabled')) {
@@ -37,7 +37,7 @@ class Waveform {
 
   _hasSpinner() { return this.spinnerId !== undefined }
 
-  _addPoundToIds(id) { return id[0] === '#' ? id : `#${id}` }
+  static _addPoundToIds(id) { return id[0] === '#' ? id : `#${id}` }
 
   load(url) { this.surfer.load(url); }
 
@@ -51,7 +51,7 @@ class Waveform {
 
     if(this.surfer.isPlaying()) { this.surfer.stop() }
 
-    $(this.playId).attr('title', 'Play audio')
+    $(this.playId).attr('title', 'Play audio');
     $(`${this.playId} > svg`).attr('class', 'fas fa-play');
     this.surfer.seekTo(0);
   }
@@ -66,7 +66,7 @@ class Waveform {
     // doesn't redraw cleared waveform
     // wavesurfer doesn't offer a nice way
     // of clearing all data
-    this.resetWaveform()
+    this.resetWaveform();
     this.surfer.backend.buffer = undefined;
     this.surfer.empty()
   }
@@ -95,19 +95,19 @@ class Waveform {
 
   setLoading(aboutToLoad) {
     if(!this._hasSpinner()) {
-      console.log(`Incorrectly called setLoading on waveform ${this.waveformId} that has no spinner`)
+      console.log(`Incorrectly called setLoading on waveform ${this.waveformId} that has no spinner`);
       return;
     }
 
     if(aboutToLoad) {
-      this.setControls(false)
+      this.setControls(false);
 
-      $(this.spinnerId).show()
-      $(this.spinnerId).css('display', 'flex')
-      $(this.waveformId).hide()
+      $(this.spinnerId).show();
+      $(this.spinnerId).css('display', 'flex');
+      $(this.waveformId).hide();
       this.clearSurfer()
     } else {
-      this.setControls(true)
+      this.setControls(true);
 
       $(this.spinnerId).hide();
       $(this.waveformId).show();
