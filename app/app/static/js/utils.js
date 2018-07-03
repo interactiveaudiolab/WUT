@@ -61,19 +61,19 @@ function findClosestIndexInSortedArray(sortedArray, target) {
 function generateTicks(xaxisRange, duration) {
     // choose ~200px as spacing between ticks
     let prelimNumTicks = Math.floor(xaxisRange / 100);
-    let timeSpacing = Math.floor(duration / prelimNumTicks)
+    let timeSpacing = Math.floor(duration / prelimNumTicks);
 
     // number of whole number spacings in time domain that fit
-    let actualNumTicks = Math.floor(duration / timeSpacing)
+    let actualNumTicks = Math.floor(duration / timeSpacing);
 
-    let tickVals = [...new Array(actualNumTicks)].map((_, i) => i*timeSpacing)
-    let tickLocs = tickVals.map(val => Math.floor(xaxisRange * (val/duration)))
-    let tickText = tickVals.map(val => val.toString())
+    let tickVals = [...new Array(actualNumTicks)].map((_, i) => i*timeSpacing);
+    let tickLocs = tickVals.map(val => Math.floor(xaxisRange * (val/duration)));
+    let tickText = tickVals.map(val => val.toString());
 
     return [tickLocs, tickText];
 }
 
 // converts matrix of index lists to matrix of density values for plotting
-pcaMatrixToHistogram = (pca) => pca.map(row => row.map(inds => Math.log(inds.length + 1)))
+pcaMatrixToHistogram = (pca) => pca.map(row => row.map(inds => Math.log(inds.length + 1)));
 
 resizeToContainer = (plot) => Plotly.relayout(plot.divID, { width: plot.DOMObject.width() });

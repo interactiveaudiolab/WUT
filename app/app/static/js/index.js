@@ -1,10 +1,10 @@
-var mixture_waveform = new Waveform('#mixture-waveform', '#mixture-play', '#mixture-stop')
+var mixture_waveform = new Waveform('#mixture-waveform', '#mixture-play', '#mixture-stop');
 var all_waveforms = [mixture_waveform];
 var zoomStepSize = 5;
 var mixture_spectrogram_heatmap = new SpectrogramHeatmap('spectrogram', 20000);
 var dcSpectrogram = new ScatterSpectrogram('dc-spectrogram');
 var dcPCA = new PCAHeatmap('pca');
-dcPCA.addLinkedSpectrogram(dcSpectrogram)
+dcPCA.addLinkedSpectrogram(dcSpectrogram);
 
 var socket;
 var loader;
@@ -52,13 +52,13 @@ $(document).ready(function() {
     });
 
     socket.on('binned_embeddings', msg => {
-        indices = JSON.parse(msg)
+        indices = JSON.parse(msg);
 
         dcPCA.addTFIndices(indices);
-        let hist = pcaMatrixToHistogram(dcPCA.TFIndices)
+        let hist = pcaMatrixToHistogram(dcPCA.TFIndices);
 
         // pca of size 100 x 100
-        make_pca(dcPCA, hist, 100, 100)
+        make_pca(dcPCA, hist, 100, 100);
 
         dcSpectrogram.setLoading(false);
     });
@@ -74,7 +74,7 @@ $(document).ready(function() {
 
     socket.on('mel', msg => {
         let spec_data = JSON.parse(msg);
-        dcSpectrogram.dims = [spec_data.length, spec_data[0].length]
+        dcSpectrogram.dims = [spec_data.length, spec_data[0].length];
 
         // currently hardcoding in max mel freq
         let durationInSecs = mixture_waveform.surfer.backend.getDuration();
@@ -118,7 +118,7 @@ function relayoutPlots() {
 
 // RESIZE ON TAB CHANGE
 // TODO: fix hacky implementation
-$('.nav-link').on('click', () => { setTimeout(relayoutPlots, 180); })
+$('.nav-link').on('click', () => { setTimeout(relayoutPlots, 180); });
 
 $('#see-results').on('click', () => {
     $('#deep-clustering-tab').removeClass('active');
@@ -130,7 +130,7 @@ $('#see-results').on('click', () => {
     $('#reqs-tab').addClass('show');
     $('#reqs-tab-bootstrap').addClass('active');
     $('#reqs-tab-bootstrap').addClass('show');
-})
+});
 
 // RESIZE PLOTS ON WINDOW CHANGE
 $(window).resize(relayoutPlots);
@@ -176,8 +176,8 @@ $('#pca-selection-modal-begin').click(() => {
         $('.shared-plots-spinner').hide();
         $('#plots-spinner').show();
         $('#plots-spinner').css('display', 'flex');
-        dcPCA.plotLayout.xaxis.title = `Principal Component ${dims[0]}`
-        dcPCA.plotLayout.yaxis.title = `Principal Component ${dims[1]}`
+        dcPCA.plotLayout.xaxis.title = `Principal Component ${dims[0]}`;
+        dcPCA.plotLayout.yaxis.title = `Principal Component ${dims[1]}`;
         dcPCA.clearSelections();
     }
 });

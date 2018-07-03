@@ -47,7 +47,7 @@ class PCAHeatmap extends PlotlyHeatmap {
   drawMarkers(range, color) {
     // parent draws box on this plot
     // need to draw scatter plot markers on spectrogram
-    let [x_indices, y_indices] = this.getSelectionIndices(range);
+    let [x_indices, y_indices] = PCAHeatmap.getSelectionIndices(range);
 
     let inner_dim = this.linkedSpec.dims[0];
 
@@ -63,7 +63,7 @@ class PCAHeatmap extends PlotlyHeatmap {
           let tf_indices = this.TFIndices[y][x];
 
           for(let index of tf_indices) {
-            let [spec_x, spec_y] = this.getCoordinateFromTFIndex(index, inner_dim);
+            let [spec_x, spec_y] = PCAHeatmap.getCoordinateFromTFIndex(index, inner_dim);
             new_markers_x.push(spec_x);
             new_markers_y.push(spec_y);
           }
@@ -74,29 +74,29 @@ class PCAHeatmap extends PlotlyHeatmap {
     this.linkedSpec.addMarkers(new_markers_x, new_markers_y, color);
   }
 
-  getCoordinateFromTFIndex(index, inner_dim) {
+  static getCoordinateFromTFIndex(index, inner_dim) {
     return [Math.floor(index / inner_dim), index % inner_dim]
   }
 
   // range format - { x: [min, max], y: [min, max] }
   makeSelection(range, color) {
     let sel = new BoxSelection(undefined, undefined, range);
-    this.selections.push(sel)
-    this.updatePlotWithSelection()
+    this.selections.push(sel);
+    this.updatePlotWithSelection();
 
     this.drawMarkers(range, color)
   }
 
-  makeRange(x_min, y_min, x_max, y_max) {
+  static makeRange(x_min, y_min, x_max, y_max) {
     return { x: [x_min, x_max], y: [y_min, y_max] };
   }
 
-  getSelectionIndices(range) {
-    let x_edges = [Math.round(range.x[0]), Math.round(range.x[1])]
-    let y_edges = [Math.round(range.y[0]), Math.round(range.y[1])]
+  static getSelectionIndices(range) {
+    let x_edges = [Math.round(range.x[0]), Math.round(range.x[1])];
+    let y_edges = [Math.round(range.y[0]), Math.round(range.y[1])];
 
-    let x_indices = arange(x_edges[0], x_edges[1] + 1, (x_edges[1] - x_edges[0]) + 1)
-    let y_indices = arange(y_edges[0], y_edges[1] + 1, (y_edges[1] - y_edges[0]) + 1)
+    let x_indices = arange(x_edges[0], x_edges[1] + 1, (x_edges[1] - x_edges[0]) + 1);
+    let y_indices = arange(y_edges[0], y_edges[1] + 1, (y_edges[1] - y_edges[0]) + 1);
     return [x_indices, y_indices];
   }
 
@@ -111,8 +111,8 @@ class PCAHeatmap extends PlotlyHeatmap {
   }
 
   _calculateAxes(numXBins, numYBins) {
-    let xRange = [this.plotLayout.xaxis.range[0], numXBins !== undefined ? numXBins : 1]
-    let yRange = [this.plotLayout.yaxis.range[0], numYBins !== undefined ? numYBins : 1]
+    let xRange = [this.plotLayout.xaxis.range[0], numXBins !== undefined ? numXBins : 1];
+    let yRange = [this.plotLayout.yaxis.range[0], numYBins !== undefined ? numYBins : 1];
 
     let xTicks = arange(0, numXBins);
     let yTicks = arange(0, numYBins);

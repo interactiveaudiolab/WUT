@@ -5,7 +5,7 @@ function addTrack(id, name, url, color, load_recs=false) {
     numTracks++;
     color = color !== undefined ? color : 'SkyBlue';
     let sr = context.sampleRate;
-    let maybeDur = mixture_waveform.surfer.backend.getDuration()
+    let maybeDur = mixture_waveform.surfer.backend.getDuration();
     let defaultDur = 10;
     let dur = maybeDur ? maybeDur : defaultDur;
 
