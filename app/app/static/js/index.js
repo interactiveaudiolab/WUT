@@ -3,8 +3,9 @@ var all_waveforms = [mixture_waveform];
 var zoomStepSize = 5;
 var mixture_spectrogram_heatmap = new SpectrogramHeatmap('spectrogram', 20000);
 var dcSpectrogram = new ScatterSpectrogram('dc-spectrogram');
-var dcPCA = new PCAHeatmap('pca');
+var dcPCA = new DCHeatmap2D('pca-2d');
 dcPCA.addLinkedSpectrogram(dcSpectrogram);
+var dcBar = new DC1DBar('pca-1d', 'slider-1d', 'dc-spectrogram-1d', 'flip-1d');
 
 var socket;
 var loader;
@@ -52,13 +53,15 @@ $(document).ready(function() {
     });
 
     socket.on('binned_embeddings', msg => {
-        indices = JSON.parse(msg);
+        let indices = JSON.parse(msg);
 
         dcPCA.addTFIndices(indices);
         let hist = pcaMatrixToHistogram(dcPCA.TFIndices);
 
         // pca of size 100 x 100
         make_pca(dcPCA, hist, 100, 100);
+        dcBar.addTFIndices(indices);
+        dcBar.drawBar(pcaMatrixToBar(dcPCA.TFIndices));
 
         dcSpectrogram.setLoading(false);
     });
@@ -75,10 +78,13 @@ $(document).ready(function() {
     socket.on('mel', msg => {
         let spec_data = JSON.parse(msg);
         dcSpectrogram.dims = [spec_data.length, spec_data[0].length];
+        dcBar.linkedSpec.dims = [spec_data.length, spec_data[0].length];
 
         // currently hardcoding in max mel freq
         let durationInSecs = mixture_waveform.surfer.backend.getDuration();
         getMelScatterSpectrogramAsImage(dcSpectrogram, dcSpectrogram.dims[1], durationInSecs, 150);
+        getMelScatterSpectrogramAsImage(dcBar.linkedSpec, dcBar.linkedSpec.dims[1],
+            durationInSecs, 150);
     });
 
     socket.on('bad_file', () => console.log('File rejected by server'));

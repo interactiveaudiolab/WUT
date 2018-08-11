@@ -75,5 +75,6 @@ function generateTicks(xaxisRange, duration) {
 
 // converts matrix of index lists to matrix of density values for plotting
 pcaMatrixToHistogram = (pca) => pca.map(row => row.map(inds => Math.log(inds.length + 1)));
+pcaMatrixToBar = (pca) => pca.map(row => row.map(inds => inds.length));
 
 resizeToContainer = (plot) => Plotly.relayout(plot.divID, { width: plot.DOMObject.width() });

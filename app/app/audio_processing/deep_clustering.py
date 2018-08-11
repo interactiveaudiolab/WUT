@@ -12,7 +12,6 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 from . import audio_processing_base
-from .. import utils
 
 import sys
 sys.path.insert(0, '../../nussl')
@@ -27,23 +26,22 @@ class DeepClustering(audio_processing_base.InteractiveAudioProcessingBase):
     """
 
     def __init__(self, mixture_signal, storage_path,
-        model_path='~/data/models/deep_clustering_vocal_44k_long.model',
-        hidden_size = 500,
-        resample_rate = 44100,
-        num_layers = 4):
+                 model_path='~/data/models/deep_clustering_vocal_44k_long.model',
+                 hidden_size=500,
+                 resample_rate=44100,
+                 num_layers=4):
 
         super(DeepClustering, self).__init__(mixture_signal, storage_path)
 
-        # TODO: call this correctly, will need model path, etc.
         self.dc = nussl.DeepClustering(mixture_signal,
-              model_path = model_path,
-              num_sources = 2,
-              cutoff = -80,
-              hidden_size=hidden_size,
-              num_layers=num_layers,
-              resample_rate=resample_rate,
-              # how to handle stero?
-              do_mono = True)
+                                       model_path=model_path,
+                                       num_sources=2,
+                                       cutoff=-80,
+                                       hidden_size=hidden_size,
+                                       num_layers=num_layers,
+                                       resample_rate=resample_rate,
+                                       # how to handle stereo?
+                                       do_mono=True)
 
     def perform_deep_clustering(self):
         self.dc.run()
@@ -60,16 +58,19 @@ class DeepClustering(audio_processing_base.InteractiveAudioProcessingBase):
         binned_embeddings, mel = self._massage_data(dc_results)
 
         self._save_mel_image(mel, file_path)
+        # binned_embeddings = np.array(binned_embeddings, dtype=int).tolist()
 
         socket.emit('binned_embeddings', json.dumps(binned_embeddings), namespace=namespace)
         explained_variance = self.dc.get_pca().explained_variance_ratio_
-        socket.emit('pca_explained_variance', json.dumps(list(explained_variance)), namespace=namespace)
+        socket.emit('pca_explained_variance', json.dumps(list(explained_variance)),
+                    namespace=namespace)
         socket.emit('mel', json.dumps(mel.tolist()), namespace=namespace)
 
         logger.info('Sent Deep Clustering for {}'.format(self.user_audio_signal.file_name))
 
-    # duplicating of functionality, don't do this in production
-    def _save_mel_image(self, data, file_path):
+    @staticmethod
+    def _save_mel_image(data, file_path):
+        # duplicating of functionality, don't do this in production
         w, h = 28, 12
 
         fig = plt.figure(frameon=False)
@@ -101,7 +102,6 @@ class DeepClustering(audio_processing_base.InteractiveAudioProcessingBase):
 
         return binned
 
-
     def _massage_data(self, data):
         # Scale and bin PCA points
         pca, mel = data
@@ -115,24 +115,25 @@ class DeepClustering(audio_processing_base.InteractiveAudioProcessingBase):
 
         return binned, mel
 
-
-    def _scale_num(self, num, _min, _max, scaled_min, scaled_max):
+    @staticmethod
+    def _scale_num(num, _min, _max, scaled_min, scaled_max):
         """
             Scales given number between given scaled_min and scaled_max.
             _min and _max of source distribution needed for scaling.
         """
         return (((scaled_max - scaled_min) * (num - _min)) / (_max - _min)) + scaled_min
 
-    def _clean_coordinates(self, coord, x_edges, y_edges, new_max = 99, new_min = 0):
+    def _clean_coordinates(self, coord, x_edges, y_edges, new_max=99, new_min=0):
         """
             coord is x, y tuple (technically two item list), edges are tuples
             holding min and max values along respective axes. new_max and
             new_min specify range to scale points to.
         """
         return (int(round(self._scale_num(coord[0], x_edges[0], x_edges[1], new_min, new_max))),
-            int(round(self._scale_num(coord[1], y_edges[0], y_edges[1], new_min, new_max))))
+                int(round(self._scale_num(coord[1], y_edges[0], y_edges[1], new_min, new_max))))
 
-    def _find_pca_min_max(self, pca):
+    @staticmethod
+    def _find_pca_min_max(pca):
         """
             Takes Zx2 numpy array and returns tuples of tuples giving min and
             max along each dimension
@@ -141,23 +142,26 @@ class DeepClustering(audio_processing_base.InteractiveAudioProcessingBase):
         maxes = np.amax(pca, 0)
         return (mins[0], maxes[0]), (mins[1], maxes[1])
 
-    def _scale_pca(self, pca, new_max=99, new_min = 0):
+    def _scale_pca(self, pca, new_max=99, new_min=0):
         """
             takes Zx2 (specifically TFx2 as used) numpy array and scales all
             coordinates
         """
         x_edges, y_edges = self._find_pca_min_max(pca)
 
-        scale_and_clean = lambda coord: self._clean_coordinates(coord, x_edges, y_edges, new_max, new_min)
+        scale_and_clean = lambda coord: self._clean_coordinates(coord, x_edges, y_edges,
+                                                                new_max, new_min)
         return np.apply_along_axis(scale_and_clean, 1, pca)
 
-    def _make_square_matrix(self, dim=100):
+    @staticmethod
+    def _make_square_matrix(dim=100):
         """
             Generates 3D array where inner cells are empty arrays
         """
         return [[[] for x in range(dim)] for y in range(dim)]
 
-    def _bin_matrix(self, scaled_tf, matrix):
+    @staticmethod
+    def _bin_matrix(scaled_tf, matrix):
         """
             Given scaled Zx2 array, bins indices of coordinates
         """
@@ -168,7 +172,8 @@ class DeepClustering(audio_processing_base.InteractiveAudioProcessingBase):
 
         return matrix
 
-    def _make_hist(self, matrix):
+    @staticmethod
+    def _make_hist(matrix):
         """
             Makes histogram from binned matrix. Used only on server side for
             testing.

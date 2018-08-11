@@ -53,7 +53,27 @@ function add_matrix(mat1, mat2) {
     return result;
 }
 
-function transpose(a) { return a[0].map(_, c => a.map(r => r[c])); }
+function transpose(a) { return a[0].map((col, i) => a.map(row => row[i])); }
+
+function sumAlongAxis(arr, axis=0) {
+    if (axis > 2) {
+        console.error('Cannot sum arrays with more than 2 dimensions!')
+    }
+
+    if (axis === 1)
+        arr = transpose(arr);
+
+    var result = [];
+    for (var i = 0; i<arr.length;i++) {
+        result.push(sumArray(arr[i]));
+    }
+
+    return result;
+}
+
+function sumArray(arr) {
+    return arr.reduce((a, b) => a + b, 0);
+}
 
 function minMax2D(a) {
     var min, max;
