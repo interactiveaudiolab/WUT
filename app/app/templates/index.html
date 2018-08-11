@@ -35,7 +35,6 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/jquery.actual.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/recorder.js') }}"></script>
 </head>
-</head>
 <body>
 
 <script>window.jQuery || document.write('<script src="js/vendor/jquery-{{JQUERY_VERSION}}.min.js"><\/script>')</script>
@@ -71,12 +70,22 @@
                     <a class="nav-link" id="deep-clustering-tab-bootstrap" data-toggle="tab" href="#deep-clustering-tab" role="tab">Deep Clustering</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" id="deep-clustering-1d-tab-bootstrap" data-toggle="tab" href="#deep-clustering-tab-1d" role="tab">1D Deep Clustering</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="temporal-deep-clustering-tab-bootstrap" data-toggle="tab" href="#temp-deep-clustering-tab" role="tab">Temporal Deep Clustering</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link disabled" id="reqs-tab-bootstrap" data-toggle="tab" href="#reqs-tab" role="tab">Results</a>
                 </li>
             </ul>
         </div>
 
         <div class="tab-content">
+
+            <!-- <<<<<<<<<>>>>>>>>> -->
+            <!--   SPECTROGRAM TAB  -->
+            <!-- <<<<<<<<<>>>>>>>>> -->
             <div class="tab-pane active" id="spectrogram-tab" role="tabpanel" aria-labelledby="spectrogram-tab-bootstrap">
                 <div id="spectrogram-container" class="shared-spectrogram-spinner">
                     <button id="apply-spec-selection" type="button" class="btn btn-primary disabled">Make Audio Mask from Selection</button>
@@ -93,6 +102,9 @@
                 </div>
             </div>
 
+            <!-- <<<<<<<<<<<<>>>>>>>>>>>> -->
+            <!--  2D DEEP CLUSTERING TAB  -->
+            <!-- <<<<<<<<<<<<>>>>>>>>>>>> -->
             <div class="tab-pane interaction" id="deep-clustering-tab" role="tabpanel" aria-labelledby="deep-clustering-tab-bootstrap">
                 <div class="shared-plots-spinner">
                     <div id='pca-cont'>
@@ -106,12 +118,130 @@
 
                         <div class="outer">
                             <div class="aspect-ratio-box">
-                                <div class="alignment" id="pca">
+                                <div class="alignment" id="pca-2d">
                                 </div>
                             </div>
                         </div>
 
                         <button id="pca-selection-modal-open" type="button" class="btn btn-primary disabled">Select PCA Dimensions</button>
+                    </div>
+
+
+                    <div id='spectrogram-cont'>
+                        <div class='title-cont'>
+                            <div>Mel Spectrogram</div>
+
+                            <div class="hint--top hint--large hint--rounded" aria-label="Visual representation of audio signal. Frequency in mels, time  in seconds. Each point on the x-axis is a single STFT taken over j samples. Intensity of a specific frequency over a specific window is given by color.">
+                                <i class="fa fa-info-circle"></i>
+                            </div>
+                        </div>
+
+                        <div id="dc-spectrogram"></div>
+
+                        <div id="dc-button-wrapper">
+                            <button id="apply-dc-selections" type="button" class="btn btn-primary disabled">Make Audio Mask from Selection</button>
+                            <button id="see-results" type="button" class="btn btn-primary disabled">See Results</button>
+                        </div>
+                    </div>
+                </div>
+                <div id='plots-spinner' class='spinner-outer shared-plots-spinner'>
+                    <div class="spinner">
+                        <div class="rect1"></div>
+                        <div class="rect2"></div>
+                        <div class="rect3"></div>
+                        <div class="rect4"></div>
+                        <div class="rect5"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- <<<<<<<<<<<<>>>>>>>>>>>> -->
+            <!--  1D DEEP CLUSTERING TAB  -->
+            <!-- <<<<<<<<<<<<>>>>>>>>>>>> -->
+            <div class="tab-pane interaction" id="deep-clustering-tab-1d" role="tabpanel" aria-labelledby="deep-clustering-tab-bootstrap">
+                <div class="shared-plots-spinner">
+                    <div id='pca-cont-1d'>
+                        <div class='title-cont'>
+                            <div>Visualization of Embedding Space</div>
+
+                            <div class="hint--top hint--large hint--rounded" aria-label="Click and drag on the plot to select bins and see the corresponding points on the spectrogram highlighted. A Principal Component Analysis representation of the k-dimensional embedding space.">
+                                <i class="fa fa-info-circle"></i>
+                            </div>
+                        </div>
+
+                        <div>
+                            <button id="flip-1d" type="button" class="btn btn-primary disabled">
+                                Flip
+                            </button>
+                        </div>
+
+                        <div class="outer">
+                            <div class="aspect-ratio-box">
+                                <div class="alignment" id="pca-1d">
+                                </div>
+                            </div>
+                        </div>
+                            <div id="pca-1d-slider">
+                                <input id="slider-1d" data-slider-id='slider-1d' type="text"
+                                       data-slider-min="0" data-slider-max="100"
+                                       data-slider-step="1" data-slider-value="50"/>
+                            </div>
+
+{#                        <button id="pca-selection-modal-open-1d" type="button" class="btn btn-primary disabled">Select PCA Dimensions</button>#}
+                    </div>
+
+
+                    <div id='spectrogram-cont'>
+                        <div class='title-cont'>
+                            <div>Mel Spectrogram</div>
+
+                            <div class="hint--top hint--large hint--rounded" aria-label="Visual representation of audio signal. Frequency in mels, time  in seconds. Each point on the x-axis is a single STFT taken over j samples. Intensity of a specific frequency over a specific window is given by color.">
+                                <i class="fa fa-info-circle"></i>
+                            </div>
+                        </div>
+
+                        <div id="dc-spectrogram-1d"></div>
+
+                        <div id="dc-button-wrapper-1d">
+                            <button id="apply-dc-selections-1d" type="button" class="btn btn-primary disabled">Make Audio Mask from Selection</button>
+                            <button id="see-results-1d" type="button" class="btn btn-primary disabled">See Results</button>
+                        </div>
+                    </div>
+                </div>
+                <div id='plots-spinner-1d' class='spinner-outer shared-plots-spinner'>
+                    <div class="spinner">
+                        <div class="rect1"></div>
+                        <div class="rect2"></div>
+                        <div class="rect3"></div>
+                        <div class="rect4"></div>
+                        <div class="rect5"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- <<<<<<<<<<<<<<<>>>>>>>>>>>>>>> -->
+            <!--  TEMPORAL DEEP CLUSTERING TAB  -->
+            <!-- <<<<<<<<<<<<<<<>>>>>>>>>>>>>>> -->
+            <div class="tab-pane interaction" id="temp-deep-clustering-tab" role="tabpanel" aria-labelledby="temporal-deep-clustering-tab-bootstrap">
+
+                <div class="shared-plots-spinner">
+                    <div id='pca-cont'>
+                        <div class='title-cont'>
+                            <div>Visualization of Embedding Space</div>
+
+                            <div class="hint--top hint--large hint--rounded" aria-label="Click and drag on the plot to select bins and see the corresponding points on the spectrogram highlighted. A Principal Component Analysis representation of the k-dimensional embedding space.">
+                                <i class="fa fa-info-circle"></i>
+                            </div>
+                        </div>
+
+                        <div class="outer">
+                            <div class="aspect-ratio-box">
+                                <div class="alignment" id="tdc">
+                                </div>
+                            </div>
+                        </div>
+
+                        <button id="pca-selection-modal-open" type="button" class="btn btn-primary disabled">Select PCA Dimension</button>
                     </div>
 
 
@@ -348,16 +478,17 @@
     <div class="modal-cover"></div>
 
     <script type="text/javascript" src="{{ url_for('static', filename='js/utils.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/plotly_plots.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/array.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/plot_heatmap.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/plot_spectrogram.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/plot_spectrogram_scatter.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/plot_pca.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/plot_dc_2d.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/plot_dc_1d.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/modal.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/audio_modal.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/pca_selection_modal.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/waveform.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/index.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/array.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/audio.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/selection.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/track.js') }}"></script>
