@@ -170,9 +170,13 @@
                         </div>
 
                         <div>
-                            <button id="flip-1d" type="button" class="btn btn-primary disabled">
+                            <button id="flip-1d" type="button" class="btn btn-primary disabled dc-1d-control">
                                 Flip
                             </button>
+                            <div class="checkbox">
+                                <input type="checkbox" id="log-y-1d" class="disabled dc-1d-control">
+                                <label for="log-y-1d">Log Y?</label>
+                            </div>
                         </div>
 
                         <div class="outer">
@@ -203,8 +207,8 @@
                         <div id="dc-spectrogram-1d"></div>
 
                         <div id="dc-button-wrapper-1d">
-                            <button id="apply-dc-selections-1d" type="button" class="btn btn-primary disabled">Make Audio Mask from Selection</button>
-                            <button id="see-results-1d" type="button" class="btn btn-primary disabled">See Results</button>
+                            <button id="apply-dc-selections-1d" type="button" class="btn btn-primary disabled dc-1d-control">Make Audio Mask from Selection</button>
+                            <button id="see-results-1d" type="button" class="btn btn-primary disabled dc-1d-control">See Results</button>
                         </div>
                     </div>
                 </div>
