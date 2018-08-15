@@ -4,9 +4,10 @@ function _idify(id) {
 
 
 class DC1DBar {
-    constructor(barID, sliderID, linkedSpecID, flipID) {
+    constructor(barID, sliderID, linkedSpecID, controlsIDs) {
         // super(divID);
         this.barID = _idify(barID);
+        this.divID = this.barID;
         this.sliderID = _idify(sliderID);
         this.linkedSpecID = _idify(linkedSpecID);
         this.linkedSpec = new ScatterSpectrogram(this.linkedSpecID);
@@ -14,32 +15,24 @@ class DC1DBar {
         this.selectionFlipped = false;
         this.logY = false;
         this.decisionBoundary = null;
-        var this_ = this;
+        // var this_ = this;
+
+        // Bind the slider
         this.slider = $('#' + this.sliderID).slider({
             formatter: function(value) {
                 return 'Current value: ' + value;
             }
-        }).on('slideStop', function () {
-            // TODO: replace this anon function with the real function below
-            // problems with `this` keyword
-            if (this_._rawData) {
-                // Add markers to linked spectrogram
-                this_._drawMarkers('white');
-            }
+        }).on('slideStop',
+            $.proxy(this.updateSpec, this)
+        ).on('slide',
+            $.proxy(this.updateBarGraph, this)
+        ).data('slider');
 
-        }).on('slide', function () {
-            // Updates the colors on the histogram
-            if (this_._rawData) {
-                this_.decisionBoundary = this_.slider.getValue();
-
-                // Update colors on histogram
-                let traces = this_._makeTraces(this_.decisionBoundary);
-                this_.dcBarPlot = Plotly.newPlot(this_.barID, traces, this_.plotLayout,
-                    this_.plotOptions);
-            }
-        }).data('slider'); //.on('slideEnabled', sliderDrag);
-
-        $('#' + flipID).click(this.flipEmbedding);
+        // Bind the controls
+        this.controlsIDs = controlsIDs;
+        $('#' + this.controlsIDs.flipID).click($.proxy(this.flipEmbedding, this));
+        $('#' + this.controlsIDs.logYCheck).click($.proxy(this.toggleLogY, this));
+        $('#' + this.controlsIDs.applyID).click($.proxy(this.processResults, this));
 
         this._rawData = null;
 
@@ -83,7 +76,14 @@ class DC1DBar {
                 range: [0.0, 1.0],
                 showgrid: true,
                 fixedrange: true,
-                autorange: true
+                autorange: true,
+                title: 'Selected'
+            },
+            yaxis2: {
+                ticks: '',
+                showticklabels: false,
+                title: 'Unselected'
+
             },
             margin: {
                 l: 50,
@@ -129,12 +129,20 @@ class DC1DBar {
         return [this.unselectedTrace, this.selectedTrace];
     }
 
-    sliderDrag() {
+    updateBarGraph() {
         if (this._rawData) {
-            var idx = this.slider.getValue();
-            let traces = this._makeTraces(idx);
+            this.decisionBoundary = this.slider.getValue();
+            let traces = this._makeTraces(this.decisionBoundary);
 
+            // Update colors on histogram
             this.dcBarPlot = Plotly.newPlot(this.barID, traces, this.plotLayout, this.plotOptions);
+        }
+    }
+
+    updateSpec() {
+        if (this._rawData) {
+            // Add markers to linked spectrogram
+            this._drawMarkers('white');
         }
     }
 
@@ -171,6 +179,13 @@ class DC1DBar {
         this.linkedSpec.clearMarkers();
     }
 
+    processResults() {
+        if(!$('#' + this.controlsIDs.applyID).hasClass('disabled')) {
+            selectionCounter++;
+            socket.emit('mask', { mask: this.linkedSpec.exportSelectionMask() });
+        }
+    }
+
     _drawMarkers(color) {
         this.linkedSpec.clearMarkers();
         let y_indices = range(0, this.decisionBoundary);
@@ -180,8 +195,11 @@ class DC1DBar {
         let new_markers_y = [];
 
         for(let y of y_indices) {
-            let tf_indices = this.TFIndices[y];
+            if (y >= this.TFIndices.length) {
+                continue;
+            }
 
+            let tf_indices = this.TFIndices[y];
             for(let index of tf_indices) {
                 let [spec_x, spec_y] = DC1DBar.getCoordinateFromTFIndex(index, inner_dim);
                 new_markers_x.push(spec_x);
@@ -189,61 +207,36 @@ class DC1DBar {
             }
         }
 
-
         this.linkedSpec.addMarkers(new_markers_x, new_markers_y, color);
     }
 
     enableTools() {
-        $('#' + flipID).remove('disabled');
+        $('.' + this.controlsIDs.className).removeClass('disabled');
     }
 
     flipEmbedding() {
         this.selectionFlipped = !this.selectionFlipped;
         this.TFIndices = this.TFIndices.reverse();
         this._rawData = this._rawData.reverse();
+        this.updateBarGraph();
+        this.updateSpec();
+    }
+
+    toggleLogY() {
+        this.logY = !this.logY;
+        this.plotLayout.yaxis.type = this.logY ? 'log' : 'linear';
+        this.updateBarGraph();
     }
 
     static getCoordinateFromTFIndex(index, inner_dim) {
         return [Math.floor(index / inner_dim), index % inner_dim]
     }
 
-    // range format - { x: [min, max], y: [min, max] }
-    makeSelection(range, color) {
-        let sel = new BoxSelection(undefined, undefined, range);
-        this.selections.push(sel);
-        this.updatePlotWithSelection();
-
-        this._drawMarkers(range, color)
-    }
-
-    static makeRange(x_min, y_min, x_max, y_max) {
-        return { x: [x_min, x_max], y: [y_min, y_max] };
-    }
-
-    static getSelectionIndices(range) {
-        let x_edges = [Math.round(range.x[0]), Math.round(range.x[1])];
-        let y_edges = [Math.round(range.y[0]), Math.round(range.y[1])];
-
-        let x_indices = arange(x_edges[0], x_edges[1] + 1, (x_edges[1] - x_edges[0]) + 1);
-        let y_indices = arange(y_edges[0], y_edges[1] + 1, (y_edges[1] - y_edges[0]) + 1);
-        return [x_indices, y_indices];
-    }
-
-    drawBar(rawData) {
-        this.enableTools();
+    initBar(rawData) {
         this._rawData = sumAlongAxis(rawData, 1);
         let traces = this._makeTraces(this.slider.getValue());
 
         this.dcBarPlot = Plotly.newPlot(this.barID, traces, this.plotLayout, this.plotOptions);
-    }
-
-    _calculateAxes(numXBins, numYBins) {
-        let xRange = [this.plotLayout.xaxis.range[0], numXBins !== undefined ? numXBins : 1];
-        let yRange = [this.plotLayout.yaxis.range[0], numYBins !== undefined ? numYBins : 1];
-
-        let xTicks = arange(0, numXBins);
-        let yTicks = arange(0, numYBins);
-
-        return [xTicks, yTicks, xRange, yRange];
+        this.enableTools();
     }
 }

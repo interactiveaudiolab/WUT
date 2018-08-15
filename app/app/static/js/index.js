@@ -5,7 +5,9 @@ var mixture_spectrogram_heatmap = new SpectrogramHeatmap('spectrogram', 20000);
 var dcSpectrogram = new ScatterSpectrogram('dc-spectrogram');
 var dcPCA = new DCHeatmap2D('pca-2d');
 dcPCA.addLinkedSpectrogram(dcSpectrogram);
-var dcBar = new DC1DBar('pca-1d', 'slider-1d', 'dc-spectrogram-1d', 'flip-1d');
+var dcBar = new DC1DBar('pca-1d', 'slider-1d', 'dc-spectrogram-1d',
+    {className: 'dc-1d-control', flipID: 'flip-1d',  logYCheck: 'log-y-1d',
+        applyID: 'apply-dc-selections-1d', seeResultsID: 'see-results-1d'});
 
 var socket;
 var loader;
@@ -61,7 +63,7 @@ $(document).ready(function() {
         // pca of size 100 x 100
         make_pca(dcPCA, hist, 100, 100);
         dcBar.addTFIndices(indices);
-        dcBar.drawBar(pcaMatrixToBar(dcPCA.TFIndices));
+        dcBar.initBar(pcaMatrixToBar(dcPCA.TFIndices));
 
         dcSpectrogram.setLoading(false);
     });
@@ -118,6 +120,7 @@ function relayoutPlots() {
     resizeToContainer(dcPCA);
     resizeToContainer(dcSpectrogram);
     resizeToContainer(mixture_spectrogram_heatmap);
+    resizeToContainer(dcBar);
     document.getElementById('pca-dimensions').layout !== undefined &&
         Plotly.relayout('pca-dimensions', { width: $('#pca-selection-modal-plot-wrapper').width() });
 }
