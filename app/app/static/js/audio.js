@@ -12,7 +12,7 @@ audio.import_audio = function() {
     }
 
     $('input[type=file]').click();
-}
+};
 
 mixture_audio_file.upload_to_server = function (obj) {
     if($(obj).prop('files').length > 0) {
@@ -27,7 +27,7 @@ mixture_audio_file.upload_to_server = function (obj) {
     } else {
         socket.emit('audio_upload', {'audio_file': null});
     }
-}
+};
 
 function get_audio_data () {
     if (bufferLoader === null || bufferLoader.bufferList === null

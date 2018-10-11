@@ -98,41 +98,41 @@
 	border-top: 1px solid rgba(0, 0, 0, 0.25);
 }
 
-/* SLIDER HANDLE */
+/* TRANSPORT SLIDER HANDLE */
 
 #slider-and-ticks {
 	margin: 0 5px;
 	position: relative;
 }
 
-.slider-handle.custom::before {
+#transport-slider-wrapper > .slider-handle.custom::before {
 	height: 10px;
 	font-size: 20px;
 	content: '\25BC' !important;
 	color: #000000 !important;
 }
 
-.slider-tick.custom::before {
+#transport-slider-wrapper > .slider-tick.custom::before {
 	content: '' !important;
 }
-.slider-tick.in-selection {
+#transport-slider-wrapper > .slider-tick.in-selection {
 	display: none !important;
 }
 
-.slider-track {
+#transport-slider-wrapper > .slider-track {
 	height: 4px !important;
 	margin-top: 4px !important;
 	top: 75% !important;
 	border-radius: 0 !important;
 }
 
-.slider {
+#transport-slider-wrapper > .slider {
 	flex: 1;
 	margin-left: 2.5px;
 }
 
 
-.slider-selection {
+#transport-slider-wrapper > .slider-selection {
 	background: darkgray;
 }
 

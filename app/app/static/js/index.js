@@ -66,6 +66,7 @@ $(document).ready(function() {
         dcBar.initBar(pcaMatrixToBar(dcPCA.TFIndices));
 
         dcSpectrogram.setLoading(false);
+        dcBar.linkedSpec.setLoading(false);
     });
 
     socket.on('pca_explained_variance', msg => {
@@ -130,15 +131,11 @@ function relayoutPlots() {
 $('.nav-link').on('click', () => { setTimeout(relayoutPlots, 180); });
 
 $('#see-results').on('click', () => {
-    $('#deep-clustering-tab').removeClass('active');
-    $('#deep-clustering-tab').removeClass('show');
-    $('#deep-clustering-tab-bootstrap').removeClass('active');
-    $('#deep-clustering-tab-bootstrap').removeClass('show');
+    $('#deep-clustering-tab').removeClass('active').removeClass('show');
+    $('#deep-clustering-tab-bootstrap').removeClass('active').removeClass('show');
 
-    $('#reqs-tab').addClass('active');
-    $('#reqs-tab').addClass('show');
-    $('#reqs-tab-bootstrap').addClass('active');
-    $('#reqs-tab-bootstrap').addClass('show');
+    $('#reqs-tab').addClass('active').addClass('show');
+    $('#reqs-tab-bootstrap').addClass('active').addClass('show');
 });
 
 // RESIZE PLOTS ON WINDOW CHANGE
