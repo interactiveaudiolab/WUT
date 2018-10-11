@@ -1,6 +1,6 @@
 let audioUploadModal = new Modal('audio-upload-modal', 'modal-active',
 'audio-upload-modal-active', 'modal-cover', 'modal-ready',
-'audio-upload-modal-open', 'audio-upload-modal-close')
+'audio-upload-modal-open', 'audio-upload-modal-close');
 
 let uncheckCheckboxes = (checkboxClass) =>
   Array.from(document.getElementsByClassName(checkboxClass)).
@@ -13,17 +13,17 @@ let cleaner = () => {
 
   // audio
   if(recorder && recorder.state === 'recording') recorder.stop();
-  document.getElementById('audio-upload-modal-record').classList.remove('audio-upload-modal-record-on')
-  document.getElementById('audio-upload-modal-record').classList.add('audio-upload-modal-record-off')
+  document.getElementById('audio-upload-modal-record').classList.remove('audio-upload-modal-record-on');
+  document.getElementById('audio-upload-modal-record').classList.add('audio-upload-modal-record-off');
   document.getElementById('audio-upload-modal-final').src = '';
-  document.getElementById('audio-upload-modal-results').setAttribute('style', 'visibility: hidden;')
+  document.getElementById('audio-upload-modal-results').setAttribute('style', 'visibility: hidden;');
 
   // buttons - only adds if not already disabled
-  document.getElementById('audio-upload-modal-next').classList.add('disabled')
+  document.getElementById('audio-upload-modal-next').classList.add('disabled');
   document.getElementById('audio-upload-modal-begin').classList.add('disabled')
-}
+};
 
-audioUploadModal.addOnHideCleaner(cleaner)
+audioUploadModal.addOnHideCleaner(cleaner);
 
 let transitions = [{
   target: 'audio-upload-modal-next',
@@ -33,9 +33,9 @@ let transitions = [{
   target: 'audio-upload-modal-back',
   hide: ['audio-upload-modal-audio'],
   show: [['audio-upload-modal-separation', 'display: flex;'], ['audio-upload-modal-back', 'visibility: hidden;']]
-}]
+}];
 
-audioUploadModal.setNaivePageTransitions(transitions)
+audioUploadModal.setNaivePageTransitions(transitions);
 
 // checkboxes
 
@@ -55,7 +55,7 @@ boxes.forEach(function(element) {
 let getSelectedValue = function(radioClass) {
   return Array.from(document.getElementsByClassName(radioClass)).
       find(elem => elem.checked).value;
-}
+};
 
 // on begin
 document.getElementById('audio-upload-modal-begin').addEventListener('click', event => {
@@ -80,13 +80,12 @@ document.getElementById('audio-upload-modal-begin').addEventListener('click', ev
       $('#spectrogram-spinner').show();
 
       $('.shared-plots-spinner').hide();
-      $('#plots-spinner').show();
-      $('#plots-spinner').css('display', 'flex');
+      $('#plots-spinner').show().css('display', 'flex');
 
       // clean once data no longer needed
       audioUploadModal.clean()
   }
-})
+});
 
 function upload_to_server(file, selection) {
   file_with_metadata = {
@@ -119,11 +118,10 @@ document.getElementById('audio-upload-modal-upload').addEventListener('click',
 document.getElementById('audio-upload-modal-upload-input').
   addEventListener('change',function () {
       // if user clicks upload but then cancels
-      if(this.files.length == 0) { return; }
+      if(this.files.length === 0) { return; }
 
-      let url = URL.createObjectURL(this.files[0]);
-      document.getElementById('audio-upload-modal-final').src = url;
-      document.getElementById('audio-upload-modal-results').setAttribute('style', 'visibility: visible;')
+    document.getElementById('audio-upload-modal-final').src = URL.createObjectURL(this.files[0]);
+      document.getElementById('audio-upload-modal-results').setAttribute('style', 'visibility: visible;');
       document.getElementById('audio-upload-modal-begin').classList.remove('disabled');
       audio_file = this.files[0];
 });
@@ -138,9 +136,9 @@ document.getElementById('audio-upload-modal-record').addEventListener('click', f
   let toggle = (elem) => {
       elem.classList.toggle('audio-upload-modal-record-on');
       elem.classList.toggle('audio-upload-modal-record-off');
-  }
+  };
 
-  toggle(event.currentTarget)
+  toggle(event.currentTarget);
 
   if(event.currentTarget.classList.contains('audio-upload-modal-record-on')) {
       navigator.mediaDevices.getUserMedia({ audio: true, video: false })
@@ -151,7 +149,7 @@ document.getElementById('audio-upload-modal-record').addEventListener('click', f
           recorder.ondataavailable = e => {
               // triggered when stop action fired on recorder
               // after user clicks on record button again
-              if(recorder.state == 'inactive') {
+              if(recorder.state === 'inactive') {
                   document.getElementById('audio-upload-modal-final').src = URL.createObjectURL(e.data);
                   document.getElementById('audio-upload-modal-results').setAttribute('style', 'visibility: visible;');
 
@@ -176,14 +174,12 @@ function mediaRecorderBlobToWavFile(blob) {
       context.decodeAudioData(this.result).then(
       // then convert to wav blob
       buffer => {
-          let wav = bufferToWave(buffer, 0.0, buffer.length)
-          let file = new File([wav], 'test.wav', {
-              type: 'audio/wav', lastModified: Date.now()
-          });
-
+          let wav = bufferToWave(buffer, 0.0, buffer.length);
           // solely back-end no need to present to user
           // log for development purposes
-          audio_file = file;
+          audio_file = new File([wav], 'test.wav', {
+              type: 'audio/wav', lastModified: Date.now()
+          });
           document.getElementById('audio-upload-modal-begin').classList.remove('disabled');
       }
   )};
