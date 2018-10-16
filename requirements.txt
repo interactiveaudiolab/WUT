@@ -32,8 +32,11 @@ librosa==0.5.1
 MarkupSafe==1.0
 matplotlib==2.0.2
 mir-eval==0.4
+musdb==0.2.3
+museval==0.2.0
 msgpack-python==0.4.8
 numpy==1.13.1
+nussl==0.1.6
 pandas==0.20.3
 pyasn1==0.2.3
 pyparsing==2.1.4
@@ -53,4 +56,5 @@ singledispatch==3.4.0.3
 six==1.10.0
 subprocess32==3.2.7
 tornado==4.5.2
+vamp==1.1.0
 Werkzeug==0.14.1

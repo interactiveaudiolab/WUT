@@ -104,6 +104,8 @@ class DC1DBar {
         this.emptyBars();
     }
 
+    get DOMObject() { return $(`#${this.divID}`) }
+
     emptyBars() {
         let n = 100;
         this.unselectedTrace.x = arange(0, n, 1);
@@ -140,6 +142,8 @@ class DC1DBar {
     }
 
     updateSpec() {
+        $('#apply-selections').removeClass('disabled');
+
         if (this._rawData) {
             // Add markers to linked spectrogram
             this._drawMarkers('white');

@@ -6,7 +6,7 @@ class Waveform {
       progressColor: 'black',
       cursorColor: 'pink',
       scrollParent: false,
-      height: 80,
+      height: 60,
       normalize: true,
       audioRate: 1.0,
       minPxPerSec: 0,

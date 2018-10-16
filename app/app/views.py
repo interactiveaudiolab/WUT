@@ -25,8 +25,9 @@ logger = logging.getLogger()
 WUT_SOCKET_NAMESPACE = '/wut'
 CURRENT_SESSION = 'cur_session'
 
-from os.path import expanduser
-HOME = expanduser("~")
+
+HOME = os.path.abspath('../../models')
+
 
 @app_.route('/')
 @app_.route('/index')
@@ -37,19 +38,41 @@ def index():
     save_session(separation_sess)
     return render_template('index.html', target_dict=separation_sess.target_name_dict)
 
+
+@app_.route('/test')
+def test():
+    new_sess = separation_session.SeparationSession()
+    session['session_id'] = new_sess.url_safe_id
+    session.modified = True
+    save_session(new_sess)
+    return render_template('test.html')
+
+
+@app_.route('/study')
+def study():
+    new_sess = separation_session.SeparationSession()
+    session['session_id'] = new_sess.url_safe_id
+    session.modified = True
+    save_session(new_sess)
+    return render_template('study.html')
+
+
 @app_.errorhandler(404)
 def page_not_found(e):
     logger.warn('404! {}'.format(request.full_path))
     return render_template('404.html')
+
 
 @socketio.on('connect', namespace=WUT_SOCKET_NAMESPACE)
 def connected():
     logger.info('Socket connection established.')
     socketio.emit('init response', {'data': 'Connected'}, namespace=WUT_SOCKET_NAMESPACE)
 
+
 @socketio.on('disconnect', namespace=WUT_SOCKET_NAMESPACE)
 def disconnected():
     logger.info('Socket connection ended.')
+
 
 @socketio.on('audio_upload', namespace=WUT_SOCKET_NAMESPACE)
 def initialize(audio_file_data):
@@ -79,7 +102,8 @@ def initialize(audio_file_data):
     # Initialize the session
     logger.info('Initializing session for {}...'.format(filename))
     separation_sess.initialize(path)
-    logger.info('Initialization successful for file {}!'.format(separation_sess.user_original_file_location))
+    logger.info('Initialization successful for file {}!'
+                .format(separation_sess.user_original_file_location))
     save_session(separation_sess)
     socketio.emit('audio_upload_ok', namespace=WUT_SOCKET_NAMESPACE)
 
@@ -87,9 +111,9 @@ def initialize(audio_file_data):
     logger.info('Computing spectrogram image for {}'.format(filename))
     separation_sess.user_general_audio.spectrogram_image()
     save_session(separation_sess)
-    socketio.emit('spectrogram_image_ready',
-        {'max_freq': separation_sess.user_general_audio.max_frequency_displayed}, namespace=WUT_SOCKET_NAMESPACE)
-    logger.info('Sent spectrogram image info for {}'.format(filename))
+    # socketio.emit('spectrogram_image_ready',
+    #     {'max_freq': separation_sess.user_general_audio.max_frequency_displayed}, namespace=WUT_SOCKET_NAMESPACE)
+    # logger.info('Sent spectrogram image info for {}'.format(filename))
 
     # compute and send Deep Clustering PCA visualization and mel spectrogram
     separation_sess.model_type = audio_file_data['radio_selection']
@@ -114,15 +138,18 @@ def initialize(audio_file_data):
     # Save the session
     save_session(separation_sess)
 
+
 def save_session(separation_sess):
     session_id = separation_sess.url_safe_id
     redis_store.set(session_id, separation_sess.to_json())
+
 
 def awaken_session():
     separation_sess = redis_store.get(session['session_id'])
     separation_sess = separation_session.SeparationSession.from_json(separation_sess)
     logger.info('session awake {}'.format(separation_sess.session_id))
     return separation_sess
+
 
 def check_file_upload(audio_file_data):
     mixture_file_key = 'audio_file'
@@ -144,8 +171,10 @@ def check_file_upload(audio_file_data):
 
     return allowed_file(audio_file['file_name'])
 
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+
 
 def _exception(error_msg):
     frm = inspect.stack()[1][3]
@@ -178,8 +207,11 @@ def spectrogram_image():
         _exception('sess not initialized!')
 
     logger.info('Sending spectrogram file.')
-    logger.info(sess.user_general_audio.spectrogram_image_path)
-    return send_file(sess.user_general_audio.spectrogram_image_path, mimetype='image/png')
+    # logger.info(sess.user_general_audio.spectrogram_image_path)
+    # return send_file(sess.user_general_audio.spectrogram_image_path, mimetype='image/png')
+    logger.info(sess.user_general_audio.mel_spectrogram_image_path)
+    return send_file(sess.user_general_audio.mel_spectrogram_image_path, mimetype='image/png')
+
 
 @socketio.on('survey_results', namespace=WUT_SOCKET_NAMESPACE)
 def get_survey_results(message):
@@ -201,34 +233,6 @@ def send_recommendations(message):
     socketio.emit('envelope_data', {'envelopeData': reqs[algorithm], 'algorithm': algorithm},
                   namespace=WUT_SOCKET_NAMESPACE)
 
-@app_.route('/separated_source_demo', methods=['GET'])
-def get_separated_source():
-    logger.info('getting separated source')
-
-    sess = awaken_session()
-
-    if not sess.initialized:
-        _exception('sess not initialized!')
-
-    sep_method = request.args.get('method') if 'method' in request.args else 'repet_sim'
-    send_recommendations({ 'algorithm': sep_method })
-
-    mime_type = 'audio/mp3'
-    base_path = os.path.join(HOME, 'data/recs')
-
-    if sep_method == 'repet_sim':
-        logger.info('Sending Repet!')
-        return send_file(os.path.join(base_path, 'repet_fg.mp3'), mimetype=mime_type)
-
-    elif sep_method == 'projet':
-        logger.info('Sending Projet!')
-        return send_file(os.path.join(base_path, 'proj_1.mp3'), mimetype=mime_type)
-
-    elif sep_method == 'melodia':
-        logger.info('Sending Melodia!')
-        return send_file(os.path.join(base_path, 'mel_fg.mp3'), mimetype=mime_type)
-    # logger.info('\n\nINSIDE SEPARATED_SOURCE_DEMO, DOING NOTHING\n\n');
-    return ""
 
 @socketio.on('action', namespace=WUT_SOCKET_NAMESPACE)
 def get_action(action_):

@@ -4,14 +4,14 @@ ENV DEBIAN_FRONTEND noninteractive
 
 # Install required tools
 RUN apt-get update && apt-get install -y python python-pip python-virtualenv \
- python-tk nginx gunicorn supervisor redis-server
+ python-tk python-numpy nginx gunicorn supervisor redis-server
 
 # Get libav-tools
 RUN apt-get update && apt-get install libav-tools -y --force-yes
 
 # Copy over our requirements.txt file and install required python packages
 COPY requirements.txt /tmp/
-RUN pip install -U pip && pip install -r /tmp/requirements.txt
+RUN pip install -r /tmp/requirements.txt
 
 # Point nginx to the static directory
 ENV STATIC_PATH /app/app/static
