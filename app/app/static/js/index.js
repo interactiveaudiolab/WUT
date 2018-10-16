@@ -69,15 +69,6 @@ $(document).ready(function() {
         dcBar.linkedSpec.setLoading(false);
     });
 
-    socket.on('pca_explained_variance', msg => {
-        // executes passed in function with `_this` as
-        // the calling object (pcaSelectionModal)
-        pcaSelectionModal._addArbitraryFunction(setupPlotly,
-            ['pca-dimensions', JSON.parse(msg)]);
-
-        document.getElementById('pca-selection-modal-open').classList.remove('disabled');
-    });
-
     socket.on('mel', msg => {
         let spec_data = JSON.parse(msg);
         dcSpectrogram.dims = [spec_data.length, spec_data[0].length];
@@ -122,8 +113,6 @@ function relayoutPlots() {
     resizeToContainer(dcSpectrogram);
     resizeToContainer(mixture_spectrogram_heatmap);
     resizeToContainer(dcBar);
-    document.getElementById('pca-dimensions').layout !== undefined &&
-        Plotly.relayout('pca-dimensions', { width: $('#pca-selection-modal-plot-wrapper').width() });
 }
 
 // RESIZE ON TAB CHANGE
@@ -170,20 +159,4 @@ mixture_waveform.surfer.on('ready', () => { emptyMultiTrack(); });
 $('#results-pill').click(() => {
     $(this).removeClass('result-ready');
     result_waveform.drawBuffer();
-});
-
-$('#pca-selection-modal-begin').click(() => {
-    if(!$('#pca-selection-modal-begin').hasClass('disabled')) {
-        let dims = pcaSelectionModal.layout.shapes.map(shape => Math.floor(shape.x1));
-        socket.emit('set_pca_dims', { dims: dims });
-
-        pcaSelectionModal.hide();
-
-        $('.shared-plots-spinner').hide();
-        $('#plots-spinner').show();
-        $('#plots-spinner').css('display', 'flex');
-        dcPCA.plotLayout.xaxis.title = `Principal Component ${dims[0]}`;
-        dcPCA.plotLayout.yaxis.title = `Principal Component ${dims[1]}`;
-        dcPCA.clearSelections();
-    }
 });
