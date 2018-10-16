@@ -14,7 +14,7 @@ from .. import utils
 from .recommendation_base import RecommendationEngineBase, RecommendationException
 
 from os.path import expanduser
-HOME = expanduser("~")
+HOME = os.path.abspath('../../models')
 
 class SDRPredictor(RecommendationEngineBase):
 
@@ -111,9 +111,10 @@ class SDRPredictor(RecommendationEngineBase):
         return data
 
     def dummy_recommendations(self):
-        dummy = os.path.join(HOME, 'data/recs/sdr_predictions_new.npy')
+        dummy_file = '/Users/ethanmanilow/Documents/School/Research/audio_representations' \
+                     '/website/backend/output/sdr_predictions_new.npy'
 
         if self.predictions is None:
-            self.predictions = self._prepare_data(np.load(dummy))
+            self.predictions = self._prepare_data(np.load(dummy_file))
 
         return self.predictions

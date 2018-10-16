@@ -32,6 +32,7 @@ class DeepClustering(audio_processing_base.InteractiveAudioProcessingBase):
                  num_layers=4):
 
         super(DeepClustering, self).__init__(mixture_signal, storage_path)
+        model_path = nussl.efz_utils.download_trained_model('deep_clustering_vocals_44k_long.model')
 
         self.dc = nussl.DeepClustering(mixture_signal,
                                        model_path=model_path,

@@ -15,4 +15,10 @@ flask_session/*
 app/app/tmp/*
 app/app/flask_session/*
 app/app/test_files/*
+scripts/*
+scripts_cortex/*
+output/*
+models/*
+2dft/*
+scripts_cortex.zip
 
