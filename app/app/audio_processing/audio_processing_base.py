@@ -70,7 +70,7 @@ class InteractiveAudioProcessingBase(object):
 
     @staticmethod
     def _log_space_prepare(array):
-        return np.add(librosa.logamplitude(array, ref_power=np.max).astype('int8'), 80)
+        return np.add(librosa.amplitude_to_db(array, ref=np.max).astype('int8'), 80)
 
 class AudioProcessingBaseException(Exception):
     pass
