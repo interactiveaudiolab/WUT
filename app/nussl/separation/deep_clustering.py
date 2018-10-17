@@ -273,7 +273,8 @@ class DeepClustering(mask_separation_base.MaskSeparationBase):
         source = copy.deepcopy(self.audio_signal)
         source = source.apply_mask(mask)
         source.stft_params = self.stft_params
-        source.istft(overwrite=True, truncate_to_length=self.audio_signal.signal_length)
+        source.istft(overwrite=True, truncate_to_length=self.audio_signal.signal_length,
+                     use_librosa=self.use_librosa_stft)
 
         return source
 

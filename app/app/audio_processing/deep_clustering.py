@@ -37,7 +37,8 @@ class DeepClusteringWUT(audio_processing_base.InteractiveAudioProcessingBase):
 
         self.dc = nussl.DeepClustering(mixture_signal, model_path=model_path, num_sources=2,
                                        cutoff=-80, hidden_size=hidden_size, num_layers=num_layers,
-                                       resample_rate=resample_rate, do_mono=True)
+                                       resample_rate=resample_rate, do_mono=True,
+                                       use_librosa_stft=True)
 
     def perform_deep_clustering(self):
         self.dc.run()
