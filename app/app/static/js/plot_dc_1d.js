@@ -165,24 +165,6 @@ class DC1DBar {
         this.TFIndices = result;
     }
 
-    // could maybe be link generic plot
-    // would require more thinking about how generic plots
-    // might interact
-    addLinkedSpectrogram(linkedSpec) {
-        this.linkedSpec = linkedSpec;
-
-        this.DOMObject.on('plotly_selected', (eventData, data) => {
-            if(!data || !data.range) {
-                this.linkedSpec.clearMarkers()
-            } else { this._drawMarkers(data.range) }
-        });
-    }
-
-    clearSelections() {
-        this.resetSelections();
-        this.linkedSpec.clearMarkers();
-    }
-
     processResults() {
         if(!$('#' + this.controlsIDs.applyID).hasClass('disabled')) {
             selectionCounter++;

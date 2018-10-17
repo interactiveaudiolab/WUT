@@ -21,7 +21,8 @@ class ScatterSpectrogram extends PlotlyHeatmap {
         this.markers = [];
 
         this.DOMObject.on('plotly_selected', (eventData, data) => {
-            if(!data || !data.range) { this.clearMarkers(); }
+            // Override this so the user doesn't accidentally lose their work
+            // if(!data || !data.range) { this.clearMarkers(); }
         });
 
         this.emptyHeatmap();

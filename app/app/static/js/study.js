@@ -53,7 +53,7 @@ $(document).ready(function() {
         let indices = JSON.parse(msg);
 
         dcBar.addTFIndices(indices);
-        dcBar.initBar(pcaMatrixToBar(dcBar.TFIndices));
+        dcBar.initBar(pcaMatrixToBar(indices));
 
         // spectrogram.setLoading(false);
         dcBar.linkedSpec.setLoading(false);
