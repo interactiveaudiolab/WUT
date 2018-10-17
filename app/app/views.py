@@ -122,7 +122,7 @@ def initialize(audio_file_data):
     logger.info('model_type: {}'.format(separation_sess.model_type))
     logger.info('path: {}'.format(model_path))
 
-    dc = audio_processing.DeepClustering(separation_sess.user_signal, separation_sess.user_original_file_folder, model_path)
+    dc = audio_processing.DeepClusteringWUT(separation_sess.user_signal, separation_sess.user_original_file_folder, model_path)
     logger.info('Computing and sending clusters for {}'.format(filename))
 
     # currently kind of ugly hack for mel spectrogram image
@@ -256,7 +256,7 @@ def get_embeddings(dims):
     model_path = utils.get_deep_clustering_model_path(sess.model_type,
                                                       base_path=os.path.join(HOME, 'data', 'models'))
 
-    dc = audio_processing.DeepClustering(sess.user_signal, sess.user_original_file_folder, model_path)
+    dc = audio_processing.DeepClusteringWUT(sess.user_signal, sess.user_original_file_folder, model_path)
     dc.dc.run()
 
     logger.info('done spinning up deep clusterer')
@@ -274,7 +274,7 @@ def generate_mask(mask):
     model_path = utils.get_deep_clustering_model_path(sess.model_type,
                                                       base_path=os.path.join(HOME, 'data', 'models'))
 
-    dc = audio_processing.DeepClustering(sess.user_signal, sess.user_original_file_folder, model_path)
+    dc = audio_processing.DeepClusteringWUT(sess.user_signal, sess.user_original_file_folder, model_path)
 
     dc.dc.run()
     logger.info('done spinning up deep clusterer')
