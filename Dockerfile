@@ -13,6 +13,10 @@ RUN apt-get update && apt-get install libav-tools -y --force-yes
 COPY requirements.txt /tmp/
 RUN pip install -r /tmp/requirements.txt
 
+# Pytorch for CPU
+RUN pip install http://download.pytorch.org/whl/cpu/torch-0.4.1-cp27-cp27mu-linux_x86_64.whl
+RUN pip install torchvision
+
 # Point nginx to the static directory
 ENV STATIC_PATH /app/app/static
 

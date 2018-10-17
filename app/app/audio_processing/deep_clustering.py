@@ -16,11 +16,12 @@ from . import audio_processing_base
 import sys
 sys.path.insert(0, '../../nussl')
 import nussl
+import inspect
 
 logger = logging.getLogger()
 
 
-class DeepClustering(audio_processing_base.InteractiveAudioProcessingBase):
+class DeepClusteringWUT(audio_processing_base.InteractiveAudioProcessingBase):
     """
 
     """
@@ -31,18 +32,12 @@ class DeepClustering(audio_processing_base.InteractiveAudioProcessingBase):
                  resample_rate=44100,
                  num_layers=4):
 
-        super(DeepClustering, self).__init__(mixture_signal, storage_path)
+        super(DeepClusteringWUT, self).__init__(mixture_signal, storage_path)
         model_path = nussl.efz_utils.download_trained_model('deep_clustering_vocals_44k_long.model')
 
-        self.dc = nussl.DeepClustering(mixture_signal,
-                                       model_path=model_path,
-                                       num_sources=2,
-                                       cutoff=-80,
-                                       hidden_size=hidden_size,
-                                       num_layers=num_layers,
-                                       resample_rate=resample_rate,
-                                       # how to handle stereo?
-                                       do_mono=True)
+        self.dc = nussl.DeepClustering(mixture_signal, model_path=model_path, num_sources=2,
+                                       cutoff=-80, hidden_size=hidden_size, num_layers=num_layers,
+                                       resample_rate=resample_rate, do_mono=True)
 
     def perform_deep_clustering(self):
         self.dc.run()
