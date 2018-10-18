@@ -70,6 +70,7 @@ class SeparationSession(object):
         self.user_general_audio = None
         self.user_signal = None
         self.masked_path = None
+        self.inverse_path = None
 
         self.sdr_predictor = None
 
