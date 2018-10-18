@@ -291,6 +291,7 @@ def generate_mask(mask):
 
     sess.masked_path = os.path.join(sess.user_original_file_folder, 'masked.mp3')
     sess.inverse_path = os.path.join(sess.user_original_file_folder, 'inverse.mp3')
+    save_session(sess)
     logger.info(sess.masked_path)
     logger.info(sess.inverse_path)
     masked.write_audio_to_file(sess.masked_path)
@@ -300,8 +301,6 @@ def generate_mask(mask):
     socketio.emit('masked_audio', {}, namespace=WUT_SOCKET_NAMESPACE)
     socketio.emit('inverse_audio', {}, namespace=WUT_SOCKET_NAMESPACE)
     logger.info('told client to load masked & inverse audio')
-
-    save_session(sess)
 
 @app_.route('/get_masked_audio', methods=['GET'])
 def get_masked_audio():
