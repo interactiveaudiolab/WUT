@@ -226,7 +226,11 @@ main {
 	margin: 10px 0 0 0;
 }
 
-main > .waveform-cont {
+main .left-right-waveform-cont {
+	border-top: 2px gainsboro solid;
+}
+
+main .waveform-cont {
 	flex: 0 0 60px;
 	padding: 10px 20px;
 	margin: 0 30px 10px 30px;
@@ -235,21 +239,21 @@ main > .waveform-cont {
 	align-items: center;
 }
 
-main > .waveform-cont > :first-child {
+main .waveform-cont > :first-child {
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	flex: 0 0 60px;
 }
 
-main > .waveform-cont > .waveform-title {
+main .waveform-cont > .waveform-title {
 	font-size: 1em;
 	font-family: Helvetica, sans-serif;
 
 	text-align: center;
 }
 
-main > .waveform-cont > .controls {
+main .waveform-cont > .controls {
 	flex: 0 0 80px;
 	margin: 0 10px 0 10px;
 
@@ -257,7 +261,7 @@ main > .waveform-cont > .controls {
 	justify-content: space-between;
 }
 
-main > .waveform-cont > .controls button {
+main .waveform-cont > .controls button {
 	padding: 5px 10px;
 }
 
