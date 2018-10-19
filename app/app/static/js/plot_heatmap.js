@@ -1,5 +1,5 @@
 class PlotlyHeatmap {
-    constructor(divID) {
+    constructor(divID, isNotSelectable) {
         this.divID = divID[0] === '#' ? divID.slice(1) : divID;
 
         this.plot = null;
@@ -41,8 +41,8 @@ class PlotlyHeatmap {
 
             // Interaction
             hovermode: false,
-            dragmode: 'select',
-            selectable: true,
+            dragmode: isNotSelectable ? undefined : 'select',
+            selectable: !isNotSelectable,
             shapes: [],
         };
 
