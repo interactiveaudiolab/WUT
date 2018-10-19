@@ -201,7 +201,6 @@
 body {
 	color: black;
 
-	min-height: 100vh;
 	min-width: 100%;
 }
 
@@ -213,7 +212,7 @@ header {
 }
 
 header > :first-child {
-	font-size: 3em;
+	font-size: 2em;
 	flex: 0 0 auto;
 	font-family: Helvetica, sans-serif;
 	font-weight: 100;
@@ -228,19 +227,19 @@ main {
 }
 
 main > .waveform-cont {
-	flex: 0 0 100px;
+	flex: 0 0 60px;
 	padding: 10px 20px;
-	margin: 0 30px 20px 30px;
+	margin: 0 30px 10px 30px;
 
 	display: flex;
-	align-items: stretch;
+	align-items: center;
 }
 
 main > .waveform-cont > :first-child {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	flex: 0 0 80px;
+	flex: 0 0 60px;
 }
 
 main > .waveform-cont > .waveform-title {
@@ -251,20 +250,15 @@ main > .waveform-cont > .waveform-title {
 }
 
 main > .waveform-cont > .controls {
-	flex: 0 0 40px;
-	margin: 0 20px 0 20px;
+	flex: 0 0 80px;
+	margin: 0 10px 0 10px;
 
 	display: flex;
-	flex-flow: column;
-	justify-content: space-around;
+	justify-content: space-between;
 }
 
-main > .waveform-cont > .controls div {
-	padding: 10px 0;
-
-	display: flex;
-	justify-content: center;
-	align-items: center;
+main > .waveform-cont > .controls button {
+	padding: 5px 10px;
 }
 
 main > .waveform-cont > #mixture-waveform, .shared-waveform-spinner {
@@ -335,11 +329,11 @@ main .interaction > .shared-plots-spinner > #cont, #pca-cont, #spectrogram-cont 
 }
 
 main .interaction > .shared-plots-spinner > #pca-cont {
-	flex: 0 1 29%;
+	flex: 0 1 25%;
 }
 
 main .interaction > .shared-plots-spinner > #spectrogram-cont {
-	flex: 0 1 65%;
+	flex: 0 1 55%;
 
 	/*
 		set min-width manually (to anything) otherwise its automatically set
@@ -349,7 +343,7 @@ main .interaction > .shared-plots-spinner > #spectrogram-cont {
 		set to 850 specifically to enable wrapping of flex items before
 		plots become unusably small, corresponds to window width of 1280
 	*/
-	min-width: 850px;
+	min-width: 700px;
 }
 
 main .interaction > .shared-plots-spinner > #spectrogram-cont > #apply-dc-selections {
@@ -382,7 +376,7 @@ footer {
 
 footer p {
 	margin: 3px;
-	font-size: .8em;
+	font-size: .7em;
 }
 
 .aspect-ratio-box {
@@ -427,9 +421,8 @@ footer p {
 }
 
 .spinner {
-  margin: 100px auto;
   width: 50px;
-  height: 40px;
+  height: 60px;
   text-align: center;
   font-size: 10px;
 }
@@ -738,7 +731,7 @@ with the transformed ancestor as the container positioned within */
 	height: 100vh;
 
 	display: grid;
-	grid-template-rows: 75px 1fr 75px;
+	grid-template-rows: 45px 1fr 60px;
 	grid-template-columns: 1fr;
 	grid-template-areas: 	"header"
 												"main"
@@ -753,8 +746,8 @@ with the transformed ancestor as the container positioned within */
 
 	/* fill screen */
 	position: fixed;
-	width: 100%;
-	height: 100%;
+	width: 100vh;
+	height: 100vh;
 	top: 0;
 	left: 0;
 
