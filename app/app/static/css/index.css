@@ -332,6 +332,21 @@ main .interaction > .shared-plots-spinner > #cont, #pca-cont, #spectrogram-cont 
 	justify-content: space-around;
 }
 
+main .interaction #pca-controls {
+	display: flex;
+	justify-content: space-around;
+	margin: 5px 0;
+}
+
+main .interaction #pca-controls #pca-checkbox {
+	display: flex;
+	align-items: center;
+}
+
+main .interaction #pca-controls label {
+	margin: 0 0 0 5px;
+}
+
 main .interaction > .shared-plots-spinner > #pca-cont {
 	flex: 0 1 25%;
 }
@@ -342,7 +357,7 @@ main .interaction > .shared-plots-spinner #pca-1d-slider {
 	padding: 0 15px 0 45px;
 }
 
-main .interaction > .shared-plots-spinner #pca-1d-slider .slider.slider-horizontal {
+main .interaction > .shared-plots-spinner #pca-1d-slider  .slider.slider-horizontal {
 	width: 100%;
 }
 
