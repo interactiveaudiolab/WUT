@@ -336,6 +336,16 @@ main .interaction > .shared-plots-spinner > #pca-cont {
 	flex: 0 1 25%;
 }
 
+main .interaction > .shared-plots-spinner #pca-1d-slider {
+	display: flex;
+	justify-content: center;
+	padding: 0 15px 0 45px;
+}
+
+main .interaction > .shared-plots-spinner #pca-1d-slider .slider.slider-horizontal {
+	width: 100%;
+}
+
 main .interaction > .shared-plots-spinner > #spectrogram-cont {
 	flex: 0 1 55%;
 
