@@ -4,8 +4,8 @@ function getMelScatterSpectrogramAsImage(heatmap, xaxisRange, freqMax, duration)
 }
 
 class ScatterSpectrogram extends PlotlyHeatmap {
-    constructor(divID) {
-        super(divID);
+    constructor(divID, isNotSelectable) {
+        super(divID, isNotSelectable);
         let newLayout = {
             xaxis: { title: "Time (s)" },
             yaxis: { title: "Frequency (Mel)" },

@@ -10,7 +10,7 @@ class DC1DBar {
         this.divID = this.barID;
         this.sliderID = _idify(sliderID);
         this.linkedSpecID = _idify(linkedSpecID);
-        this.linkedSpec = new ScatterSpectrogram(this.linkedSpecID);
+        this.linkedSpec = new ScatterSpectrogram(this.linkedSpecID, true);
         this.dcBarPlot = null;
         this.selectionFlipped = false;
         this.logY = false;
