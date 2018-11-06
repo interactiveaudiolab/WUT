@@ -115,16 +115,30 @@ document.getElementById('audio-upload-modal-upload').addEventListener('click',
       document.getElementById('audio-upload-modal-upload-input').click()
   });
 
-document.getElementById('audio-upload-modal-upload-input').
-  addEventListener('change',function () {
-      // if user clicks upload but then cancels
-      if(this.files.length === 0) { return; }
+// clear out last file so that `change` event triggers
+document.getElementById('audio-upload-modal-upload-input').addEventListener(
+    'click',
+    function () { this.value = ""; }
+);
 
-    document.getElementById('audio-upload-modal-final').src = URL.createObjectURL(this.files[0]);
-      document.getElementById('audio-upload-modal-results').setAttribute('style', 'visibility: visible;');
-      document.getElementById('audio-upload-modal-begin').classList.remove('disabled');
-      audio_file = this.files[0];
-});
+document.getElementById('audio-upload-modal-upload-input').addEventListener(
+    'change',
+    function () {
+        // if user clicks upload but then cancels
+        if(this.files.length === 0) { return; }
+
+        document
+            .getElementById('audio-upload-modal-final')
+            .src = URL.createObjectURL(this.files[0]);
+        document
+            .getElementById('audio-upload-modal-results')
+            .setAttribute('style', 'visibility: visible;');
+        document
+            .getElementById('audio-upload-modal-begin')
+            .classList.remove('disabled');
+        audio_file = this.files[0];
+    }
+);
 
 // on recording finish
 // must be a way to avoid global recorder here
