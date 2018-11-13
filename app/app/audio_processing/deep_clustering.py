@@ -59,8 +59,12 @@ class DeepClusteringWUT(audio_processing_base.InteractiveAudioProcessingBase):
 
         socket.emit('binned_embeddings', json.dumps(binned_embeddings), namespace=namespace)
         explained_variance = self.dc.get_pca().explained_variance_ratio_
-        socket.emit('pca_explained_variance', json.dumps(list(explained_variance)),
-                    namespace=namespace)
+
+        socket.emit(
+            'pca_explained_variance',
+            json.dumps(explained_variance.tolist()),
+            namespace=namespace
+        )
         socket.emit('mel', json.dumps(mel.tolist()), namespace=namespace)
 
         logger.info('Sent Deep Clustering for {}'.format(self.user_audio_signal.file_name))
