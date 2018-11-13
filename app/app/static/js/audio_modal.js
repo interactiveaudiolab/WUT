@@ -69,6 +69,14 @@ document.getElementById('audio-upload-modal-begin').addEventListener('click', ev
 
       audioUploadModal.hide(true);
 
+      // TODO: make this less hacky
+      // currently simply clearing the UI (but play would still trigger audio)
+      // except we also disable the buttons
+      masked_waveform.setControls(false)
+      masked_waveform.surfer.empty()
+      inverse_waveform.setControls(false)
+      inverse_waveform.surfer.empty()
+
       // send radio selection + audio to server
       // leave to specific implementations
       let selected = getSelectedValue('separation-radio');
