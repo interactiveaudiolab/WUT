@@ -92,15 +92,12 @@ def initialize(audio_file_data):
     separation_sess = awaken_session()
 
     path = os.path.join(separation_sess.user_original_file_folder, filename)
-    logger.info('Saving at {}'.format(path))
-
     # Save the file
     with open(path, 'wb') as f:
         f.write(audio_file['file_data'])
     logger.info('{} saved at {}'.format(filename, path))
 
     # Initialize the session
-    logger.info('Initializing session for {}...'.format(filename))
     separation_sess.initialize(path)
     logger.info('Initialization successful for file {}!'
                 .format(separation_sess.user_original_file_location))
@@ -111,17 +108,11 @@ def initialize(audio_file_data):
     logger.info('Computing spectrogram image for {}'.format(filename))
     separation_sess.user_general_audio.spectrogram_image()
     save_session(separation_sess)
-    # socketio.emit('spectrogram_image_ready',
-    #     {'max_freq': separation_sess.user_general_audio.max_frequency_displayed}, namespace=WUT_SOCKET_NAMESPACE)
-    # logger.info('Sent spectrogram image info for {}'.format(filename))
 
     # compute and send Deep Clustering PCA visualization and mel spectrogram
     separation_sess.model_type = audio_file_data['radio_selection']
     model_path = utils.get_deep_clustering_model_path(separation_sess.model_type,
                                                       base_path=os.path.join(HOME, 'data', 'models'))
-    logger.info('model_type: {}'.format(separation_sess.model_type))
-    logger.info('path: {}'.format(model_path))
-
     dc = audio_processing.DeepClusteringWUT(separation_sess.user_signal, separation_sess.user_original_file_folder, model_path)
     logger.info('Computing and sending clusters for {}'.format(filename))
 
@@ -147,7 +138,6 @@ def save_session(separation_sess):
 def awaken_session():
     separation_sess = redis_store.get(session['session_id'])
     separation_sess = separation_session.SeparationSession.from_json(separation_sess)
-    logger.info('session awake {}'.format(separation_sess.session_id))
     return separation_sess
 
 
@@ -207,8 +197,6 @@ def spectrogram_image():
         _exception('sess not initialized!')
 
     logger.info('Sending spectrogram file.')
-    # logger.info(sess.user_general_audio.spectrogram_image_path)
-    # return send_file(sess.user_general_audio.spectrogram_image_path, mimetype='image/png')
     logger.info(sess.user_general_audio.mel_spectrogram_image_path)
     return send_file(sess.user_general_audio.mel_spectrogram_image_path, mimetype='image/png')
 
@@ -252,54 +240,43 @@ def get_embeddings(dims):
     dims = sorted(dims['dims'])
     sess = awaken_session()
 
-    logger.info('spinning up deep clusterer')
-    model_path = utils.get_deep_clustering_model_path(sess.model_type,
-                                                      base_path=os.path.join(HOME, 'data', 'models'))
+    model_path = utils.get_deep_clustering_model_path(
+        sess.model_type,
+        base_path=os.path.join(HOME, 'data', 'models')
+    )
 
-    dc = audio_processing.DeepClusteringWUT(sess.user_signal, sess.user_original_file_folder, model_path)
+    dc = audio_processing.DeepClusteringWUT(
+        sess.user_signal,
+        sess.user_original_file_folder,
+        model_path
+    )
+
     dc.dc.run()
-
-    logger.info('done spinning up deep clusterer')
-
     dc.update_dimensions(dims, socketio, WUT_SOCKET_NAMESPACE)
 
 @socketio.on('mask', namespace=WUT_SOCKET_NAMESPACE)
 def generate_mask(mask):
-    logger.info('receiving mask')
-
     sess = awaken_session()
-
-    logger.info('spinning up deep clusterer')
-
-    model_path = utils.get_deep_clustering_model_path(sess.model_type,
-                                                      base_path=os.path.join(HOME, 'data', 'models'))
+    model_path = utils.get_deep_clustering_model_path(
+        sess.model_type,
+        base_path=os.path.join(HOME, 'data', 'models')
+    )
 
     dc = audio_processing.DeepClusteringWUT(sess.user_signal, sess.user_original_file_folder, model_path)
 
     dc.dc.run()
-    logger.info('done spinning up deep clusterer')
-
-    logger.info('generating mask')
     mask = dc.dc.generate_mask(0, mask['mask'])
-    logger.info('done generating mask')
-
     masked = dc.dc.apply_mask(mask)
-    logger.info('mask applied')
-
     inverse = dc.dc.apply_mask(mask.invert_mask())
-    logger.info('inverse applied')
 
     sess.masked_path = os.path.join(sess.user_original_file_folder, 'masked.mp3')
     sess.inverse_path = os.path.join(sess.user_original_file_folder, 'inverse.mp3')
     save_session(sess)
-    logger.info(sess.masked_path)
-    logger.info(sess.inverse_path)
     masked.write_audio_to_file(sess.masked_path)
     inverse.write_audio_to_file(sess.inverse_path)
-    logger.info('files written')
-
     socketio.emit('masked_audio', {}, namespace=WUT_SOCKET_NAMESPACE)
     socketio.emit('inverse_audio', {}, namespace=WUT_SOCKET_NAMESPACE)
+
     logger.info('told client to load masked & inverse audio')
 
 @app_.route('/get_masked_audio', methods=['GET'])
