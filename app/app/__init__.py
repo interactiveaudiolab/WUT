@@ -1,4 +1,5 @@
 import logging
+import logging.handlers
 
 from . import views
 from . import config
@@ -14,11 +15,17 @@ import utils
 for folder in INIT_FOLDERS:
     utils.safe_makedirs(folder)
 
-# Set up a logger
-logger_name = 'WUT - Backend'
+# temporarily disable 'werkzeug` logging, redirect to file in the future
+# TODO: shouldn't use `werkzeug` in production, use something like `gunicorcn`
+logging.getLogger('werkzeug').disabled = True
+
+# set up a logger
 logger = logging.getLogger()
 handler = logging.StreamHandler()
-formatter = logging.Formatter('%(asctime)s %(name)-10s %(levelname)-8s %(filename)-12s %(funcName)-12s %(message)s')
+formatter = logging.Formatter(
+  "[%(asctime)s] [%(levelname)8s] --- %(message)s (%(filename)s:%(lineno)s)", "%Y-%m-%d %H:%M:%S"
+)
 handler.setFormatter(formatter)
 logger.addHandler(handler)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
+
