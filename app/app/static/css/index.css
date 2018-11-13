@@ -806,3 +806,10 @@ body.modal-ready,
 .modal-ready .modal-cover {
 	transition: 0.75s all cubic-bezier(0.250, 0.460, 0.450, 0.940);
 }
+
+/* overwrite button color on apply-selections button ("Hear Results") button */
+#apply-selections {
+  background: blueviolet;
+  border: blueviolet;
+}
+
