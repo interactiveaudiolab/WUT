@@ -80,7 +80,7 @@ class SeparationSession(object):
     @property
     def url_safe_id(self):
         # 22 chars long (last two chars are '==')
-        return base64.urlsafe_b64encode(self.session_id.bytes)[:22]
+        return str(base64.urlsafe_b64encode(self.session_id.bytes)[:22])
 
     @property
     def stft_done(self):
