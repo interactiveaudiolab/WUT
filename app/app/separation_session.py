@@ -14,11 +14,11 @@ from collections import deque
 import jsonpickle
 import jsonpickle.ext.numpy as jsonpickle_numpy
 
-import audio_processing
-import recommendations
-import config
-import actions
-import utils
+from . import audio_processing
+from . import recommendations
+from . import config
+from . import actions
+from . import utils
 
 from pickle import Unpickler
 
@@ -99,7 +99,7 @@ class SeparationSession(object):
 
     @property
     def _target_dict_name_to_object(self):
-        return {v['name']: v['object'] for v in self.target_name_dict.values()}
+        return {v['name']: v['object'] for v in list(self.target_name_dict.values())}
 
     def initialize(self, path_to_file):
         if not os.path.isfile(path_to_file):
@@ -146,7 +146,7 @@ class SeparationSession(object):
                                                                 action['action_id'],
                                                                 action['received']))
 
-            if action_object.target not in self._target_dict_name_to_object.keys():
+            if action_object.target not in list(self._target_dict_name_to_object.keys()):
                 raise actions.ActionException('Unknown target: {}!'.format(action_object.target))
 
             target = self._target_dict_name_to_object[action_object.target]

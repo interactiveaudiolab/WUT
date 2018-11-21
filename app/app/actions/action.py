@@ -107,7 +107,7 @@ class SelectionBasedRemove(Action):
         if not isinstance(action_dict[self.DATA][self.SELECTION_DATA], list):
             return False
 
-        if self.TARGET not in action_dict or not isinstance(action_dict[self.TARGET], (str, unicode, bytes)):
+        if self.TARGET not in action_dict or not isinstance(action_dict[self.TARGET], (str, bytes)):
             return False
 
         return True

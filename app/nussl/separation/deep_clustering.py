@@ -23,8 +23,8 @@ from matplotlib.gridspec import GridSpec
 from ..transformers import TransformerDeepClustering
 from sklearn.decomposition import PCA
 from sklearn.utils import check_array
-import mask_separation_base
-import masks
+from . import mask_separation_base
+from . import masks
 
 
 class DeepClustering(mask_separation_base.MaskSeparationBase):
