@@ -3,6 +3,6 @@
 
 """
 
-from recommendation_base import RecommendationEngineBase
-from sdr_predictor import SDRPredictor
+from .recommendation_base import RecommendationEngineBase
+from .sdr_predictor import SDRPredictor
 

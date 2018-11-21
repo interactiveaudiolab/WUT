@@ -9,8 +9,8 @@ from . import app_obj
 from . import recommendations
 
 # Set folders up
-from config import INIT_FOLDERS
-import utils
+from .config import INIT_FOLDERS
+from . import utils
 
 for folder in INIT_FOLDERS:
     utils.safe_makedirs(folder)

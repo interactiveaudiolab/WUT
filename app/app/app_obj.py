@@ -4,7 +4,7 @@ from flask_redis import FlaskRedis
 from werkzeug.contrib.fixers import ProxyFix
 from flask_socketio import SocketIO
 
-from config import UPLOAD_BASE_FOLDER, Config, REDIS_URL
+from .config import UPLOAD_BASE_FOLDER, Config, REDIS_URL
 
 # Flask app setup
 app_ = Flask(__name__)

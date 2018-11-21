@@ -3,21 +3,21 @@ import logging
 import inspect
 import json
 import math
-import audio_processing
+from . import audio_processing
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 import numpy as np
-import utils
+from . import utils
 from flask import render_template, request, flash, session, abort, send_file, make_response
 from werkzeug.utils import secure_filename
 from flask_socketio import emit
 from pickle import Unpickler
 
 from .app_obj import app_, socketio, redis_store
-import separation_session
-from config import ALLOWED_EXTENSIONS
+from . import separation_session
+from .config import ALLOWED_EXTENSIONS
 
 DEBUG = True
 

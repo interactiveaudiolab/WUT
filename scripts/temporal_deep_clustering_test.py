@@ -18,7 +18,7 @@ from matplotlib import gridspec
 
 from MulticoreTSNE import MulticoreTSNE as TSNE
 
-import clustering_test as ct
+from . import clustering_test as ct
 
 RUN_DC = False
 

@@ -97,7 +97,7 @@ class BoxSelection(Selection):
         if set(selection_dict[self.DATA].keys()) != self.DATA_KEYS_SET:
             raise ValueError('selection_dict[\'data\'] keys not correct!')
 
-        if not all(isinstance(v, numbers.Real) for v in selection_dict[self.DATA].values()):
+        if not all(isinstance(v, numbers.Real) for v in list(selection_dict[self.DATA].values())):
             raise ValueError('Not all values in selection_dict[\'data\'] are numbers!')
 
         self.time_start = selection_dict[self.DATA][self.TIME_START]
