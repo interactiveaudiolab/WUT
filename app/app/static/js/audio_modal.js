@@ -77,6 +77,8 @@ document.getElementById('audio-upload-modal-begin').addEventListener('click', ev
       inverse_waveform.setControls(false)
       inverse_waveform.surfer.empty()
 
+      dcBar.slider.setValue(50); // reset slider
+
       // send radio selection + audio to server
       // leave to specific implementations
       let selected = getSelectedValue('separation-radio');
