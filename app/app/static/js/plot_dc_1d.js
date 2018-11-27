@@ -5,7 +5,6 @@ function _idify(id) {
 
 class DC1DBar {
     constructor(barID, sliderID, linkedSpecID, controlsIDs) {
-        // super(divID);
         this.barID = _idify(barID);
         this.divID = this.barID;
         this.sliderID = _idify(sliderID);
@@ -15,7 +14,6 @@ class DC1DBar {
         this.selectionFlipped = false;
         this.logY = false;
         this.decisionBoundary = null;
-        // var this_ = this;
 
         // Bind the slider
         this.slider = $('#' + this.sliderID).slider({

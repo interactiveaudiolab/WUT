@@ -3,7 +3,6 @@ var masked_waveform = new Waveform('#masked-waveform', '#masked-play', '#masked-
 var inverse_waveform = new Waveform('#inverse-waveform', '#inverse-play', '#inverse-stop', '#inverse-spinner');
 
 var all_waveforms = [mixture_waveform, masked_waveform, inverse_waveform];
-// var spectrogram = new ScatterSpectrogram('spectrogram');
 var dcBar = new DC1DBar('pca-1d', 'slider-1d', 'spectrogram',
     {className: 'dc-1d-control', flipID: 'flip-1d',  logYCheck: 'log-y-1d',
         applyID: 'apply-dc-selections-1d', seeResultsID: 'see-results-1d'});
@@ -59,15 +58,6 @@ $(document).ready(function() {
         dcBar.linkedSpec.setLoading(false);
     });
 
-    socket.on('spectrogram', msg => {
-        // var data = JSON.parse(msg.spectrogram);
-        // make_spectrogram(spectrogram, data, mixture_waveform.surfer.backend.getDuration());
-    });
-
-    socket.on('spectrogram_image_ready', msg => {
-        // getSpectrogramAsImage(spectrogram, msg.max_freq);
-    });
-
     socket.on('mel', msg => {
         console.log('Retrieving Mel spectrogram.');
         let spec_data = JSON.parse(msg);
@@ -103,7 +93,7 @@ function relayoutPlots() {
     Plotly.relayout(dcBar.linkedSpec.divID, { width: dcBar.linkedSpec.DOMObject.width() });
 }
 
-// RESIZE PLOTS ON WINDOW CHANGE
+// resize plots on window change
 $(window).resize(relayoutPlots);
 
 // ~~~~~~~~~~~~~ WAVEFORM ~~~~~~~~~~~~~
@@ -117,24 +107,6 @@ $(window).resize(_.debounce(function(){
     masked_waveform.resizeWaveform();
     inverse_waveform.resizeWaveform();
 }, 500));
-
-//  ~~~~~~~~~~~~~ MODAL ~~~~~~~~~~~~~
-
-// $('#upload').click(function(){
-//     $('#open-modal').modal({
-//         backdrop: 'static',
-//         keyboard: false
-//     });
-//     openFileDialog();
-// });
-
-// $('#open-button-modal').click(function () {
-//     openFileDialog();
-// });
-
-// function openFileDialog() {
-//     audio.import_audio();
-// }
 
 //  ~~~~~~~~~~~~~ Apply Selections button ~~~~~~~~~~~~~
 
