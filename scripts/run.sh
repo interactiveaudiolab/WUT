@@ -16,13 +16,17 @@ virtual_environment=${1:-$(git rev-parse --show-toplevel)/audio}
   exit 1
 }
 
+# do nothing if already sourced, source if environment exists, else return
+if [[ "$VIRTUAL_ENV" != "" ]]; then : # pass, already in a virtual environment
 # check if virtual environment exists
-[[ -f $virtual_environment/bin/activate ]] || {
+elif [[ -f $virtual_environment/bin/activate ]]; then
+  source $virtual_environment/bin/activate
+else
   echo "There is no virtual environment @ path $virtual_environment. Run"\
     "\`sh setup.sh\` to create one or do it manually then pass the path to"\
     "this script."
   return
-}
+fi
 
 # check if `redis-server` installed
 command -v redis-server > /dev/null 2>&1 || {
@@ -34,8 +38,7 @@ command -v redis-server > /dev/null 2>&1 || {
 
 # <<<<< end of dependencies >>>>>
 
-# source virtual environment
-source $virtual_environment/bin/activate
+# virtual environment sourced by this point
 
 # run `redis-server` in the background
 # Note: this allows you to run the `redis-server` and the app in the same window
