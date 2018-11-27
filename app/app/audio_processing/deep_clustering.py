@@ -42,12 +42,7 @@ class DeepClusteringWUT(audio_processing_base.InteractiveAudioProcessingBase):
 
     def perform_deep_clustering(self):
         self.dc.run()
-        return self.dc.project_arbitrary_embeddings(), self.dc.mel_spectrogram
-
-    def update_dimensions(self, dims, socket, namespace):
-        embeddings = self.dc.project_arbitrary_embeddings(dims)
-        massaged = self._massage_pca(embeddings)
-        socket.emit('binned_embeddings', json.dumps(massaged), namespace=namespace)
+        return self.dc.project_embeddings(2), self.dc.mel_spectrogram
 
     # remove reliance on user_original_file_folder here
     def send_deep_clustering_results(self, socket, namespace, file_path):
@@ -58,13 +53,6 @@ class DeepClusteringWUT(audio_processing_base.InteractiveAudioProcessingBase):
         # binned_embeddings = np.array(binned_embeddings, dtype=int).tolist()
 
         socket.emit('binned_embeddings', json.dumps(binned_embeddings), namespace=namespace)
-        explained_variance = self.dc.get_pca().explained_variance_ratio_
-
-        socket.emit(
-            'pca_explained_variance',
-            json.dumps(explained_variance.tolist()),
-            namespace=namespace
-        )
         socket.emit('mel', json.dumps(mel.tolist()), namespace=namespace)
 
         logger.info('Sent Deep Clustering for {}'.format(self.user_audio_signal.file_name))

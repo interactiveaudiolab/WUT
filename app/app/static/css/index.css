@@ -389,7 +389,7 @@ main .interaction > .shared-plots-spinner > #spectrogram-cont > #apply-dc-select
 }
 
 /* BUTTONS */
-#pca-selection-modal-open, #apply-spec-selection, #apply-dc-selections {
+#apply-spec-selection, #apply-dc-selections {
 	margin-top: 20px;
 	align-self: center;
 	padding-left: 10px;
@@ -563,17 +563,12 @@ with the transformed ancestor as the container positioned within */
 /* <<<< and above to a lesser extent >>>> */
 /* <<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>> */
 
-.audio-upload-modal-active .modal,
-.pca-selection-modal-active .modal {
+.audio-upload-modal-active .modal {
 	/* make visible */
 	visibility: visible;
 	opacity: 1;
 
 	animation: fadein .75s;
-}
-
-.pca-selection-modal-active #pca-selection-modal {
-	min-height: 600px;
 }
 
 @keyframes fadein {
@@ -728,28 +723,6 @@ with the transformed ancestor as the container positioned within */
 
 /* <<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>> */
 /* <<<<<<<<< audio upload modal >>>>>>>>> */
-/* <<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>> */
-
-/* <<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>> */
-/* <<<<<<<< pca selection modal >>>>>>>>> */
-/* <<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>> */
-
-/* choosing separation types page */
-#pca-selection-modal-plot-wrapper {
-	display: flex;
-	flex-flow: column;
-	justify-content: space-between;
-	align-items: center;
-
-	flex: 1;
-}
-
-#pca-selection-modal-plot-wrapper p {
-	padding: 5px;
-}
-
-/* <<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>> */
-/* <<<<<<<< pca selection modal >>>>>>>>> */
 /* <<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>> */
 
 /* misc modal styling around modal */

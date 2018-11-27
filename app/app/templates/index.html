@@ -122,8 +122,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <button id="pca-selection-modal-open" type="button" class="btn btn-primary disabled">Select PCA Dimensions</button>
                     </div>
 
 
@@ -190,8 +188,6 @@
                                    data-slider-min="0" data-slider-max="100"
                                    data-slider-step="1" data-slider-value="50"/>
                         </div>
-
-{#                        <button id="pca-selection-modal-open-1d" type="button" class="btn btn-primary disabled">Select PCA Dimensions</button>#}
                     </div>
 
 
@@ -244,8 +240,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <button id="pca-selection-modal-open" type="button" class="btn btn-primary disabled">Select PCA Dimension</button>
                     </div>
 
 
@@ -450,34 +444,6 @@
     <!-- end of audio upload modal -->
     <!-- <<<<<<<<<<<<>>>>>>>>>>>>> -->
 
-    <!-- <<<<<<<<<<<<<<>>>>>>>>>>>>>>> -->
-    <!-- pca dimension selection modal -->
-    <!-- <<<<<<<<<<<<<<>>>>>>>>>>>>>>> -->
-
-    <div class="modal" id="pca-selection-modal">
-        <!-- header -->
-        <div id='pca-selection-modal-header'>
-          <button id="pca-selection-modal-close" type="button" class="btn btn-primary" title="Close Modal">
-              <i class="fas fa-times"></i>
-          </button>
-        </div>
-
-        <!-- body -->
-        <div id='pca-selection-modal-plot-wrapper'>
-            <p>Please select the <b>two</b> PCA dimensions you would like to plot the clustering on.</p>
-
-            <div id='pca-dimensions'></div>
-
-            <button id="pca-selection-modal-begin" type="button" class="modal-bottom-button btn btn-primary disabled" title="Modal Begin">
-                Begin
-            </button>
-        </div>
-    </div>
-
-    <!-- <<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>> -->
-    <!-- end of pca dimension selection modal -->
-    <!-- <<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>> -->
-
     <!-- modal cover behind -->
     <div class="modal-cover"></div>
 
@@ -490,7 +456,6 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/plot_dc_1d.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/modal.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/audio_modal.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/pca_selection_modal.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/waveform.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/index.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/audio.js') }}"></script>

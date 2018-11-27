@@ -28,7 +28,6 @@ CURRENT_SESSION = 'cur_session'
 
 HOME = os.path.abspath('../../models')
 
-
 @app_.route('/')
 @app_.route('/index')
 def index():
@@ -234,25 +233,6 @@ def get_action(action_):
     action_dict = action_['actionData']
     sess.push_action(action_dict)
     save_session(sess)
-
-@socketio.on('set_pca_dims', namespace=WUT_SOCKET_NAMESPACE)
-def get_embeddings(dims):
-    dims = sorted(dims['dims'])
-    sess = awaken_session()
-
-    model_path = utils.get_deep_clustering_model_path(
-        sess.model_type,
-        base_path=os.path.join(HOME, 'data', 'models')
-    )
-
-    dc = audio_processing.DeepClusteringWUT(
-        sess.user_signal,
-        sess.user_original_file_folder,
-        model_path
-    )
-
-    dc.dc.run()
-    dc.update_dimensions(dims, socketio, WUT_SOCKET_NAMESPACE)
 
 @socketio.on('mask', namespace=WUT_SOCKET_NAMESPACE)
 def generate_mask(mask):
