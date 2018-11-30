@@ -40,5 +40,4 @@ SoundFile==0.10.2
 stempeg==0.1.4
 torch==0.4.1
 tqdm==4.28.1
-vamp==1.1.0
 Werkzeug==0.14.1
