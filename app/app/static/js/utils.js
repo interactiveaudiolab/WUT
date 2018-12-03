@@ -25,7 +25,9 @@ function getLastItemInArray(arr) { return arr[arr.length - 1]; }
 // Fancy little one liner to get the FIRST object in a JS obj
 function getFirstObject(obj) { return obj[Object.keys(obj)[0]]; }
 
-function numberOfRegions() { return objectLength(mixture_waveform.regions.list); }
+function numberOfRegions() {
+    return objectLength(mixture_waveform.regions.list);
+}
 
 function objectLength(obj) { return Object.keys(obj).length; }
 
@@ -74,7 +76,10 @@ function generateTicks(xaxisRange, duration) {
 }
 
 // converts matrix of index lists to matrix of density values for plotting
-pcaMatrixToHistogram = (pca) => pca.map(row => row.map(inds => Math.log(inds.length + 1)));
-pcaMatrixToBar = (pca) => pca.map(row => row.map(inds => inds.length));
+pcaMatrixToHistogram = pca =>
+    pca.map(row => row.map(inds => Math.log(inds.length + 1)));
 
-resizeToContainer = (plot) => Plotly.relayout(plot.divID, { width: plot.DOMObject.width() });
+pcaMatrixToBar = pca => pca.map(row => row.map(inds => inds.length));
+
+resizeToContainer = (plot) =>
+    Plotly.relayout(plot.divID, { width: plot.DOMObject.width() });

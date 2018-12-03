@@ -1,5 +1,10 @@
-function getMelScatterSpectrogramAsImage(heatmap, xaxisRange, freqMax, duration) {
-    let url = "./mel_spec_image?val=" + Math.random().toString(36).substring(7);
+function getMelScatterSpectrogramAsImage(
+    heatmap,
+    xaxisRange,
+    freqMax,
+    duration
+) {
+    let url = `./mel_spec_image?val=${Math.random().toString(36).substring(7)}`;
     heatmap.drawImage(url, xaxisRange, freqMax, duration);
 }
 
@@ -30,7 +35,12 @@ class ScatterSpectrogram extends PlotlyHeatmap {
 
     clearMarkers() {
         this.markers = [];
-        this.plot = Plotly.newPlot(this.divID, [], this.plotLayout, this.plotOptions);
+        this.plot = Plotly.newPlot(
+            this.divID,
+            [],
+            this.plotLayout,
+            this.plotOptions
+        );
     }
 
     addMarkers(x_marks, y_marks, color) {
@@ -55,7 +65,9 @@ class ScatterSpectrogram extends PlotlyHeatmap {
     // returns TF mel matrix with 1s in all TF bins
     // currently selected
     exportSelectionMask() {
-        let matrix = [...new Array(this.dims[1])].map(() => [... new Array(this.dims[0])].map(() => 0));
+        let matrix = [...new Array(this.dims[1])].map(() =>
+            [...new Array(this.dims[0])].map(() => 0)
+        );
         this.markers.forEach(([x, y]) => { matrix[x][y] = 1 });
         return matrix;
     }
@@ -72,7 +84,7 @@ class ScatterSpectrogram extends PlotlyHeatmap {
         }
     }
 
-    drawImage(url, numTimeBins, durationInSecs, maxFreq) {
+    drawImage(url, numTimeBins, maxFreq, durationInSecs) {
         let [locs, text] = generateTicks(numTimeBins, durationInSecs);
 
         let newLayout = {
@@ -87,23 +99,27 @@ class ScatterSpectrogram extends PlotlyHeatmap {
                 autorange: false
             },
             images: [{
-                "source": url,
-                "xref": "x",
-                "yref": "y",
-                "x": 0,
-                "y": 0,
-                "sizex": numTimeBins,
-                "sizey": maxFreq,
-                "xanchor": "left",
-                "yanchor": "bottom",
-                "sizing": "stretch",
-                "layer": "below"
+                source: url,
+                xref: "x",
+                yref: "y",
+                x: 0,
+                y: 0,
+                sizex: numTimeBins,
+                sizey: maxFreq,
+                xanchor: "left",
+                yanchor: "bottom",
+                sizing: "stretch",
+                layer: "below"
             }]
         };
 
         _.merge(this.plotLayout, newLayout);
 
-        this.plot = Plotly.newPlot(this.divID, [], this.plotLayout, this.plotOptions)
-            .then(() => this.setLoading(false));
+        this.plot = Plotly.newPlot(
+            this.divID,
+            [],
+            this.plotLayout,
+            this.plotOptions
+        ).then(() => this.setLoading(false));
     }
 }

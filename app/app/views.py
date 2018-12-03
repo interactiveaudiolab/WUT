@@ -110,20 +110,39 @@ def initialize(audio_file_data):
 
     # compute and send Deep Clustering PCA visualization and mel spectrogram
     separation_sess.model_type = audio_file_data['radio_selection']
-    model_path = utils.get_deep_clustering_model_path(separation_sess.model_type,
-                                                      base_path=os.path.join(HOME, 'data', 'models'))
-    dc = audio_processing.DeepClusteringWUT(separation_sess.user_signal, separation_sess.user_original_file_folder, model_path)
+    deep_separation_wrapper = audio_processing.DeepSeparationWrapper(
+        separation_sess.user_signal,
+        separation_sess.user_original_file_folder,
+    )
     logger.info('Computing and sending clusters for {}'.format(filename))
 
     # currently kind of ugly hack for mel spectrogram image
-    file_name = '{}_mel_spec.png'.format(separation_sess.user_general_audio.audio_signal_copy.file_name.replace('.', '_'))
-    file_path = os.path.join(separation_sess.user_general_audio.storage_path, file_name)
+    underscored_file_name = (
+        separation_sess
+            .user_general_audio
+            .audio_signal_copy
+            .file_name
+            .replace('.', '_')
+    )
+    file_name = f'{underscored_file_name}_mel_spec.png'
+    file_path = os.path.join(
+        separation_sess.user_general_audio.storage_path,
+        file_name
+    )
+
+    logger.info(f'Saved spectrogram image @ {file_path}')
+
     separation_sess.user_general_audio.mel_spectrogram_image_path = file_path
     save_session(separation_sess)
 
-    socketio.start_background_task(dc.send_deep_clustering_results,
-        **{ 'socket': socketio, 'namespace': WUT_SOCKET_NAMESPACE,
-            'file_path': file_path })
+    socketio.start_background_task(
+        deep_separation_wrapper.send_separation,
+        **{
+            'socket': socketio,
+            'namespace': WUT_SOCKET_NAMESPACE,
+            'file_path': file_path,
+        },
+    )
 
     # Save the session
     save_session(separation_sess)
@@ -237,20 +256,24 @@ def get_action(action_):
 @socketio.on('mask', namespace=WUT_SOCKET_NAMESPACE)
 def generate_mask(mask):
     sess = awaken_session()
-    model_path = utils.get_deep_clustering_model_path(
-        sess.model_type,
-        base_path=os.path.join(HOME, 'data', 'models')
+    deep_separation_wrapper = audio_processing.DeepSeparationWrapper(
+        sess.user_signal,
+        sess.user_original_file_folder,
     )
 
-    dc = audio_processing.DeepClusteringWUT(sess.user_signal, sess.user_original_file_folder, model_path)
+    deep_separation_wrapper.separate()
+    deep_separation_wrapper.generate_mask_from_assignment(mask['mask'])
+    masked = deep_separation_wrapper.apply_mask(mask)
+    inverse = deep_separation_wrapper.apply_mask(mask.invert_mask())
 
-    dc.dc.run()
-    mask = dc.dc.generate_mask(0, mask['mask'])
-    masked = dc.dc.apply_mask(mask)
-    inverse = dc.dc.apply_mask(mask.invert_mask())
-
-    sess.masked_path = os.path.join(sess.user_original_file_folder, 'masked.mp3')
-    sess.inverse_path = os.path.join(sess.user_original_file_folder, 'inverse.mp3')
+    sess.masked_path = os.path.join(
+        sess.user_original_file_folder,
+        'masked.mp3'
+    )
+    sess.inverse_path = os.path.join(
+        sess.user_original_file_folder,
+        'inverse.mp3'
+    )
     save_session(sess)
     masked.write_audio_to_file(sess.masked_path)
     inverse.write_audio_to_file(sess.inverse_path)

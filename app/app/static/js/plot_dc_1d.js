@@ -109,8 +109,12 @@ class DC1DBar {
         this.unselectedTrace.x = arange(0, n, 1);
         this.unselectedTrace.y = zeros(n, 1);
 
-        this.dcBarPlot = Plotly.newPlot(this.barID, [this.unselectedTrace],
-            this.plotLayout, this.plotOptions);
+        this.dcBarPlot = Plotly.newPlot(
+            this.barID,
+            [this.unselectedTrace],
+            this.plotLayout,
+            this.plotOptions,
+        );
 
     }
 
@@ -135,7 +139,12 @@ class DC1DBar {
             let traces = this._makeTraces(this.decisionBoundary);
 
             // Update colors on histogram
-            this.dcBarPlot = Plotly.newPlot(this.barID, traces, this.plotLayout, this.plotOptions);
+            this.dcBarPlot = Plotly.newPlot(
+                this.barID,
+                traces,
+                this.plotLayout,
+                this.plotOptions,
+            );
         }
     }
 
@@ -166,7 +175,9 @@ class DC1DBar {
     processResults() {
         if(!$('#' + this.controlsIDs.applyID).hasClass('disabled')) {
             selectionCounter++;
-            socket.emit('mask', { mask: this.linkedSpec.exportSelectionMask() });
+            socket.emit('mask', {
+                mask: this.linkedSpec.exportSelectionMask()
+            });
         }
     }
 
@@ -185,7 +196,10 @@ class DC1DBar {
 
             let tf_indices = this.TFIndices[y];
             for(let index of tf_indices) {
-                let [spec_x, spec_y] = DC1DBar.getCoordinateFromTFIndex(index, inner_dim);
+                let [spec_x, spec_y] = DC1DBar.getCoordinateFromTFIndex(
+                    index,
+                    inner_dim
+                );
                 new_markers_x.push(spec_x);
                 new_markers_y.push(spec_y);
             }
@@ -213,14 +227,19 @@ class DC1DBar {
     }
 
     static getCoordinateFromTFIndex(index, inner_dim) {
-        return [Math.floor(index / inner_dim), index % inner_dim]
+        return [Math.floor(index / inner_dim), index % inner_dim];
     }
 
     initBar(rawData) {
         this._rawData = sumAlongAxis(rawData, 1);
         let traces = this._makeTraces(this.slider.getValue());
 
-        this.dcBarPlot = Plotly.newPlot(this.barID, traces, this.plotLayout, this.plotOptions);
+        this.dcBarPlot = Plotly.newPlot(
+            this.barID,
+            traces,
+            this.plotLayout,
+            this.plotOptions
+        );
         this.enableTools();
     }
 }
