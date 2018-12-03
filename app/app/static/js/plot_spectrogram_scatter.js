@@ -24,7 +24,7 @@ class ScatterSpectrogram extends PlotlyHeatmap {
         super(divID, isNotSelectable);
         let newLayout = {
             xaxis: { title: "Time (s)" },
-            yaxis: { title: "Frequency (Mel)" },
+            yaxis: { title: "Logarithmic Frequency (hz)" },
             showlegend: false,
         };
 
@@ -54,13 +54,12 @@ class ScatterSpectrogram extends PlotlyHeatmap {
         );
     }
 
-    addMarkers(x_marks, y_marks, color) {
-        let coords = x_marks.map((x, i) => [x, y_marks[i]]);
-        this.markers = this.markers.concat(coords);
+    addMarkers(xMarks, yMarks, color) {
+        this.markers = this.markers.concat(_.zip(xMarks, yMarks));
 
         let data = {
-            x: x_marks,
-            y: y_marks,
+            x: xMarks,
+            y: yMarks,
             type: 'scattergl',
             mode:'markers',
             marker: {
@@ -73,7 +72,7 @@ class ScatterSpectrogram extends PlotlyHeatmap {
         Plotly.addTraces(this.divID, data);
     }
 
-    // returns TF mel matrix with 1s in all TF bins
+    // returns TxF matrix with 1s in all TF bins
     // currently selected
     exportSelectionMask() {
         let matrix = [...new Array(this.dims[1])].map(() =>
@@ -95,6 +94,7 @@ class ScatterSpectrogram extends PlotlyHeatmap {
         }
     }
 
+    // TODO: allow for different max frequency than number of samples?
     drawImage(url, xAxisRange, duration, maxFreq) {
         let [locs, text] = generateTicks(
             xAxisRange,

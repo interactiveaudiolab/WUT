@@ -138,3 +138,14 @@ function convertMatrixToHistogram(
 
 resizeToContainer = (plot) =>
     Plotly.relayout(plot.divID, { width: plot.DOMObject.width() });
+
+
+/**
+ * Add `#` to string if it does not already start with `#`
+ *
+ * @param {string} id - id to add `#` to
+ * @returns {string} given string guaranteed to start with `#`
+ */
+function addPoundToId(id) {
+    return id[0] === '#' ? id : `#${id}`;
+}

@@ -59,16 +59,10 @@ class DeepSeparationWrapper(
     # TODO: this shouldn't really be here
     # not really DeepSeparation specific
     def generate_mask_from_assignments(self, assignments):
-        logger.info(
-            f'spectrogram dimensions: {self._deep_separation.log_spectrogram.shape}'
-        )
-        logger.info(
-            f'assignments dimensions: {len(assignments)}, {len(assignments[0])}'
-        )
-        logger.info(
-            f'assignments inner dimension:\n{assignments[0]}'
-        )
-        return nussl.separation.masks.BinaryMask(np.asarray(assignments))
+        # assignments & embeddings in TF form (`(T, F)` shape)
+        # audio signal (and therefore mask) in FT form (`(F, T)` shape)
+        # hence the `.T`
+        return nussl.separation.masks.BinaryMask(np.asarray(assignments).T)
 
     def apply_mask(self, mask):
         logger.info(f'mask type: {type(mask)}')

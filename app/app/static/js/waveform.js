@@ -1,6 +1,6 @@
 class Waveform {
   constructor(surferContainer, playId, stopId, spinnerId, surferOptions) {
-    this.waveformId = Waveform._addPoundToIds(surferContainer);
+    this.waveformId = addPoundToId(surferContainer);
     let options = surferOptions !== undefined ? surferOptions : {
       waveColor: 'grey',
       progressColor: 'black',
@@ -15,9 +15,11 @@ class Waveform {
     options.container = this.waveformId;
 
     this.surfer = WaveSurfer.create(options);
-    this.playId = Waveform._addPoundToIds(playId);
-    this.stopId = Waveform._addPoundToIds(stopId);
-    this.spinnerId = spinnerId === undefined ? undefined : Waveform._addPoundToIds(spinnerId);
+    this.playId = addPoundToId(playId);
+    this.stopId = addPoundToId(stopId);
+    this.spinnerId = spinnerId === undefined
+      ? undefined
+      : addPoundToId(spinnerId);
 
     $(this.playId).click(() => {
       if (!this.surfer.backend.buffer || $(this.playId).hasClass('disabled')) {
@@ -36,8 +38,6 @@ class Waveform {
   }
 
   _hasSpinner() { return this.spinnerId !== undefined }
-
-  static _addPoundToIds(id) { return id[0] === '#' ? id : `#${id}` }
 
   load(url) { this.surfer.load(url); }
 
@@ -58,7 +58,10 @@ class Waveform {
 
   _togglePlayPauseButton() {
     $(this.playId).find('svg').toggleClass('fa-pause fa-play');
-    $(this.playId).attr('title', `${$(this.playId).attr('title') === 'Play audio' ? 'Pause' : 'Play'} audio`)
+    $(this.playId).attr(
+      'title',
+      `${$(this.playId).attr('title') === 'Play audio' ? 'Pause' : 'Play'} audio`
+    )
   }
 
   clearSurfer() {
@@ -95,7 +98,9 @@ class Waveform {
 
   setLoading(aboutToLoad) {
     if(!this._hasSpinner()) {
-      console.log(`Incorrectly called setLoading on waveform ${this.waveformId} that has no spinner`);
+      console.log(
+        `Incorrectly called setLoading on waveform ${this.waveformId} that has no spinner`
+      );
       return;
     }
 

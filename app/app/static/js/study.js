@@ -73,7 +73,8 @@ $(document).ready(function() {
             dcBar.linkedSpec,
             dcBar.linkedSpec.dims[1],
             mixture_waveform.surfer.backend.getDuration(),
-            100000, // TODO: get actual max frequency here
+            // TODO: get actual max frequency here
+            129,
         );
     });
 

@@ -2,7 +2,6 @@ function _idify(id) {
     return id[0] === '#' ? id.slice(1) : id;
 }
 
-
 class DC1DBar {
     constructor(barID, sliderID, linkedSpecID, controlsIDs) {
         this.barID = _idify(barID);
@@ -73,13 +72,7 @@ class DC1DBar {
                 showgrid: true,
                 fixedrange: true,
                 autorange: true,
-                title: 'Selected'
-            },
-            yaxis2: {
-                ticks: '',
-                showticklabels: false,
-                title: 'Unselected'
-
+                title: '# of time-frequency points in spectrogram'
             },
             margin: {
                 l: 50,
@@ -116,8 +109,15 @@ class DC1DBar {
 
     }
 
+    /**
+     * Partition bar graph into selected and unselected, generating traces
+     * visualizing this partition
+     *
+     * @param {number} decisionBoundary - point along axis at which to partition
+     * @retuns [[Object, Object]} tuple of trace objects to plot
+     */
     _makeTraces(decisionBoundary) {
-        // Partition the data into 'selected' and 'unselected'
+        // partition the data into 'selected' and 'unselected'
         var selectedIdx = arange(0, this._rawData.length, this._rawData.length);
         var unselectedIdx = selectedIdx.splice(0, decisionBoundary);
         var selectedVals = JSON.parse(JSON.stringify(this._rawData));
@@ -131,15 +131,17 @@ class DC1DBar {
         return [this.unselectedTrace, this.selectedTrace];
     }
 
+    /**
+     * Updates selected and unselected partitions based on new slider values
+     *
+     * Recolors graph to display this new selection
+     */
     updateBarGraph() {
         if (this._rawData) {
             this.decisionBoundary = this.slider.getValue();
-            let traces = this._makeTraces(this.decisionBoundary);
-
-            // Update colors on histogram
             this.dcBarPlot = Plotly.newPlot(
                 this.barID,
-                traces,
+                this._makeTraces(this.decisionBoundary),
                 this.plotLayout,
                 this.plotOptions,
             );
@@ -150,8 +152,7 @@ class DC1DBar {
         $('#apply-selections').removeClass('disabled');
 
         if (this._rawData) {
-            // Add markers to linked spectrogram
-            this._drawMarkers('white');
+            this._drawMarkers('white'); // add markers to linked spectrogram
         }
     }
 
@@ -168,8 +169,6 @@ class DC1DBar {
      *     holds an array of spectrogram TF indices corresponding to that bin
      */
     addTFIndices(indices) {
-        // TODO: why?
-        indices = transpose(indices);
         this.TFIndices = indices.map(_.flatten);
     }
 
@@ -184,29 +183,24 @@ class DC1DBar {
 
     _drawMarkers(color) {
         this.linkedSpec.clearMarkers();
-        let y_indices = range(0, this.decisionBoundary);
-        let inner_dim = this.linkedSpec.dims[0];
 
-        let new_markers_x = [];
-        let new_markers_y = [];
+        const newMarkersX = [];
+        const newMarkersY = [];
 
-        for(let y of y_indices) {
-            if (y >= this.TFIndices.length) {
-                continue;
-            }
-
-            let tf_indices = this.TFIndices[y];
-            for(let index of tf_indices) {
-                let [spec_x, spec_y] = DC1DBar.getCoordinateFromTFIndex(
+        for (let indices of _.take(this.TFIndices, this.decisionBoundary)) {
+            for (let index of indices) {
+                let [specX, specY] = DC1DBar.getCoordinateFromTFIndex(
                     index,
-                    inner_dim
+                    this.linkedSpec.dims[0],
                 );
-                new_markers_x.push(spec_x);
-                new_markers_y.push(spec_y);
+
+                newMarkersX.push(specX);
+                newMarkersY.push(specY);
             }
         }
 
-        this.linkedSpec.addMarkers(new_markers_x, new_markers_y, color);
+        // TODO: keep marker coordinates together, then unzip when passing here?
+        this.linkedSpec.addMarkers(newMarkersX, newMarkersY, color);
     }
 
     enableTools() {
