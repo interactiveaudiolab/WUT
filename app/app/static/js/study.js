@@ -66,18 +66,18 @@ $(document).ready(function() {
         dcBar.linkedSpec.setLoading(false);
     });
 
-    socket.on('mel', msg => {
-        console.log('Retrieving Mel spectrogram.');
+    socket.on('spectrogram', msg => {
+        console.log('Retrieving spectrogram.');
         let spec_data = JSON.parse(msg);
         dcBar.linkedSpec.dims = [spec_data.length, spec_data[0].length];
 
         // currently hardcoding in max mel freq
         let durationInSecs = mixture_waveform.surfer.backend.getDuration();
-        getMelScatterSpectrogramAsImage(
+        getSpectrogramAsImage(
             dcBar.linkedSpec,
             dcBar.linkedSpec.dims[1],
             durationInSecs,
-            150,
+            1000, // TODO: get actual max frequency here
         );
     });
 

@@ -74,7 +74,7 @@ class DeepSeparationWrapper(
             namespace=namespace
         )
         socket.emit(
-            'mel',
+            'spectrogram',
             json.dumps(log_spectrogram.tolist()),
             namespace=namespace
         )
