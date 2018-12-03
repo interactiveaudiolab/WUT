@@ -140,12 +140,31 @@ resizeToContainer = (plot) =>
     Plotly.relayout(plot.divID, { width: plot.DOMObject.width() });
 
 
-/**
- * Add `#` to string if it does not already start with `#`
- *
- * @param {string} id - id to add `#` to
- * @returns {string} given string guaranteed to start with `#`
- */
 function addPoundToId(id) {
     return id[0] === '#' ? id : `#${id}`;
+}
+
+
+/**
+ * Prepend DOM element/class/etc. w/ prefix (if it does not already start w/
+ * that prefix)
+ *
+ * TODO: make prefix an enum
+ *
+ * @param {string} name - name of DOM element/class/etc. to prepend with prefix
+ * @param {string} [prefix='#'] - prefix to prepend
+ * @returns {string} given string guaranteed to start with prefix
+ */
+function makeSelector(name, prefix='#') {
+    return name[0] === prefix ? name : `${prefix}${name}`;
+}
+
+/**
+ * Remove prefix from front of string if it starts with prefix
+ *
+ * @param {string} id - id to remove prefix from
+ * @returns {string} given string w/o leading prefix
+ */
+function removeSelector(id, prefix='#') {
+    return id[0] === prefix ? id.slice(1) : id;
 }

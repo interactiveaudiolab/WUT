@@ -9,7 +9,7 @@ class Modal {
     this.id = id;
     this.modalElement = document.getElementById(this.id);
     this.surroundingContainer = document.body;
-    this.cover = document.querySelector(this._makeSelector(cover, '.'));
+    this.cover = document.querySelector(makeSelector(cover, '.'));
     this.generalModalActive = generalModalActive;
     this.active = active;
     this.displayType = displayType || this.modalElement.style.display;
@@ -73,8 +73,6 @@ class Modal {
       document.removeEventListener('touchstart', this.onClick);
     }
   }
-
-  _makeSelector(clss, pref) { return clss[0] === pref ? clss : `${pref}${clss}` }
 
   // makes this a more powerful class
   // also definitely harder to debug/understand

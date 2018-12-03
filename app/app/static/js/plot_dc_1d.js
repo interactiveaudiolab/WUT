@@ -1,33 +1,30 @@
-function _idify(id) {
-    return id[0] === '#' ? id.slice(1) : id;
-}
-
 class DC1DBar {
     constructor(barID, sliderID, linkedSpecID, controlsIDs) {
-        this.barID = _idify(barID);
+        this.barID = removeSelector(barID);
         this.divID = this.barID;
-        this.sliderID = _idify(sliderID);
-        this.linkedSpecID = _idify(linkedSpecID);
+        this.sliderID = removeSelector(sliderID);
+        this.linkedSpecID = removeSelector(linkedSpecID);
         this.linkedSpec = new ScatterSpectrogram(this.linkedSpecID, true);
         this.dcBarPlot = null;
         this.selectionFlipped = false;
         this.logY = false;
         this.decisionBoundary = null;
 
-        // Bind the slider
-        this.slider = $('#' + this.sliderID).slider({
-            formatter: (value) => `Current value: ${value}`,
-        }).on('slideStop',
-            $.proxy(this.updateSpec, this)
-        ).on('slide',
-            $.proxy(this.updateBarGraph, this)
-        ).data('slider');
+        // bind the slider
+        this.slider = $(makeSelector(this.sliderID))
+            .slider({formatter: (value) => `Current value: ${value}`})
+            .on('slide', $.proxy(this.updateBarGraph, this))
+            .on('slideStop', $.proxy(this.updateSpec, this))
+            .data('slider');
 
-        // Bind the controls
+        // bind the controls
         this.controlsIDs = controlsIDs;
-        $('#' + this.controlsIDs.flipID).click($.proxy(this.flipEmbedding, this));
-        $('#' + this.controlsIDs.logYCheck).click($.proxy(this.toggleLogY, this));
-        $('#' + this.controlsIDs.applyID).click($.proxy(this.processResults, this));
+        $(makeSelector(this.controlsIDs.flipID))
+            .click($.proxy(this.flipEmbedding, this));
+        $(makeSelector(this.controlsIDs.logYCheck))
+            .click($.proxy(this.toggleLogY, this));
+        $(makeSelector(this.controlsIDs.applyID))
+            .click($.proxy(this.processResults, this));
 
         this._rawData = null;
 
@@ -173,7 +170,7 @@ class DC1DBar {
     }
 
     processResults() {
-        if(!$('#' + this.controlsIDs.applyID).hasClass('disabled')) {
+        if(!$(addPoundToId(this.controlsIDs.applyID)).hasClass('disabled')) {
             selectionCounter++;
             socket.emit('mask', {
                 mask: this.linkedSpec.exportSelectionMask()
@@ -204,7 +201,8 @@ class DC1DBar {
     }
 
     enableTools() {
-        $('.' + this.controlsIDs.className).removeClass('disabled');
+        $(makeSelector(this.controlsIDs.className, '.'))
+            .removeClass('disabled');
     }
 
     flipEmbedding() {

@@ -1,6 +1,6 @@
 class Waveform {
   constructor(surferContainer, playId, stopId, spinnerId, surferOptions) {
-    this.waveformId = addPoundToId(surferContainer);
+    this.waveformId = makeSelector(surferContainer);
     let options = surferOptions !== undefined ? surferOptions : {
       waveColor: 'grey',
       progressColor: 'black',
@@ -15,11 +15,11 @@ class Waveform {
     options.container = this.waveformId;
 
     this.surfer = WaveSurfer.create(options);
-    this.playId = addPoundToId(playId);
-    this.stopId = addPoundToId(stopId);
+    this.playId = makeSelector(playId);
+    this.stopId = makeSelector(stopId);
     this.spinnerId = spinnerId === undefined
       ? undefined
-      : addPoundToId(spinnerId);
+      : makeSelector(spinnerId);
 
     $(this.playId).click(() => {
       if (!this.surfer.backend.buffer || $(this.playId).hasClass('disabled')) {
