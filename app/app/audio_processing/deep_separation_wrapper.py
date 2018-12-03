@@ -55,10 +55,20 @@ class DeepSeparationWrapper(
     # TODO: this shouldn't really be here
     # not really DeepSeparation specific
     def generate_mask_from_assignments(self, assignments):
-        return nussl.masks.BinaryMask(assignments)
+        logger.info(
+            f'spectrogram dimensions: {self._deep_separation.log_spectrogram.shape}'
+        )
+        logger.info(
+            f'assignments dimensions: {len(assignments)}, {len(assignments[0])}'
+        )
+        logger.info(
+            f'assignments inner dimension:\n{assignments[0]}'
+        )
+        return nussl.separation.masks.BinaryMask(np.asarray(assignments))
 
     def apply_mask(self, mask):
-        return self.deep_separation.apply_mask(mask)
+        logger.info(f'mask type: {type(mask)}')
+        return self._deep_separation.apply_mask(mask)
 
     # remove reliance on user_original_file_folder here
     def send_separation(self, socket, namespace, file_path):
