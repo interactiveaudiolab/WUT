@@ -262,7 +262,7 @@ def generate_mask(mask):
     )
 
     deep_separation_wrapper.separate()
-    deep_separation_wrapper.generate_mask_from_assignment(mask['mask'])
+    mask = deep_separation_wrapper.generate_mask_from_assignments(mask['mask'])
     masked = deep_separation_wrapper.apply_mask(mask)
     inverse = deep_separation_wrapper.apply_mask(mask.invert_mask())
 
