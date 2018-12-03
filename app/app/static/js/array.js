@@ -53,7 +53,7 @@ function add_matrix(mat1, mat2) {
     return result;
 }
 
-function transpose(a) { return a[0].map((col, i) => a.map(row => row[i])); }
+function transpose(a) { return a[0].map((_col, i) => a.map(row => row[i])); }
 
 function sumAlongAxis(arr, axis=0) {
     if (axis > 2) {

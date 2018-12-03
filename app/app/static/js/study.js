@@ -57,15 +57,9 @@ $(document).ready(function() {
     socket.on('bad_file', () => console.log('File rejected by server'));
 
     socket.on('binned_embeddings', function(msg) {
-        console.log('Got PCA data.');
-        let indices = JSON.parse(msg);
-
-        dcBar.addTFIndices(indices);
-        dcBar.initBar(convertMatrixToHistogram(
-            dcPCA.TFIndices,
-            (inds) => inds.length,
-        ));
-
+        // square indices matrix where each coordinate keys to a list of
+        // TF spectrogram indices that correspond to that PCA bin
+        dcBar.initBar(JSON.parse(msg));
         dcBar.linkedSpec.setLoading(false);
     });
 

@@ -155,19 +155,22 @@ class DC1DBar {
         }
     }
 
+    /**
+     * Add embedding indices, converting from nxn matrix of binned embeddings to
+     * bar histogram
+     *
+     * Connverts given embedding indices matrix to an n length array
+     * (number[][]). This array corresponds to the greatest PCA dimension where
+     * each index holds an array of all TF indices belonging to each bin along
+     * the second PCA axis at that first axis point.
+     *
+     * @param {number[][][]} indices - nxn matrix where each coordinate
+     *     holds an array of spectrogram TF indices corresponding to that bin
+     */
     addTFIndices(indices) {
+        // TODO: why?
         indices = transpose(indices);
-        let result = [];
-        for (let i = 0; i < indices.length; i++) {
-            let idxs = [];
-            for (let j = 0; j < indices[0].length; j++) {
-                for (let k = 0; k < indices[i][j].length; k ++) {
-                    idxs.push(indices[i][j][k]);
-                }
-            }
-            result.push(idxs);
-        }
-        this.TFIndices = result;
+        this.TFIndices = indices.map(_.flatten);
     }
 
     processResults() {
@@ -228,8 +231,16 @@ class DC1DBar {
         return [Math.floor(index / inner_dim), index % inner_dim];
     }
 
-    initBar(rawData) {
-        this._rawData = sumAlongAxis(rawData, 1);
+    /**
+     * Initializes bar by massaging & plotting data, and enabling interactive
+     * tools
+     *
+     * @param {number[][][]} indices - nxn matrix where each coordinate
+     *     holds an array of spectrogram TF indices corresponding to that bin
+     */
+    initBar(indices) {
+        this.addTFIndices(indices);
+        this._rawData = this.TFIndices.map(inds => inds.length);
         let traces = this._makeTraces(this.slider.getValue());
 
         this.dcBarPlot = Plotly.newPlot(
@@ -238,6 +249,7 @@ class DC1DBar {
             this.plotLayout,
             this.plotOptions
         );
+
         this.enableTools();
     }
 }
