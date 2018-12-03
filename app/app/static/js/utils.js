@@ -60,19 +60,54 @@ function findClosestIndexInSortedArray(sortedArray, target) {
     return i;
 }
 
-function generateTicks(xaxisRange, duration) {
-    // choose ~200px as spacing between ticks
-    let prelimNumTicks = Math.floor(xaxisRange / 100);
-    let timeSpacing = Math.floor(duration / prelimNumTicks);
 
-    // number of whole number spacings in time domain that fit
-    let actualNumTicks = Math.floor(duration / timeSpacing);
 
-    let tickVals = [...new Array(actualNumTicks)].map((_, i) => i*timeSpacing);
-    let tickLocs = tickVals.map(val => Math.floor(xaxisRange * (val/duration)));
-    let tickText = tickVals.map(val => val.toString());
+/**
+ * Generate tick labels associated with points along graph axis
+ *
+ * @param {Object} spectrogram - the spectrogram to redraw with the new
+ *     background
+ * @param {number} axisMax - max real x-axis value (a time axis might have 50
+ *     (this value) points over a duration of 2 seconds for instance)
+ * @param {number} tickMax - max value for tick labels (currently labels must be
+ *     numbers)
+ * @param {number} divDimension - length or width of div to generate ticks for
+ * @param {number} [pixelSpacing=200] - spacing between labels, in px
+ * @returns {[number[], string[]]} corresponding arrays of tick locations and
+ *     labels
+ *
+ * TODO: make responsive? redraw ticks when redrawing rest of div?
+ * TODO: confirm that behavior has not been recreated in plotly.js library
+ * TODO: make maxAxis a range instead for potentially non-zero starting values?
+ */
+function generateTicks(axisMax, tickMax, divDimension, pixelSpacing=200) {
+    if (pixelSpacing > divDimension) {
+        return [
+            [0, axisMax],
+            ['0', tickMax.toFixed(2)] // assumes labels start at 0
+        ]
+    }
 
-    return [tickLocs, tickText];
+    // calculate number of ticks ($x$ internal ticks + 2 endpoint ticks)
+    const numTicks = Math.floor(divDimension / pixelSpacing) + 2;
+
+    // calculate number of ticks to have spacing align with endpoints
+    const numTicksForSpacing = numTicks - 1;
+
+    // calculate distance between ticks in label units (e.g. .66 for 2 internal
+    // ticks w/ graph of signal of duration 2 seconds along time axis)
+    const labelSpacing = tickMax / numTicksForSpacing;
+
+    // calculate distance between ticks in axis units (e.g. 40 for 2 internal
+    // ticks w/ graph of 120 points along given axis)
+    const tickSpacing = Math.floor(axisMax / numTicksForSpacing);
+
+    const tickLocs = [...new Array(numTicks)].map((_, i) => i*tickSpacing);
+    const tickLabels = tickLocs
+        .map((_, i) => i*labelSpacing)
+        .map(l => l.toFixed(3));
+
+    return [tickLocs, tickLabels];
 }
 
 // converts matrix of index lists to matrix of density values for plotting

@@ -1,11 +1,22 @@
-function getMelScatterSpectrogramAsImage(
-    heatmap,
-    xaxisRange,
+/**
+ * Redraw plot of given spectrogram with background image & appropriate axes
+ *
+ * @param {Object} spectrogram - the spectrogram to redraw with the new
+ *     background
+ * @param {number} xAxisRange - ?
+ * @param {number} duration -
+ * @param {number} freqMax -
+ *
+ * TODO: rename/refactor - this doesn't really get as it doesn't return anything
+ */
+function getSpectrogramAsImage(
+    spectrogram,
+    xAxisRange,
+    duration,
     freqMax,
-    duration
 ) {
     let url = `./mel_spec_image?val=${Math.random().toString(36).substring(7)}`;
-    heatmap.drawImage(url, xaxisRange, freqMax, duration);
+    spectrogram.drawImage(url, xAxisRange, duration, freqMax);
 }
 
 class ScatterSpectrogram extends PlotlyHeatmap {
@@ -84,12 +95,19 @@ class ScatterSpectrogram extends PlotlyHeatmap {
         }
     }
 
-    drawImage(url, numTimeBins, maxFreq, durationInSecs) {
-        let [locs, text] = generateTicks(numTimeBins, durationInSecs);
+    drawImage(url, xAxisRange, duration, maxFreq) {
+        let [locs, text] = generateTicks(
+            xAxisRange,
+            duration,
+            // width of div w/o borders
+            // ref - https://stackoverflow.com/questions/4787527/how-to-find-the-width-of-a-div-using-raw-javascript
+            // ref - https://stackoverflow.com/questions/21064101/understanding-offsetwidth-clientwidth-scrollwidth-and-height-respectively
+            document.getElementById(this.divID).clientWidth,
+        );
 
         let newLayout = {
             xaxis: {
-                range: [0.0, numTimeBins],
+                range: [0.0, xAxisRange],
                 tickmode: 'array',
                 tickvals: locs,
                 ticktext: text
@@ -104,7 +122,7 @@ class ScatterSpectrogram extends PlotlyHeatmap {
                 yref: "y",
                 x: 0,
                 y: 0,
-                sizex: numTimeBins,
+                sizex: xAxisRange,
                 sizey: maxFreq,
                 xanchor: "left",
                 yanchor: "bottom",

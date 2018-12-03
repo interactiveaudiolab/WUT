@@ -23,15 +23,20 @@ mixture_audio_file.upload_to_server = function (obj) {
             'file_type': file.type,
             'file_data': file
         };
-        socket.compress(true).emit('audio_upload', {'audio_file': file_with_metadata});
+        socket.compress(true).emit('audio_upload', {
+            'audio_file': file_with_metadata
+        });
     } else {
         socket.emit('audio_upload', {'audio_file': null});
     }
 };
 
 function get_audio_data () {
-    if (bufferLoader === null || bufferLoader.bufferList === null
-        || bufferLoader.bufferList[0] === null) {
+    if (
+        bufferLoader === null
+        || bufferLoader.bufferList === null
+        || bufferLoader.bufferList[0] === null
+    ) {
         return -1;
     }
 
