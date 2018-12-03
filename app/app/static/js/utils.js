@@ -110,11 +110,31 @@ function generateTicks(axisMax, tickMax, divDimension, pixelSpacing=200) {
     return [tickLocs, tickLabels];
 }
 
-// converts matrix of index lists to matrix of density values for plotting
-pcaMatrixToHistogram = pca =>
-    pca.map(row => row.map(inds => Math.log(inds.length + 1)));
+/**
+ * Generate a density measure given a list of indices
+ *
+ * @name histogramConversion
+ * @function
+ * @param {number[]} indices - TF indices corresponding to spectrogram points
+ * @returns {number} histogram density measure
+ */
 
-pcaMatrixToBar = pca => pca.map(row => row.map(inds => inds.length));
+/**
+ * Map a conversion function over a 2D PCA matrix
+ *
+ * @param {number[][][]} - a 2D matrix where each coordinate holds a list of
+ *     numbers corresponding to the TF indices of the spectrogram which belong
+ *     to that PCA bin
+ * @param {histogramConversion} [converter] - generates a density measure for each
+ *     coordinate
+ * @returns {number[][]} generated histogram
+ */
+function convertMatrixToHistogram(
+    pca,
+    converter = (inds) => Math.log(inds.length + 1)
+) {
+    return pca.map(row => row.map(converter));
+}
 
 resizeToContainer = (plot) =>
     Plotly.relayout(plot.divID, { width: plot.DOMObject.width() });

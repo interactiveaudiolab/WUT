@@ -58,12 +58,15 @@ $(document).ready(function() {
         let indices = JSON.parse(msg);
 
         dcPCA.addTFIndices(indices);
-        let hist = pcaMatrixToHistogram(dcPCA.TFIndices);
+        let hist = convertMatrixToHistogram(dcPCA.TFIndices);
 
         // pca of size 100 x 100
         make_pca(dcPCA, hist, 100, 100);
         dcBar.addTFIndices(indices);
-        dcBar.initBar(pcaMatrixToBar(dcPCA.TFIndices));
+        dcBar.initBar(convertMatrixToHistogram(
+            dcPCA.TFIndices,
+            (inds) => inds.length,
+        ));
 
         dcSpectrogram.setLoading(false);
         dcBar.linkedSpec.setLoading(false);

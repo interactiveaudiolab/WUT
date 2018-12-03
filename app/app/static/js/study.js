@@ -61,7 +61,10 @@ $(document).ready(function() {
         let indices = JSON.parse(msg);
 
         dcBar.addTFIndices(indices);
-        dcBar.initBar(pcaMatrixToBar(indices));
+        dcBar.initBar(convertMatrixToHistogram(
+            dcPCA.TFIndices,
+            (inds) => inds.length,
+        ));
 
         dcBar.linkedSpec.setLoading(false);
     });
