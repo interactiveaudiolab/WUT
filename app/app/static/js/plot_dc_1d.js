@@ -17,9 +17,7 @@ class DC1DBar {
 
         // Bind the slider
         this.slider = $('#' + this.sliderID).slider({
-            formatter: function(value) {
-                return 'Current value: ' + value;
-            }
+            formatter: (value) => `Current value: ${value}`,
         }).on('slideStop',
             $.proxy(this.updateSpec, this)
         ).on('slide',

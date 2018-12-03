@@ -39,17 +39,17 @@ var colorDict = {
     green: {
         line: 'rgba(0, 255, 0, 1)',
         fill: 'rgba(0, 255, 0, 0.35)',
-    }
+    },
 };
 
 $(document).ready(function() {
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
-    online = new AudioContext();
-
-    context = online;
+    context = new AudioContext();
 
     socket_namespace = '/wut';
-    socket = io.connect(`${location.protocol}//${document.domain}:${location.port}${socket_namespace}`);
+    socket = io.connect(
+        `${location.protocol}//${document.domain}:${location.port}${socket_namespace}`
+    );
 
     socket.on('connect', () => console.log('Socket connected'));
     socket.on('disconnect', why => console.log(`Socket disconnected: ${why}`));
@@ -71,29 +71,28 @@ $(document).ready(function() {
 
     socket.on('spectrogram', msg => {
         console.log('Retrieving spectrogram.');
-        let spec_data = JSON.parse(msg);
+        const spec_data = JSON.parse(msg);
         dcBar.linkedSpec.dims = [spec_data.length, spec_data[0].length];
 
         // currently hardcoding in max mel freq
-        let durationInSecs = mixture_waveform.surfer.backend.getDuration();
         getSpectrogramAsImage(
             dcBar.linkedSpec,
             dcBar.linkedSpec.dims[1],
-            durationInSecs,
-            1000, // TODO: get actual max frequency here
+            mixture_waveform.surfer.backend.getDuration(),
+            100000, // TODO: get actual max frequency here
         );
     });
 
     socket.on('masked_audio', function(message) {
         masked_waveform.load(
             `./get_masked_audio?val=${Math.random().toString(36).substring(7)}`
-        )
+        );
     });
 
     socket.on('inverse_audio', function(message) {
         inverse_waveform.load(
             `./get_inverse_audio?val=${Math.random().toString(36).substring(7)}`
-        )
+        );
     });
 });
 
@@ -106,11 +105,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 function relayoutPlots() {
-    Plotly.relayout(dcBar.divID, { width:  dcBar.DOMObject.width() });
-    Plotly.relayout(
-        dcBar.linkedSpec.divID,
-        { width: dcBar.linkedSpec.DOMObject.width() }
-    );
+    Plotly.relayout(dcBar.divID, {
+        width: dcBar.DOMObject.width(),
+    });
+    Plotly.relayout(dcBar.linkedSpec.divID, {
+        width: dcBar.linkedSpec.DOMObject.width(),
+    });
 }
 
 // resize plots on window change

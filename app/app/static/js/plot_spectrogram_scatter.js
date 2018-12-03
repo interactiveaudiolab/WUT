@@ -3,9 +3,9 @@
  *
  * @param {Object} spectrogram - the spectrogram to redraw with the new
  *     background
- * @param {number} xAxisRange - ?
- * @param {number} duration -
- * @param {number} freqMax -
+ * @param {number} xAxisRange - number of samples along x axis
+ * @param {number} duration - duration of signal in seconds
+ * @param {number} freqMax - max frequency of signal
  *
  * TODO: rename/refactor - this doesn't really get as it doesn't return anything
  */
@@ -25,7 +25,7 @@ class ScatterSpectrogram extends PlotlyHeatmap {
         let newLayout = {
             xaxis: { title: "Time (s)" },
             yaxis: { title: "Frequency (Mel)" },
-            showlegend: false
+            showlegend: false,
         };
 
         // merges super and child layouts
@@ -50,7 +50,7 @@ class ScatterSpectrogram extends PlotlyHeatmap {
             this.divID,
             [],
             this.plotLayout,
-            this.plotOptions
+            this.plotOptions,
         );
     }
 
@@ -66,8 +66,8 @@ class ScatterSpectrogram extends PlotlyHeatmap {
             marker: {
                 size: 2,
                 color: color !== undefined ? color : '#ffffff',
-                opacity: 1
-            }
+                opacity: 1,
+            },
         };
 
         Plotly.addTraces(this.divID, data);
@@ -110,11 +110,11 @@ class ScatterSpectrogram extends PlotlyHeatmap {
                 range: [0.0, xAxisRange],
                 tickmode: 'array',
                 tickvals: locs,
-                ticktext: text
+                ticktext: text,
             },
             yaxis: {
                 range: [0.0, maxFreq],
-                autorange: false
+                autorange: false,
             },
             images: [{
                 source: url,
@@ -127,8 +127,8 @@ class ScatterSpectrogram extends PlotlyHeatmap {
                 xanchor: "left",
                 yanchor: "bottom",
                 sizing: "stretch",
-                layer: "below"
-            }]
+                layer: "below",
+            }],
         };
 
         _.merge(this.plotLayout, newLayout);
@@ -137,7 +137,7 @@ class ScatterSpectrogram extends PlotlyHeatmap {
             this.divID,
             [],
             this.plotLayout,
-            this.plotOptions
+            this.plotOptions,
         ).then(() => this.setLoading(false));
     }
 }
