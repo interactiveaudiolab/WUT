@@ -108,11 +108,20 @@ def initialize(audio_file_data):
     separation_sess.user_general_audio.spectrogram_image()
     save_session(separation_sess)
 
+    # TODO: put this somewhere else, `constants.py`?
+    model_name_to_model_path = {
+        'speech': 'speech_wsj8k.pth',
+    }
+
     # compute and send Deep Clustering PCA visualization and mel spectrogram
-    separation_sess.model_type = audio_file_data['radio_selection']
+    separation_sess.model_path = model_name_to_model_path[
+        audio_file_data['radio_selection'].lower()
+    ]
+
     deep_separation_wrapper = audio_processing.DeepSeparationWrapper(
         separation_sess.user_signal,
         separation_sess.user_original_file_folder,
+        model_path=separation_sess.model_path,
     )
     logger.info('Computing and sending clusters for {}'.format(filename))
 

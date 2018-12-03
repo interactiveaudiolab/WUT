@@ -52,7 +52,7 @@ class SeparationSession(object):
         self.time_of_init = None
         self._action_queue = deque()
         self.user_goals = []
-        self.model_type = None
+        self.model_path = None
 
         if not from_json:
             # Set up a session ID and store it
