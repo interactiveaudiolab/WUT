@@ -1,7 +1,3 @@
-# coding=utf-8
-"""
-Deep Clustering tasks in here
-"""
 import json
 import logging
 
@@ -21,44 +17,72 @@ import inspect
 logger = logging.getLogger()
 
 
-class DeepClusteringWUT(audio_processing_base.InteractiveAudioProcessingBase):
+class DeepSeparationWrapper(
+    audio_processing_base.InteractiveAudioProcessingBase
+):
     """
 
     """
 
-    def __init__(self, mixture_signal, storage_path,
-                 model_path='~/data/models/deep_clustering_vocal_44k_long.model',
-                 hidden_size=500,
-                 resample_rate=44100,
-                 num_layers=4):
+    def __init__(
+        self,
+        mixture_signal,
+        storage_path,
+        model_path='speech_wsj8k.pth'
+    ):
+        super(DeepSeparationWrapper, self).__init__(
+            mixture_signal,
+            storage_path,
+        )
+        mixture_signal.to_mono()
+        self._deep_separation = nussl.DeepSeparation(
+            mixture_signal,
+            num_sources=2,
+            mask_type='soft',
+            model_path=nussl.efz_utils.download_trained_model(model_path)
+        )
 
-        super(DeepClusteringWUT, self).__init__(mixture_signal, storage_path)
-        model_path = nussl.efz_utils.download_trained_model('deep_clustering_vocals_44k_long.model')
+    def separate(self):
+        self._deep_separation.run()
 
-        self.dc = nussl.DeepClustering(mixture_signal, model_path=model_path, num_sources=2,
-                                       cutoff=-80, hidden_size=hidden_size, num_layers=num_layers,
-                                       resample_rate=resample_rate, do_mono=True,
-                                       use_librosa_stft=True)
+    def get_embeddings_and_spectrogram(self):
+        self.separate()
+        return (
+            self._deep_separation.project_embeddings(2),
+            self._deep_separation.log_spectrogram
+        )
 
-    def perform_deep_clustering(self):
-        self.dc.run()
-        return self.dc.project_embeddings(2), self.dc.mel_spectrogram
+    # TODO: this shouldn't really be here
+    # not really DeepSeparation specific
+    def generate_mask_from_assignments(self, assignments):
+        return nussl.masks.BinaryMask(assignments)
+
+    def apply_mask(self, mask):
+        return self.deep_separation.apply_mask(mask)
 
     # remove reliance on user_original_file_folder here
-    def send_deep_clustering_results(self, socket, namespace, file_path):
-        dc_results = self.perform_deep_clustering()
-        binned_embeddings, mel = self._massage_data(dc_results)
+    def send_separation(self, socket, namespace, file_path):
+        binned_embeddings, log_spectrogram = self._massage_data(
+            self.get_embeddings_and_spectrogram()
+        )
 
-        self._save_mel_image(mel, file_path)
-        # binned_embeddings = np.array(binned_embeddings, dtype=int).tolist()
+        self._save_spectrogram_image(log_spectrogram, file_path)
 
-        socket.emit('binned_embeddings', json.dumps(binned_embeddings), namespace=namespace)
-        socket.emit('mel', json.dumps(mel.tolist()), namespace=namespace)
+        socket.emit(
+            'binned_embeddings',
+            json.dumps(binned_embeddings),
+            namespace=namespace
+        )
+        socket.emit(
+            'mel',
+            json.dumps(log_spectrogram.tolist()),
+            namespace=namespace
+        )
 
-        logger.info('Sent Deep Clustering for {}'.format(self.user_audio_signal.file_name))
+        logger.info(f'Sent separation for {self.user_audio_signal.file_name}')
 
     @staticmethod
-    def _save_mel_image(data, file_path):
+    def _save_spectrogram_image(data, file_path):
         # duplicating of functionality, don't do this in production
         w, h = 28, 12
 
@@ -75,10 +99,6 @@ class DeepClusteringWUT(audio_processing_base.InteractiveAudioProcessingBase):
         fig.savefig(file_path, dpi=80)
 
         return file_path
-
-    def make_mask(self, selections):
-        # TODO: Make a mask here from deep clustering results
-        pass
 
     # UTILITIES BELOW HERE
 
@@ -100,7 +120,7 @@ class DeepClusteringWUT(audio_processing_base.InteractiveAudioProcessingBase):
         binned = self._bin_matrix(scaled, self._make_square_matrix(dim + 1))
 
         # transpose mel
-        mel = mel[0].T
+        mel = mel[:,:,0]
 
         return binned, mel
 
