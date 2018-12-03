@@ -65,7 +65,6 @@ class DeepSeparationWrapper(
         return nussl.separation.masks.BinaryMask(np.asarray(assignments).T)
 
     def apply_mask(self, mask):
-        logger.info(f'mask type: {type(mask)}')
         return self._deep_separation.apply_mask(mask)
 
     # remove reliance on user_original_file_folder here
@@ -110,18 +109,21 @@ class DeepSeparationWrapper(
 
     # UTILITIES BELOW HERE
 
-    def _massage_data(self, pca, mel):
+    def _massage_data(self, pca, spectrogram):
         """Scale and bin PCA points"""
-
         binned = self._bin_matrix(
-            self._scale_pca(pca, self.PCA_dimension - 1),
-            self._make_square_matrix(self.PCA_dimension)
+            self._scale_pca(
+                pca,
+                self.PCA_dimension - 1,
+            ),
+            self._make_square_matrix(self.PCA_dimension),
+            spectrogram,
         )
 
         # TODO: handle mutlichannel audio, currently just taking first channel
-        mel = mel[:,:,0]
+        spectrogram = spectrogram[:,:,0]
 
-        return binned, mel
+        return binned, spectrogram
 
     @staticmethod
     def _scale_num(num, _min, _max, scaled_min, scaled_max):
@@ -184,9 +186,11 @@ class DeepSeparationWrapper(
         return [[[] for x in range(dim)] for y in range(dim)]
 
     @staticmethod
-    def _bin_matrix(scaled_tf, matrix):
+    def _bin_matrix(scaled_tf, matrix, spectrogram):
         """Given scaled Zx2 array, bins indices of coordinates"""
+        inner_dim = spectrogram.shape[0]
         for index, (x, y) in enumerate(scaled_tf):
-            matrix[x][y].append(index)
+            if spectrogram[index % inner_dim][index // inner_dim][0] > -40:
+                matrix[x][y].append(index)
 
         return matrix
