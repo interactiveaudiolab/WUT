@@ -283,7 +283,7 @@ class Track {
                 return;
             }
 
-            requestAnimationFrame($.proxy(() => this._animateCursor(), this));
+            requestAnimationFrame(() => this._animateCursor());
         }
     }
 

@@ -13,18 +13,18 @@ class DC1DBar {
         // bind the slider
         this.slider = $(makeSelector(this.sliderID))
             .slider({formatter: (value) => `Current value: ${value}`})
-            .on('slide', $.proxy(this.updateBarGraph, this))
-            .on('slideStop', $.proxy(this.updateSpec, this))
+            .on('slide', () => this.updateBarGraph())
+            .on('slideStop', () => this.updateSpec())
             .data('slider');
 
         // bind the controls
         this.controlsIDs = controlsIDs;
         $(makeSelector(this.controlsIDs.flipID))
-            .click($.proxy(this.flipEmbedding, this));
+            .click(() => this.flipEmbedding());
         $(makeSelector(this.controlsIDs.logYCheck))
-            .click($.proxy(this.toggleLogY, this));
+            .click(() => this.toggleLogY());
         $(makeSelector(this.controlsIDs.applyID))
-            .click($.proxy(this.processResults, this));
+            .click(() => this.processResults());
 
         this._rawData = null;
 
