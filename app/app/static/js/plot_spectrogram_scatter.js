@@ -46,7 +46,7 @@ class ScatterSpectrogram extends PlotlyHeatmap {
 
     clearMarkers() {
         this.markers = [];
-        this.plot = Plotly.newPlot(
+        this.plot = Plotly.react(
             this.divID,
             [],
             this.plotLayout,
