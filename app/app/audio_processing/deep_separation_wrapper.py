@@ -100,8 +100,12 @@ class DeepSeparationWrapper(
         ax.set_axis_off()
         fig.add_axes(ax)
 
-        img = ax.imshow(data, interpolation='nearest', aspect='auto')
-        img.set_cmap('plasma')
+        img = ax.imshow(
+            data,
+            interpolation='nearest',
+            aspect='auto',
+            cmap='Greys',
+        )
         ax.invert_yaxis()
         fig.savefig(file_path, dpi=80)
 

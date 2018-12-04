@@ -149,7 +149,7 @@ class DC1DBar {
         $('#apply-selections').removeClass('disabled');
 
         if (this._rawData) {
-            this._drawMarkers('white'); // add markers to linked spectrogram
+            this._drawMarkers('blue'); // add markers to linked spectrogram
         }
     }
 
