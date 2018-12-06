@@ -91,14 +91,6 @@ $(document).ready(function() {
     });
 });
 
-document.addEventListener('DOMContentLoaded', function () {
-    $('#open-modal').modal({
-        backdrop: 'static',
-        keyboard: false
-    });
-});
-
-
 function relayoutPlots() {
     Plotly.relayout(dcBar.divID, {
         width: dcBar.DOMObject.width(),
