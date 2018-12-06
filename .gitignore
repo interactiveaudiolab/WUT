@@ -75,3 +75,4 @@ target/
 *.rdb
 # Nathan
 toy_data.p
+audio/
