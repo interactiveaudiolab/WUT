@@ -136,7 +136,7 @@ class DC1DBar {
     updateBarGraph() {
         if (this._rawData) {
             this.decisionBoundary = this.slider.getValue();
-            this.dcBarPlot = Plotly.newPlot(
+            this.dcBarPlot = Plotly.react(
                 this.barID,
                 this._makeTraces(this.decisionBoundary),
                 this.plotLayout,
@@ -233,14 +233,8 @@ class DC1DBar {
     initBar(indices) {
         this.addTFIndices(indices);
         this._rawData = this.TFIndices.map(inds => inds.length);
-        let traces = this._makeTraces(this.slider.getValue());
 
-        this.dcBarPlot = Plotly.newPlot(
-            this.barID,
-            traces,
-            this.plotLayout,
-            this.plotOptions
-        );
+        this.updateBarGraph();
 
         this.enableTools();
     }

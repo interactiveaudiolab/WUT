@@ -138,6 +138,11 @@ class ScatterSpectrogram extends PlotlyHeatmap {
             [],
             this.plotLayout,
             this.plotOptions,
-        ).then(() => this.setLoading(false));
+        ).then(() => {
+            this.setLoading(false);
+            // hacky time dependent interaction between spectrogram and hist
+            // TODO: remove this
+            dcBar.updateSpec();
+        });
     }
 }
