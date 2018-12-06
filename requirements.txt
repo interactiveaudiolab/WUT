@@ -38,6 +38,8 @@ simplejson==3.16.0
 six==1.11.0
 SoundFile==0.10.2
 stempeg==0.1.4
-torch==0.4.1
+torch==0.4.1; sys_platform == 'linux'
+torch==0.4.1; sys_platform == 'darwin'
+http://download.pytorch.org/whl/cu90/torch-0.4.1-cp36-cp36m-win_amd64.whl; sys_platform == 'win32'
 tqdm==4.28.1
 Werkzeug==0.14.1
