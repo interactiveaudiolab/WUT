@@ -11,7 +11,7 @@ import scipy.ndimage
 import matplotlib.pyplot as plt
 
 import sys
-sys.path.insert(0, '../../nussl')
+sys.path.insert(0, '../nussl')
 import nussl
 
 from . import selection

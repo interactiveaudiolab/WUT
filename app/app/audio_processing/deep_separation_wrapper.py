@@ -11,7 +11,7 @@ from . import audio_processing_base
 from . import annotation_dataset
 
 import sys
-sys.path.insert(0, '../../nussl')
+sys.path.insert(0, '../nussl')
 import nussl
 import inspect
 

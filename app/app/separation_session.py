@@ -24,7 +24,7 @@ from pickle import Unpickler
 
 
 import sys
-sys.path.insert(0, '../../nussl')
+sys.path.insert(0, '../nussl')
 
 import nussl
 

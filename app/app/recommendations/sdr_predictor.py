@@ -7,7 +7,7 @@ import threading
 import numpy as np
 
 import sys
-sys.path.insert(0, '../../nussl')
+sys.path.insert(0, '../nussl')
 import nussl
 
 from .. import utils
