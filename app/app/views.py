@@ -20,7 +20,7 @@ from . import separation_session
 from .config import ALLOWED_EXTENSIONS
 
 import sys
-sys.path.insert(0, '../../experiments/code')
+sys.path.insert(0, '../experiments/code')
 from trainer import Trainer
 
 DEBUG = True
