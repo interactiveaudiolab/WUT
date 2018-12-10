@@ -47,11 +47,6 @@ class AnnotationDataset(Dataset):
         self.magnitude_spectrogram = magnitude_spectrogram
         self.assignments = assignments
         self.weights = self.magnitude_weights(self.magnitude_spectrogram)
-        print(f'magnitude_spectrogram type, shape: {type(self.magnitude_spectrogram)}, {self.magnitude_spectrogram.shape}')
-        print(f'self.log_spectrogram type, shape: {type(self.log_spectrogram)}, {self.log_spectrogram.shape}')
-        print(f'assignments type, shape: {type(self.assignments)}, {self.assignments.shape}')
-        print(f'weights type, shape: {type(self.weights)}, {self.weights.shape}')
-        print(f'options: {self.options}')
 
         """
         log_spectrogram, mix_stft, _ = self.transform(
