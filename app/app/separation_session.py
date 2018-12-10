@@ -53,6 +53,7 @@ class SeparationSession(object):
         self._action_queue = deque()
         self.user_goals = []
         self.model_path = None
+        self.deep_separation_wrapper = None
 
         if not from_json:
             # Set up a session ID and store it
@@ -154,8 +155,23 @@ class SeparationSession(object):
             self.user_general_audio.audio_signal_copy = action_object.apply_action(target)
 
     def to_json(self):
-        return jsonpickle.encode(self)
+        # TODO: remove hack here
+        # TODO: avoid deepcopy? surprisingly not as slow as I would have thought
+        # TODO: use byte stream?
+        # https://pytorch.org/docs/stable/torch.html?highlight=save#torch.save
+        sess = copy.deepcopy(self)
+        if sess.deep_separation_wrapper:
+            sess.deep_separation_wrapper._deep_separation.model = None
+        return jsonpickle.encode(sess)
 
     @staticmethod
     def from_json(json_string):
-        return jsonpickle.decode(json_string)
+        sess = jsonpickle.decode(json_string)
+
+        # TODO: remove hack here too 
+        if sess.deep_separation_wrapper:
+            model, _ = sess.deep_separation_wrapper._deep_separation.load_model(
+                sess.deep_separation_wrapper._deep_separation.model_path
+            )
+            sess.deep_separation_wrapper._deep_separation.model = model
+        return sess
