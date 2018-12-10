@@ -19,6 +19,10 @@ from .app_obj import app_, socketio, redis_store
 from . import separation_session
 from .config import ALLOWED_EXTENSIONS
 
+import sys
+sys.path.insert(0, '../../experiments/code')
+from retrainer import Retrainer
+
 DEBUG = True
 
 logger = logging.getLogger()
@@ -262,12 +266,22 @@ def get_action(action_):
     sess.push_action(action_dict)
     save_session(sess)
 
+@socketio.on('retrain', namespace=WUT_SOCKET_NAMESPACE)
+def retrain(mask):
+    sess = awaken_session()
+    sess.deep_separation_wrapper.get_model_and_metadata(),
+    retrainer = Retrainer(
+        os.path.expanduser("~/projects/wut/retrain_output"),
+        sess.deep_separation_wrapper.build_annotation_dataset(mask['mask']),
+        model,
+        metadata,
+    )
+
 @socketio.on('mask', namespace=WUT_SOCKET_NAMESPACE)
 def generate_mask(mask):
     sess = awaken_session()
 
     sess.deep_separation_wrapper.separate()
-    # sess.deep_separation_wrapper.build_annotation_dataset(mask['mask'])
     mask = sess.deep_separation_wrapper.generate_mask_from_assignments(
         mask['mask']
     )
