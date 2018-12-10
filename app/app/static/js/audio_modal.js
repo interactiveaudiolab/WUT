@@ -86,9 +86,11 @@ document.getElementById('audio-upload-modal-begin').addEventListener('click', ev
 
       mixture_waveform.load(URL.createObjectURL(audio_file));
       // UI
+      // index
       $('.shared-spectrogram-spinner').hide();
       $('#spectrogram-spinner').show();
 
+      // study
       $('.shared-plots-spinner').hide();
       $('#plots-spinner').show().css('display', 'flex');
 

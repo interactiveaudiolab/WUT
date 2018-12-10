@@ -132,6 +132,9 @@ $('#apply-selections').click(function(){
 $('#retrain').click(function(){
     // probably a better way to check this in the future
     if(!$('#retrain').hasClass('disabled')) {
+        $('.shared-plots-spinner').hide();
+        $('#plots-spinner').show().css('display', 'flex');
+
         // TODO: indicate retraining occurring
         socket.emit('retrain', { mask: dcBar.linkedSpec.exportSelectionMask() });
     }
