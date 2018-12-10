@@ -295,7 +295,10 @@ def retrain(mask):
         '~/.nussl/models/retrained.pth'
     )
     """
-    sess.deep_separation_wrapper.model_path = retrainer.save(False)
+    sess.deep_separation_wrapper.model_path = retrainer.save(
+        False,
+        os.path.expanduser('~/.tussl/models'),
+    )
     logger.info(f'model_path: {sess.deep_separation_wrapper.model_path}')
     sess.deep_separation_wrapper.set_model(
         sess.deep_separation_wrapper.model_path
