@@ -781,7 +781,7 @@ body.modal-ready,
 }
 
 /* overwrite button color on apply-selections button ("Hear Results") button */
-#apply-selections {
+#apply-selections, #retrain {
   background: blueviolet;
   border: blueviolet;
 }

@@ -115,7 +115,7 @@ $(window).resize(_.debounce(function(){
     inverse_waveform.resizeWaveform();
 }, 500));
 
-//  ~~~~~~~~~~~~~ Apply Selections button ~~~~~~~~~~~~~
+//  ~~~~~~~~~~~~~ Hear Results button ~~~~~~~~~~~~~
 
 $('#apply-selections').click(function(){
     // probably a better way to check this in the future
@@ -124,5 +124,15 @@ $('#apply-selections').click(function(){
         inverse_waveform.setLoading(true);
 
         socket.emit('mask', { mask: dcBar.linkedSpec.exportSelectionMask() });
+    }
+});
+
+//  ~~~~~~~~~~~~~ Retrain button ~~~~~~~~~~~~~
+
+$('#retrain').click(function(){
+    // probably a better way to check this in the future
+    if(!$('#retrain').hasClass('disabled')) {
+        // TODO: indicate retraining occurring
+        socket.emit('retrain', { mask: dcBar.linkedSpec.exportSelectionMask() });
     }
 });

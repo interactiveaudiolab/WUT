@@ -147,6 +147,7 @@ class DC1DBar {
 
     updateSpec() {
         $('#apply-selections').removeClass('disabled');
+        $('#retrain').removeClass('disabled');
 
         if (this._rawData) {
             this._drawMarkers('blue'); // add markers to linked spectrogram
