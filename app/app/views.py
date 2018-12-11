@@ -273,7 +273,7 @@ def retrain(mask):
     model, _ = sess.deep_separation_wrapper.get_model_and_metadata()
 
     with open(os.path.expanduser(
-        '~/projects/experiments/code/config/defaults/train.json'
+        '../experiments/code/config/defaults/train.json'
     )) as f:
         options =  json.load(f)
     options['device'] = 'cpu'
@@ -281,7 +281,7 @@ def retrain(mask):
     options['num_epochs'] = 1
 
     retrainer = Trainer(
-        os.path.expanduser("~/projects/wut/retrain_output"),
+        os.path.expanduser("~/.nussl/models/retrain"),
         sess.deep_separation_wrapper.build_annotation_dataset(mask['mask']),
         model,
         options,
