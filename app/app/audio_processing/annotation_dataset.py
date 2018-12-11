@@ -1,4 +1,5 @@
 import numpy as np
+import torch
 from torch.utils.data import Dataset
 from typing import Dict, Any, List, Tuple
 
@@ -74,7 +75,7 @@ class AnnotationDataset(Dataset):
         """Returns number of examples in dataset"""
         # TODO: make work with multiple examples
         # return self.assignments.shape[0] # number of training examples
-        return 50 # num_iterations
+        return 1000 if torch.cuda.is_available() else 50
 
     def __getitem__(self, i):
         """Gets one item from dataset
