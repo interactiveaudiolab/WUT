@@ -8,6 +8,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 from . import audio_processing_base
+from . import annotation_dataset
 
 import sys
 sys.path.insert(0, '../../nussl')
@@ -46,6 +47,22 @@ class DeepSeparationWrapper(
 
     def separate(self):
         self._deep_separation.run()
+
+    def build_annotation_dataset(self, assignments):
+        data = self._deep_separation._preprocess()
+        data['magnitude_spectrogram'] = data['magnitude_spectrogram'].numpy()[0]
+        data['log_spectrogram'] = data['log_spectrogram'].numpy()[0]
+
+        assignments = np.asarray(assignments)
+        dataset_input = {
+            'magnitude_spectrogram': data['magnitude_spectrogram'],
+            'log_spectrogram': data['log_spectrogram'],
+            'assignments': np.stack([assignments, 1-assignments], len(assignments.shape))
+        }
+        dataset = annotation_dataset.AnnotationDataset(
+            options=self._deep_separation.metadata,
+            **dataset_input,
+        )
 
     def get_embeddings_and_spectrogram(self):
         self.separate()
