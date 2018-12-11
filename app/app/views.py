@@ -276,7 +276,6 @@ def retrain(mask):
         '../experiments/code/config/defaults/train.json'
     )) as f:
         options =  json.load(f)
-    options['device'] = 'cpu'
     options['loss_function'] = [['dpcl', 'embedding', '1.0']]
     options['num_epochs'] = 1
 
