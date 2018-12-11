@@ -15,6 +15,8 @@ sys.path.insert(0, '../../nussl')
 import nussl
 import inspect
 
+import os
+
 logger = logging.getLogger()
 
 
@@ -35,12 +37,16 @@ class DeepSeparationWrapper(
             mixture_signal,
             storage_path,
         )
+        # self.model_path = nussl.efz_utils.download_trained_model(model_path)
+        self.model_path = os.path.expanduser('~/projects/models/tiny.pth')
+        self.original_path = self.model_path
+
         mixture_signal.to_mono()
         self._deep_separation = nussl.DeepSeparation(
             mixture_signal,
             num_sources=2,
             mask_type='soft',
-            model_path=nussl.efz_utils.download_trained_model(model_path)
+            model_path=self.model_path,
         )
         # hardcoding in square PCA
         self.PCA_dimension = 100
@@ -95,23 +101,24 @@ class DeepSeparationWrapper(
         return self._deep_separation.apply_mask(mask)
 
     # remove reliance on user_original_file_folder here
-    def send_separation(self, socket, namespace, file_path):
+    def send_separation(self, socket, namespace, file_path = ''):
         binned_embeddings, log_spectrogram = self._massage_data(
             *self.get_embeddings_and_spectrogram()
         )
-
-        self._save_spectrogram_image(log_spectrogram, file_path)
 
         socket.emit(
             'binned_embeddings',
             json.dumps(binned_embeddings),
             namespace=namespace
         )
-        socket.emit(
-            'spectrogram',
-            json.dumps(log_spectrogram.tolist()),
-            namespace=namespace
-        )
+
+        if file_path:
+            self._save_spectrogram_image(log_spectrogram, file_path)
+            socket.emit(
+                'spectrogram',
+                json.dumps(log_spectrogram.tolist()),
+                namespace=namespace
+            )
 
         logger.info(f'Sent separation for {self.user_audio_signal.file_name}')
 

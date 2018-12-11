@@ -21,7 +21,7 @@ from .config import ALLOWED_EXTENSIONS
 
 import sys
 sys.path.insert(0, '../../experiments/code')
-from retrainer import Retrainer
+from trainer import Trainer
 
 DEBUG = True
 
@@ -113,12 +113,12 @@ def initialize(audio_file_data):
     save_session(separation_sess)
 
     # TODO: put this somewhere else, `constants.py`?
-    model_name_to_model_path = {
+    model_type_to_model_name = {
         'speech': 'speech_wsj8k.pth',
     }
 
     # compute and send Deep Clustering PCA visualization and mel spectrogram
-    separation_sess.model_path = model_name_to_model_path[
+    separation_sess.model_path = model_type_to_model_name[
         audio_file_data['radio_selection'].lower()
     ]
 
@@ -268,13 +268,44 @@ def get_action(action_):
 
 @socketio.on('retrain', namespace=WUT_SOCKET_NAMESPACE)
 def retrain(mask):
+    logger.info('in retrain endpoint')
     sess = awaken_session()
-    sess.deep_separation_wrapper.get_model_and_metadata(),
-    retrainer = Retrainer(
+    model, _ = sess.deep_separation_wrapper.get_model_and_metadata()
+
+    with open(os.path.expanduser(
+        '~/projects/experiments/code/config/defaults/train.json'
+    )) as f:
+        options =  json.load(f)
+    options['device'] = 'cpu'
+    options['loss_function'] = [['dpcl', 'embedding', '1.0']]
+    options['num_epochs'] = 1
+
+    retrainer = Trainer(
         os.path.expanduser("~/projects/wut/retrain_output"),
         sess.deep_separation_wrapper.build_annotation_dataset(mask['mask']),
         model,
-        metadata,
+        options,
+    )
+
+    logger.info('retraining')
+    retrainer.fit()
+    logger.info('done retraining?')
+    """
+    sess.deep_separation_wrapper.model_path = os.path.expanduser(
+        '~/.nussl/models/retrained.pth'
+    )
+    """
+    sess.deep_separation_wrapper.model_path = retrainer.save(False)
+    logger.info(f'model_path: {sess.deep_separation_wrapper.model_path}')
+    sess.deep_separation_wrapper.set_model(
+        sess.deep_separation_wrapper.model_path
+    )
+    socketio.start_background_task(
+        sess.deep_separation_wrapper.send_separation,
+        **{
+            'socket': socketio,
+            'namespace': WUT_SOCKET_NAMESPACE,
+        },
     )
 
 @socketio.on('mask', namespace=WUT_SOCKET_NAMESPACE)
