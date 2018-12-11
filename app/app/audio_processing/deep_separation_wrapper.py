@@ -56,8 +56,8 @@ class DeepSeparationWrapper(
 
     def build_annotation_dataset(self, assignments):
         data = self._deep_separation._preprocess()
-        data['magnitude_spectrogram'] = data['magnitude_spectrogram'].numpy()[0]
-        data['log_spectrogram'] = data['log_spectrogram'].numpy()[0]
+        data['magnitude_spectrogram'] = data['magnitude_spectrogram'].cpu().numpy()[0]
+        data['log_spectrogram'] = data['log_spectrogram'].cpu().numpy()[0]
 
         assignments = np.asarray(assignments)
         dataset_input = {
