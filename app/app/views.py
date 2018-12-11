@@ -118,7 +118,7 @@ def initialize(audio_file_data):
         audio_file_data['radio_selection'].lower()
     ]
 
-    deep_separation_wrapper = audio_processing.DeepSeparationWrapper(
+    separation_sess.deep_separation_wrapper = audio_processing.DeepSeparationWrapper(
         separation_sess.user_signal,
         separation_sess.user_original_file_folder,
         model_path=separation_sess.model_path,
@@ -145,7 +145,7 @@ def initialize(audio_file_data):
     save_session(separation_sess)
 
     socketio.start_background_task(
-        deep_separation_wrapper.send_separation,
+        separation_sess.deep_separation_wrapper.send_separation,
         **{
             'socket': socketio,
             'namespace': WUT_SOCKET_NAMESPACE,
@@ -265,15 +265,14 @@ def get_action(action_):
 @socketio.on('mask', namespace=WUT_SOCKET_NAMESPACE)
 def generate_mask(mask):
     sess = awaken_session()
-    deep_separation_wrapper = audio_processing.DeepSeparationWrapper(
-        sess.user_signal,
-        sess.user_original_file_folder,
-    )
 
-    deep_separation_wrapper.separate()
-    mask = deep_separation_wrapper.generate_mask_from_assignments(mask['mask'])
-    masked = deep_separation_wrapper.apply_mask(mask)
-    inverse = deep_separation_wrapper.apply_mask(mask.invert_mask())
+    sess.deep_separation_wrapper.separate()
+    # sess.deep_separation_wrapper.build_annotation_dataset(mask['mask'])
+    mask = sess.deep_separation_wrapper.generate_mask_from_assignments(
+        mask['mask']
+    )
+    masked = sess.deep_separation_wrapper.apply_mask(mask)
+    inverse = sess.deep_separation_wrapper.apply_mask(mask.invert_mask())
 
     sess.masked_path = os.path.join(
         sess.user_original_file_folder,
