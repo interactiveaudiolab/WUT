@@ -79,7 +79,7 @@ class AnnotationDataset(Dataset):
         """Returns number of examples in dataset"""
         # TODO: make work with multiple examples
         # return self.assignments.shape[0] # number of training examples
-        return 1000 # num_iterations
+        return 50 # num_iterations
 
     def __getitem__(self, i):
         """Gets one item from dataset
