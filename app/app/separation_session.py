@@ -52,7 +52,6 @@ class SeparationSession(object):
         self.time_of_init = None
         self._action_queue = deque()
         self.user_goals = []
-        self.model_path = None
         self.deep_separation_wrapper = None
 
         if not from_json:
@@ -168,10 +167,9 @@ class SeparationSession(object):
     def from_json(json_string):
         sess = jsonpickle.decode(json_string)
 
-        # TODO: remove hack here too 
+        # TODO: remove hack here too
         if sess.deep_separation_wrapper:
-            model, _ = sess.deep_separation_wrapper._deep_separation.load_model(
-                sess.deep_separation_wrapper._deep_separation.model_path
+            sess.deep_separation_wrapper.set_model(
+                sess.deep_separation_wrapper.model_path
             )
-            sess.deep_separation_wrapper._deep_separation.model = model
         return sess

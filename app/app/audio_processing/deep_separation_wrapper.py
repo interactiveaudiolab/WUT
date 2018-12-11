@@ -63,6 +63,16 @@ class DeepSeparationWrapper(
             options=self._deep_separation.metadata,
             **dataset_input,
         )
+        return dataset
+
+    def get_model_and_metadata(self):
+        return (self._deep_separation.model, self._deep_separation.metadata)
+
+    def load_model(self, path):
+        return self._deep_separation.load_model(path)
+
+    def set_model(self, path):
+        self._deep_separation.model, _ = self._deep_separation.load_model(path)
 
     def get_embeddings_and_spectrogram(self):
         self.separate()
