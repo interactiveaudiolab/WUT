@@ -7,14 +7,20 @@ git clone https://github.com/interactiveaudiolab/WUT.git # ssh: git clone git@gi
 git checkout retrain
 ```
 
-Now follow either the Scripted or Manual methods listed below to setup and run WUT.
+WUT requires Python 3.6 or later and [redis-server](https://redis.io/). The Manual and Scripted methods below will each handle installing `redis-server` but not Python 3.6.
 
 *Note:* These instructions have been tested on Linux & macOS. Windows users may be able to get WUT running using WSL with the manual instructions.
 
 
 ## Manual
 
-You'll need to have `redis-server` installed. See the [Redis Quick Start](https://redis.io/topics/quickstart) page or run `brew install redis` (if you have `brew`) or `sudo apt install redis-server` (fill in your package manager if not on Ubuntu).
+You'll need to have `redis-server` installed. See the [Redis Quick Start](https://redis.io/topics/quickstart) page or use a package manager:
+
+```shell
+brew install redis # macOS
+# or
+sudo apt install redis # Ubuntu (change to your respective package manager)
+```
 
 It's recommended, though not required, to run from a virtual environment for cleaner dependency management (the `setup.sh` script creates one for you). Any package manager (`pipenv`, `virtualenv`, `conda`, etc.) can work here.
 
@@ -24,7 +30,7 @@ Once you've installed `redis-server` (and optionally created and sourced a virtu
 pip install -r requirements.txt
 redis-server & # the & means run in the background
 cd app # from the repo root
-python main.py
+python3 main.py # assuming `python3` is aliased to Python 3.6 or later
 ```
 
 Now navigate to `localhost:5000` in your browser to play with WUT!

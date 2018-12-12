@@ -8,15 +8,25 @@ The Interactive Audio Laboratory's browser-based interactive source separation a
 
 WUT requires Python 3.6 or later and [redis-server](https://redis.io/).
 
+If you'd like full manual or scripted installation, see [INSTALL.md](INSTALL.md).
+
 ### Quick Installation
 
 **WARNING:** this quick installation assumes macOS or Linux, and [`virtualenv`](https://virtualenv.pypa.io/en/latest/).
 
-If you'd like full manual or scripted installation, see [INSTALL.md](INSTALL.md).
+You'll need to have `redis-server` installed. See the [Redis Quick Start page](https://redis.io/topics/quickstart) for manual installation or use a package manager:
 
-If you don't have `redis-server` you can use Homebrew on macOS or your package manager on a Linux distribution. You can also [install it manually](https://redis.io/topics/quickstart).
+```shell
+brew install redis # macOS
+# or
+sudo apt install redis # Ubuntu (change to your respective package manager)
+```
 
-If you don't have `virtualenv` you can install it with `pip`: `pip install virtualenv`. *Note:* installation and use of `virtualenv` may conflict with Conda or other virtual environment managers if you have those installed.
+If you don't have `virtualenv` you can install it with `pip` (*Note:* installation and use of `virtualenv` may conflict with Conda or other virtual environment managers if you have those installed):
+
+```
+pip install virtualenv
+```
 
 Once you have Python 3.6 or later, `virtualenv`, and `redis-server` installed, run the following command (*Note:* this command assumes `python3` is aliased to your Python 3.6 or later installation):
 
