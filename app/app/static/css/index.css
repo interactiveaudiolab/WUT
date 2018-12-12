@@ -233,7 +233,7 @@ main .left-right-waveform-cont {
 main .waveform-cont {
 	flex: 0 0 60px;
 	padding: 10px 20px;
-	margin: 0 30px 10px 30px;
+	margin: 0 30px 10px 20px;
 
 	display: flex;
 	align-items: center;
@@ -254,7 +254,7 @@ main .waveform-cont > .waveform-title {
 }
 
 main .waveform-cont > .controls {
-	flex: 0 0 80px;
+	flex: 0 0 120px;
 	margin: 0 10px 0 10px;
 
 	display: flex;

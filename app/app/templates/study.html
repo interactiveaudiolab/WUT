@@ -51,6 +51,9 @@
                 <button id="mixture-stop" type="button" class="btn btn-primary disabled">
                     <i class="fas fa-stop"></i>
                 </button>
+                <button id="mixture-download" type="button" class="btn btn-primary disabled">
+                    <i class="fas fa-download"></i>
+                </button>
             </div>
 
             <div id="mixture-waveform"></div>
@@ -67,6 +70,9 @@
                     </button>
                     <button id="masked-stop" type="button" class="btn btn-primary disabled">
                         <i class="fas fa-stop"></i>
+                    </button>
+                    <button id="masked-download" type="button" class="btn btn-primary disabled">
+                        <i class="fas fa-download"></i>
                     </button>
                 </div>
 
@@ -91,6 +97,9 @@
                     </button>
                     <button id="inverse-stop" type="button" class="btn btn-primary disabled">
                         <i class="fas fa-stop"></i>
+                    </button>
+                    <button id="inverse-download" type="button" class="btn btn-primary disabled">
+                        <i class="fas fa-download"></i>
                     </button>
                 </div>
 
@@ -200,6 +209,10 @@
                 <div class="form-check">
                     <input class="form-check-input separation-radio" type="radio" name="modelSelection" value="speech" id="speech" checked>
                     <label class="form-check-label" for="speech">Speech</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input separation-radio" type="radio" name="modelSelection" value="untrained" id="untrained">
+                    <label class="form-check-label" for="untrained">Train your own</label>
                 </div>
             </div>
 

@@ -1,5 +1,6 @@
 class Waveform {
-  constructor(surferContainer, playId, stopId, spinnerId, surferOptions) {
+  // TODO: make id a dictionary argument?
+  constructor(surferContainer, playId, stopId, downloadId, spinnerId, surferOptions) {
     this.waveformId = makeSelector(surferContainer);
     let options = surferOptions !== undefined ? surferOptions : {
       waveColor: 'grey',
@@ -17,6 +18,7 @@ class Waveform {
     this.surfer = WaveSurfer.create(options);
     this.playId = makeSelector(playId);
     this.stopId = makeSelector(stopId);
+    this.downloadId = makeSelector(downloadId);
     this.spinnerId = spinnerId === undefined
       ? undefined
       : makeSelector(spinnerId);
@@ -34,6 +36,17 @@ class Waveform {
       : () => this.setControls(true))
 
     $(this.stopId).click(() => { this.resetWaveform(); });
+    $(this.downloadId).click(() => {
+      let blob = bufferToWave(
+        this.surfer.backend.buffer,
+        0.0,
+        this.surfer.backend.buffer.length,
+      );
+      // TODO: use less hacky method for filename
+      const noId = this.waveformId.slice(1);
+      const filename = `${noId.substr(0, noId.indexOf('-'))}.wav`;
+      saveAs(blob, filename, false);
+    });
     this.surfer.on('finish', () => { this.resetWaveform() });
   }
 
@@ -85,6 +98,7 @@ class Waveform {
     if(enable) {
       $(this.playId).removeClass('disabled');
       $(this.stopId).removeClass('disabled');
+      $(this.downloadId).removeClass('disabled');
     } else {
       if(!$(this.playId).hasClass('disabled')) {
         $(this.playId).addClass('disabled')
@@ -92,6 +106,10 @@ class Waveform {
 
       if(!$(this.stopId).hasClass('disabled')) {
           $(this.stopId).addClass('disabled')
+      }
+
+      if(!$(this.downloadId).hasClass('disabled')) {
+        $(this.downloadId).addClass('disabled')
       }
     }
   }

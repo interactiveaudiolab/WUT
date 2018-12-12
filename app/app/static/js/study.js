@@ -1,19 +1,24 @@
+// TODO: make these camelcase
 var mixture_waveform = new Waveform(
     '#mixture-waveform',
     '#mixture-play',
-    '#mixture-stop'
+    '#mixture-stop',
+    // TODO: remove this?
+    '#mixture-download',
 );
 var masked_waveform = new Waveform(
     '#masked-waveform',
     '#masked-play',
     '#masked-stop',
-    '#masked-spinner'
+    '#masked-download',
+    '#masked-spinner',
 );
 var inverse_waveform = new Waveform(
     '#inverse-waveform',
     '#inverse-play',
     '#inverse-stop',
-    '#inverse-spinner'
+    '#inverse-download',
+    '#inverse-spinner',
 );
 
 var all_waveforms = [mixture_waveform, masked_waveform, inverse_waveform];

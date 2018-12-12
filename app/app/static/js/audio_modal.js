@@ -190,6 +190,7 @@ document.getElementById('audio-upload-modal-record').addEventListener('click', f
   } else { if(recorder) { recorder.stop(); } }
 });
 
+// TODO: move this somwhere better
 // in future make more abstract
 // also almost definitely a better way to do this
 function mediaRecorderBlobToWavFile(blob) {
