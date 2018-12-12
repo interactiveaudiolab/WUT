@@ -31,13 +31,13 @@ pip install virtualenv
 Once you have Python 3.6 or later, `virtualenv`, and `redis-server` installed, run the following command (*Note:* this command assumes `python3` is aliased to your Python 3.6 or later installation):
 
 ```
-git clone git@github.com:interactiveaudiolab/WUT.git
-&& cd WUT
-&& git submodule update --init
-&& virtualenv wut_env --python=$(which python3)
-&& source wut_env/bin/activate
-&& pip install -r requirements.txt
-&& redis-server &
-&& cd app
+git clone git@github.com:interactiveaudiolab/WUT.git \
+&& cd WUT \
+&& git submodule update --init \
+&& virtualenv wut_env --python=$(which python3) \
+&& source wut_env/bin/activate \
+&& pip install -r requirements.txt \
+&& redis-server & \
+&& cd app \
 && python main.py
 ```
