@@ -1,32 +1,22 @@
 # Deploying WUT Locally
 
-First clone this repo, then checkout the `py3` branch:
+First clone this repo, then checkout the `retrain` branch:
 
 ```
-git clone https://github.com/interactiveaudiolab/WUT.git # ssh: git@github.com:interactiveaudiolab/WUT.git
-git checkout py3
+git clone https://github.com/interactiveaudiolab/WUT.git # ssh: git clone git@github.com:interactiveaudiolab/WUT.git
+git checkout retrain
 ```
 
 Now follow either the Scripted or Manual methods listed below to setup and run WUT.
 
-*Note:* These instructions work for Linux & macOS. Windows users may be able to get WUT running using WSL with the manual instructions.
+*Note:* These instructions have been tested on Linux & macOS. Windows users may be able to get WUT running using WSL with the manual instructions.
 
-## Scripted
-
-To install dependencies & then launch WUT, run the following commands from the repo root then visit `localhost:5000` in your browser.
-
-```
-sh scripts/setup.sh # only needed the first time
-source scripts/run.sh
-```
-
-You only need to run `setup.sh` once. For future launchings of WUT just run `source scripts/run.sh` from the repo root.
 
 ## Manual
 
 You'll need to have `redis-server` installed. See the [Redis Quick Start](https://redis.io/topics/quickstart) page or run `brew install redis` (if you have `brew`) or `sudo apt install redis-server` (fill in your package manager if not on Ubuntu).
 
-It's recommended, though not required, to run from a virtual environment for cleaner dependency management (the `setup.sh` script creates one for you). Either `pipenv` or `virtualenv` work for this, see more [here](https://pipenv.readthedocs.io/en/latest/).
+It's recommended, though not required, to run from a virtual environment for cleaner dependency management (the `setup.sh` script creates one for you). Any package manager (`pipenv`, `virtualenv`, `conda`, etc.) can work here.
 
 Once you've installed `redis-server` (and optionally created and sourced a virtual environment) run the following commands (all from the repo root):
 
@@ -38,6 +28,19 @@ python main.py
 ```
 
 Now navigate to `localhost:5000` in your browser to play with WUT!
+
+## Scripted
+
+To install dependencies & then launch WUT, run the following commands from the repo root then visit `localhost:5000` in your browser.
+
+**Note:** `setup.sh` assumes `virtualenv` and may cause issues if you use another virtual environment system such as Anaconda. If that is the case for you use the manual instructions above.
+
+```
+sh scripts/setup.sh # only needed the first time
+source scripts/run.sh
+```
+
+You only need to run `setup.sh` once. For future launchings of WUT just run `source scripts/run.sh` from the repo root.
 
 ### Killing `redis-server`
 
