@@ -10,7 +10,9 @@ import matplotlib.pyplot as plt
 
 import numpy as np
 from . import utils
-from flask import render_template, request, flash, session, abort, send_file, make_response
+from flask import (
+    render_template, request, flash, session, abort, send_file, make_response
+)
 from werkzeug.utils import secure_filename
 from flask_socketio import emit
 from pickle import Unpickler
@@ -35,29 +37,22 @@ HOME = os.path.abspath('../../models')
 @app_.route('/')
 @app_.route('/index')
 def index():
-    separation_sess = separation_session.SeparationSession()
-    session['session_id'] = separation_sess.url_safe_id
+    sess = separation_session.SeparationSession()
+    session['session_id'] = sess.url_safe_id
     session.modified = True
-    save_session(separation_sess)
-    return render_template('index.html', target_dict=separation_sess.target_name_dict)
-
-
-@app_.route('/test')
-def test():
-    new_sess = separation_session.SeparationSession()
-    session['session_id'] = new_sess.url_safe_id
-    session.modified = True
-    save_session(new_sess)
-    return render_template('test.html')
-
-
-@app_.route('/study')
-def study():
-    new_sess = separation_session.SeparationSession()
-    session['session_id'] = new_sess.url_safe_id
-    session.modified = True
-    save_session(new_sess)
+    save_session(sess)
     return render_template('study.html')
+
+@app_.route('/full')
+def study():
+    sess = separation_session.SeparationSession()
+    session['session_id'] = sess.url_safe_id
+    session.modified = True
+    save_session(sess)
+    return render_template(
+        'index.html',
+        target_dict=sess.target_name_dict
+    )
 
 
 @app_.errorhandler(404)
