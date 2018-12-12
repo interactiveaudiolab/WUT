@@ -1,4 +1,4 @@
-# WUT - Web Unmixing Toolbox
+# WUT - Web Unmixing Tool
 
 The Interactive Audio Laboratory's browser-based interactive source separation app. This application allows one to perform interactive audio source separation using deep clustering.
 
