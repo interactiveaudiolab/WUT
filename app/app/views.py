@@ -116,6 +116,7 @@ def initialize(audio_file_data):
     model_type_to_model_name = {
         'speech': 'speech_wsj8k.pth',
         'untrained': 'untrained.pth',
+        'vocals': 'vocals_44k.pth',
     }
 
     # compute and send Deep Clustering PCA visualization and mel spectrogram
