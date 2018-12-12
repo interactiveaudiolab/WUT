@@ -1,0 +1,8 @@
+[submodule "nussl"]
+	path = nussl
+	url = git@github.com:interactiveaudiolab/nussl.git
+  branch = retrain
+[submodule "experiments"]
+	path = experiments
+	url = git@github.com:pseeth/experiments.git
+  branch = retrain
