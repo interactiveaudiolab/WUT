@@ -1,10 +1,9 @@
 # Deploying WUT Locally
 
-First clone this repo, then checkout the `retrain` branch:
+First clone this repo:
 
 ```
 git clone https://github.com/interactiveaudiolab/WUT.git # ssh: git clone git@github.com:interactiveaudiolab/WUT.git
-git checkout retrain
 ```
 
 WUT requires Python 3.6 or later and [redis-server](https://redis.io/). The Manual and Scripted methods below will each handle installing `redis-server` but not Python 3.6.

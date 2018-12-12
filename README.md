@@ -33,7 +33,6 @@ Once you have Python 3.6 or later, `virtualenv`, and `redis-server` installed, r
 ```
 git clone git@github.com:interactiveaudiolab/WUT.git
 && cd WUT
-&& git checkout retrain
 && git submodule update --init
 && virtualenv wut_env --python=$(which python3)
 && source wut_env/bin/activate
