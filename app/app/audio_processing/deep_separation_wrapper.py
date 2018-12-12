@@ -37,8 +37,7 @@ class DeepSeparationWrapper(
             mixture_signal,
             storage_path,
         )
-        # self.model_path = nussl.efz_utils.download_trained_model(model_path)
-        self.model_path = os.path.expanduser('~/.nussl/models/test.model.pth')
+        self.model_path = nussl.efz_utils.download_trained_model(model_path)
         self.original_path = self.model_path
 
         mixture_signal.to_mono()
