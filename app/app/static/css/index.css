@@ -1,10 +1,10 @@
 /* establishes basic defaults across browsers */
-@import url('https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.css');
-@import url('https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css');
+@import url('./vendor/normalize.css');
+@import url('./vendor/bootstrap.min.css');
 /* for info bubble popups */
-@import url('https://cdnjs.cloudflare.com/ajax/libs/hint.css/2.5.0/hint.css');
+@import url('./vendor/hint.min.css');
 /* for sliders */
-@import url('https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.0.0/css/bootstrap-slider.min.css')
+@import url('./vendor/bootstrap-slider.min.css');
 
 /* ETHAN CSS */
 /* INCORPORATE BETTER IN THE FUTURE */
