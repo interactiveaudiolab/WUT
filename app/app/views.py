@@ -41,19 +41,7 @@ def index():
     session['session_id'] = sess.url_safe_id
     session.modified = True
     save_session(sess)
-    return render_template('study.html')
-
-@app_.route('/full')
-def study():
-    sess = separation_session.SeparationSession()
-    session['session_id'] = sess.url_safe_id
-    session.modified = True
-    save_session(sess)
-    return render_template(
-        'index.html',
-        target_dict=sess.target_name_dict
-    )
-
+    return render_template('index.html')
 
 @app_.errorhandler(404)
 def page_not_found(e):

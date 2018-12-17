@@ -3,25 +3,23 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>WUT | Web Unmixing Toolbox | Interactive Audio Lab</title>
-    <meta name="description" content="Web Unmixing Toolbox from the Interactive Audio Lab at Northwestern University">
+    <title>WUT | Web Unmixing Tool | Interactive Audio Lab</title>
+    <meta name="description" content="Web Unmixing Tool from the Interactive Audio Lab at Northwestern University">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.0.0/css/bootstrap-slider.min.css">
 
-    <script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+    <script defer src="{{ url_for('static', filename='js/vendor/all.min.js') }}"></script>
 
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/modernizr-2.8.3.min.js') }}"></script>
-    <script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    <script src="{{ url_for('static', filename='js/vendor/jquery-3.3.1.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/bootstrap-slider.min.js') }}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.0.0/bootstrap-slider.min.js"></script>
 
-
+    <script src="{{ url_for('static', filename='js/vendor/bootstrap.min.js') }}"></script>
     <!-- expensive import for solely debounce, maybe just write our own? -->
-    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.5/lodash.min.js"></script>
+    <script src="{{ url_for('static', filename='js/vendor/lodash.min.js') }}"></script>
 
-    <!-- <script type="text/javascript" src="https://cdn.plot.ly/plotly-latest.js"></script> -->
     <!-- Using local version of plotly because of bug in latest Plotly (as of 2/26/2018) - https://github.com/plotly/plotly.js/issues/2334
          Following the workaround mentioned by mlaily in that issue we have modified `snap:1e4` -> `snap:1e7` which fixes underrendering -->
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/plotly-latest.min.js') }}"></script>
@@ -30,21 +28,18 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/wavesurfer.timeline.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/FileSaver.min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/socket.io.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/waves-loaders.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/waves-ui.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/jquery.actual.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/vendor/recorder.js') }}"></script>
 </head>
 <body>
 
 <script>window.jQuery || document.write('<script src="js/vendor/jquery-{{JQUERY_VERSION}}.min.js"><\/script>')</script>
     <div class="modal-content-wrapper">
     <header>
-        <div>Web Unmixing Toolbox</div>
+        <div>Web Unmixing Tool</div>
     </header>
 
     <main>
         <div class="waveform-cont">
+            <!-- <div id='upload'><i class="fas fa-upload fa-lg"></i></div> -->
             <button id="audio-upload-modal-open" type="button" class="btn btn-primary" title="Open Modal">
                 Begin
             </button>
@@ -56,311 +51,134 @@
                 <button id="mixture-stop" type="button" class="btn btn-primary disabled">
                     <i class="fas fa-stop"></i>
                 </button>
+                <button id="mixture-download" type="button" class="btn btn-primary disabled">
+                    <i class="fas fa-download"></i>
+                </button>
             </div>
 
             <div id="mixture-waveform"></div>
         </div>
 
-        <div id="tabs-wrapper">
-            <ul class="nav nav-tabs" id='mainTabs' role='tablist'>
-                <li class="nav-item">
-                    <a class="nav-link active" id="spectrogram-tab-bootstrap" data-toggle="tab" href="#spectrogram-tab" role="tab" aria-selected="true">Spectrogram</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="deep-clustering-tab-bootstrap" data-toggle="tab" href="#deep-clustering-tab" role="tab">Deep Clustering</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="deep-clustering-1d-tab-bootstrap" data-toggle="tab" href="#deep-clustering-tab-1d" role="tab">1D Deep Clustering</a>
-                </li>
-{#                <li class="nav-item">#}
-{#                    <a class="nav-link" id="temporal-deep-clustering-tab-bootstrap" data-toggle="tab" href="#temp-deep-clustering-tab" role="tab">Temporal Deep Clustering</a>#}
-{#                </li>#}
-                <li class="nav-item">
-                    <a class="nav-link disabled" id="reqs-tab-bootstrap" data-toggle="tab" href="#reqs-tab" role="tab">Results</a>
-                </li>
-            </ul>
+        <div class='left-right-waveform-cont'>
+
+            <div class="waveform-cont">
+                <div class="waveform-title"><div>Selected (Blue)</div></div>
+
+                <div class="controls">
+                    <button id="masked-play" type="button" class="btn btn-primary disabled" title="Play audio">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <button id="masked-stop" type="button" class="btn btn-primary disabled">
+                        <i class="fas fa-stop"></i>
+                    </button>
+                    <button id="masked-download" type="button" class="btn btn-primary disabled">
+                        <i class="fas fa-download"></i>
+                    </button>
+                </div>
+
+                <div id="masked-waveform" class="shared-waveform-spinner"></div>
+                <div id='masked-spinner' class='spinner-outer shared-waveform-spinner'>
+                    <div class="spinner">
+                        <div class="rect1"></div>
+                        <div class="rect2"></div>
+                        <div class="rect3"></div>
+                        <div class="rect4"></div>
+                        <div class="rect5"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="waveform-cont">
+                <div class="waveform-title"><div>Other</div></div>
+
+                <div class="controls">
+                    <button id="inverse-play" type="button" class="btn btn-primary disabled" title="Play audio">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <button id="inverse-stop" type="button" class="btn btn-primary disabled">
+                        <i class="fas fa-stop"></i>
+                    </button>
+                    <button id="inverse-download" type="button" class="btn btn-primary disabled">
+                        <i class="fas fa-download"></i>
+                    </button>
+                </div>
+
+                <div id="inverse-waveform" class="shared-waveform-spinner"></div>
+                <div id='inverse-spinner' class='spinner-outer shared-waveform-spinner'>
+                    <div class="spinner">
+                        <div class="rect1"></div>
+                        <div class="rect2"></div>
+                        <div class="rect3"></div>
+                        <div class="rect4"></div>
+                        <div class="rect5"></div>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
-        <div class="tab-content">
+        <div class="interaction">
+            <div class="shared-plots-spinner">
+                <div id='pca-cont'>
+                    <div class='title-cont'>
+                        <div>Visualization of Embedding Space</div>
 
-            <!-- <<<<<<<<<>>>>>>>>> -->
-            <!--   SPECTROGRAM TAB  -->
-            <!-- <<<<<<<<<>>>>>>>>> -->
-            <div class="tab-pane active" id="spectrogram-tab" role="tabpanel" aria-labelledby="spectrogram-tab-bootstrap">
-                <div id="spectrogram-container" class="shared-spectrogram-spinner">
-                    <button id="apply-spec-selection" type="button" class="btn btn-primary disabled">Make Audio Mask from Selection</button>
-                    <div id="spectrogram" data-target-name="{{ target_dict['mixture']['name'] }}"> </div>
-                </div>
-                <div id='spectrogram-spinner' class='spinner-outer shared-spectrogram-spinner'>
-                    <div class="spinner">
-                        <div class="rect1"></div>
-                        <div class="rect2"></div>
-                        <div class="rect3"></div>
-                        <div class="rect4"></div>
-                        <div class="rect5"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- <<<<<<<<<<<<>>>>>>>>>>>> -->
-            <!--  2D DEEP CLUSTERING TAB  -->
-            <!-- <<<<<<<<<<<<>>>>>>>>>>>> -->
-            <div class="tab-pane interaction" id="deep-clustering-tab" role="tabpanel" aria-labelledby="deep-clustering-tab-bootstrap">
-                <div class="shared-plots-spinner">
-                    <div id='pca-cont'>
-                        <div class='title-cont'>
-                            <div>Visualization of Embedding Space</div>
-
-                            <div class="hint--top hint--large hint--rounded" aria-label="Click and drag on the plot to select bins and see the corresponding points on the spectrogram highlighted. A Principal Component Analysis representation of the k-dimensional embedding space.">
-                                <i class="fa fa-info-circle"></i>
-                            </div>
+                        <div class="hint--top hint--large hint--rounded" aria-label="Click and drag on the plot to select bins and see the corresponding points on the spectrogram highlighted. A Principal Component Analysis representation of the k-dimensional embedding space.">
+                            <i class="fa fa-info-circle"></i>
                         </div>
+                    </div>
 
-                        <div class="outer">
-                            <div class="aspect-ratio-box">
-                                <div class="alignment" id="pca-2d">
-                                </div>
+                    <div id="pca-controls">
+                        <button id="flip-1d" type="button" class="btn btn-primary disabled dc-1d-control">
+                            <i class="fas fa-exchange-alt"></i>
+                        </button>
+                        <div id="pca-checkbox">
+                            <input type="checkbox" id="log-y-1d" class="disabled dc-1d-control">
+                            <label for="log-y-1d">Log Y?</label>
+                        </div>
+                        <button id="apply-selections" type="button" class="btn btn-primary disabled">Hear Results</button>
+                        <button id="retrain" type="button" class="btn btn-primary disabled">Retrain</button>
+                    </div>
+
+                    <div class="outer">
+                        <div class="aspect-ratio-box">
+                            <div class="alignment" id="pca-1d">
                             </div>
                         </div>
                     </div>
-
-
-                    <div id='spectrogram-cont'>
-                        <div class='title-cont'>
-                            <div>Mel Spectrogram</div>
-
-                            <div class="hint--top hint--large hint--rounded" aria-label="Visual representation of audio signal. Frequency in mels, time  in seconds. Each point on the x-axis is a single STFT taken over j samples. Intensity of a specific frequency over a specific window is given by color.">
-                                <i class="fa fa-info-circle"></i>
-                            </div>
-                        </div>
-
-                        <div id="dc-spectrogram"></div>
-
-                        <div id="dc-button-wrapper">
-                            <button id="apply-dc-selections" type="button" class="btn btn-primary disabled">Make Audio Mask from Selection</button>
-                            <button id="see-results" type="button" class="btn btn-primary disabled">See Results</button>
-                        </div>
+                    <div id="pca-1d-slider">
+                        <input id="slider-1d" data-slider-id='slider-1d' type="text"
+                               data-slider-min="0" data-slider-max="100"
+                               data-slider-step="1" data-slider-value="50"/>
                     </div>
                 </div>
-                <div id='plots-spinner' class='spinner-outer shared-plots-spinner'>
-                    <div class="spinner">
-                        <div class="rect1"></div>
-                        <div class="rect2"></div>
-                        <div class="rect3"></div>
-                        <div class="rect4"></div>
-                        <div class="rect5"></div>
+
+
+                <div id='spectrogram-cont'>
+                    <div class='title-cont'>
+                        <div>Spectrogram</div>
+
+                        <div class="hint--top hint--large hint--rounded" aria-label="Visual representation of audio signal. Frequency in mels, time  in seconds. Each point on the x-axis is a single STFT taken over j samples. Intensity of a specific frequency over a specific window is given by color.">
+                            <i class="fa fa-info-circle"></i>
+                        </div>
                     </div>
+
+                    <div id="spectrogram"></div>
                 </div>
             </div>
-
-            <!-- <<<<<<<<<<<<>>>>>>>>>>>> -->
-            <!--  1D DEEP CLUSTERING TAB  -->
-            <!-- <<<<<<<<<<<<>>>>>>>>>>>> -->
-            <div class="tab-pane interaction" id="deep-clustering-tab-1d" role="tabpanel" aria-labelledby="deep-clustering-tab-bootstrap">
-                <div class="shared-plots-spinner">
-                    <div id='pca-cont-1d'>
-                        <div class='title-cont'>
-                            <div>Visualization of Embedding Space</div>
-
-                            <div class="hint--top hint--large hint--rounded" aria-label="Click and drag on the plot to select bins and see the corresponding points on the spectrogram highlighted. A Principal Component Analysis representation of the k-dimensional embedding space.">
-                                <i class="fa fa-info-circle"></i>
-                            </div>
-                        </div>
-
-                        <div>
-                            <button id="flip-1d" type="button" class="btn btn-primary disabled dc-1d-control">
-                                <i class="fas fa-exchange-alt"></i>
-                            </button>
-                            <div class="checkbox">
-                                <input type="checkbox" id="log-y-1d" class="disabled dc-1d-control">
-                                <label for="log-y-1d">Log Y?</label>
-                            </div>
-                        </div>
-
-                        <div class="outer">
-                            <div class="aspect-ratio-box">
-                                <div class="alignment" id="pca-1d">
-                                </div>
-                            </div>
-                        </div>
-                        <div id="pca-1d-slider">
-                            <input id="slider-1d" data-slider-id='slider-1d' type="text"
-                                   data-slider-min="0" data-slider-max="100"
-                                   data-slider-step="1" data-slider-value="50"/>
-                        </div>
-                    </div>
-
-
-                    <div id='spectrogram-cont'>
-                        <div class='title-cont'>
-                            <div>Mel Spectrogram</div>
-
-                            <div class="hint--top hint--large hint--rounded" aria-label="Visual representation of audio signal. Frequency in mels, time  in seconds. Each point on the x-axis is a single STFT taken over j samples. Intensity of a specific frequency over a specific window is given by color.">
-                                <i class="fa fa-info-circle"></i>
-                            </div>
-                        </div>
-
-                        <div id="dc-spectrogram-1d"></div>
-
-                        <div id="dc-button-wrapper-1d">
-                            <button id="apply-dc-selections-1d" type="button" class="btn btn-primary disabled dc-1d-control">Make Audio Mask from Selection</button>
-                            <button id="see-results-1d" type="button" class="btn btn-primary disabled dc-1d-control">See Results</button>
-                        </div>
-                    </div>
-                </div>
-                <div id='plots-spinner-1d' class='spinner-outer shared-plots-spinner'>
-                    <div class="spinner">
-                        <div class="rect1"></div>
-                        <div class="rect2"></div>
-                        <div class="rect3"></div>
-                        <div class="rect4"></div>
-                        <div class="rect5"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- <<<<<<<<<<<<<<<>>>>>>>>>>>>>>> -->
-            <!--  TEMPORAL DEEP CLUSTERING TAB  -->
-            <!-- <<<<<<<<<<<<<<<>>>>>>>>>>>>>>> -->
-            <div class="tab-pane interaction" id="temp-deep-clustering-tab" role="tabpanel" aria-labelledby="temporal-deep-clustering-tab-bootstrap">
-
-                <div class="shared-plots-spinner">
-                    <div id='pca-cont'>
-                        <div class='title-cont'>
-                            <div>Visualization of Embedding Space</div>
-
-                            <div class="hint--top hint--large hint--rounded" aria-label="Click and drag on the plot to select bins and see the corresponding points on the spectrogram highlighted. A Principal Component Analysis representation of the k-dimensional embedding space.">
-                                <i class="fa fa-info-circle"></i>
-                            </div>
-                        </div>
-
-                        <div class="outer">
-                            <div class="aspect-ratio-box">
-                                <div class="alignment" id="tdc">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-
-                    <div id='spectrogram-cont'>
-                        <div class='title-cont'>
-                            <div>Mel Spectrogram</div>
-
-                            <div class="hint--top hint--large hint--rounded" aria-label="Visual representation of audio signal. Frequency in mels, time  in seconds. Each point on the x-axis is a single STFT taken over j samples. Intensity of a specific frequency over a specific window is given by color.">
-                                <i class="fa fa-info-circle"></i>
-                            </div>
-                        </div>
-
-                        <div id="dc-spectrogram"></div>
-
-                        <div id="dc-button-wrapper">
-                            <button id="apply-dc-selections" type="button" class="btn btn-primary disabled">Make Audio Mask from Selection</button>
-                            <button id="see-results" type="button" class="btn btn-primary disabled">See Results</button>
-                        </div>
-                    </div>
-                </div>
-                <div id='plots-spinner' class='spinner-outer shared-plots-spinner'>
-                    <div class="spinner">
-                        <div class="rect1"></div>
-                        <div class="rect2"></div>
-                        <div class="rect3"></div>
-                        <div class="rect4"></div>
-                        <div class="rect5"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="tab-pane" id="reqs-tab" role="tabpanel" aria-labelledby="reqs-tab-bootstrap">
-                <div id="reqs-container">
-                    <div id="rec-btns" class="row">
-                        <div class="col-md-7 offset-md-1">
-                            <div class="btn-group btn-group">
-                                <button id="req-play" class="btn btn-primary play-pause" title="Play">
-                                    <i class="fas fa-play"></i>
-                                </button>
-                                <button id="req-stop" class="btn btn-primary" title="Stop">
-                                        <i class="fas fa-stop"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <button id="req-load" class="btn btn-primary btn" title="Load">
-                                Load Recommendations
-                            </button>
-                        </div>
-                        <div class="col-md-1">
-                            <button id="req-save" class="btn btn-primary btn" title="Save">
-                                <i class="fas fa-download"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div id="track-container">
-                        <div id="slider-and-ticks">
-                            <div id='ticks-spacer-wrapper'>
-                                <div id="ticks-spacer" class="spacer"></div>
-                                <div id="ticks-wrapper">
-                                    <div id="ticks">
-                                        <div class="tick major">
-                                            <div class="time">00:00</div>
-                                        </div>
-                                        <div class="tick"></div>
-                                        <div class="tick"></div>
-                                        <div class="tick"></div>
-                                        <div class="tick"></div>
-                                        <div class="tick"></div>
-                                        <div class="tick major">
-                                            <div class="time">06:00</div>
-                                        </div>
-                                        <div class="tick"></div>
-                                        <div class="tick"></div>
-                                        <div class="tick"></div>
-                                        <div class="tick"></div>
-                                        <div class="tick"></div>
-                                        <div class="tick major">
-                                            <div class="time">12:00</div>
-                                        </div>
-                                        <div class="tick"></div>
-                                        <div class="tick"></div>
-                                        <div class="tick"></div>
-                                        <div class="tick"></div>
-                                        <div class="tick"></div>
-                                        <div class="tick major">
-                                            <div class="time">18:00</div>
-                                        </div>
-                                        <div class="tick"></div>
-                                        <div class="tick"></div>
-                                        <div class="tick"></div>
-                                        <div class="tick"></div>
-                                        <div class="tick"></div>
-                                        <div class="tick major">
-                                            <div class="time">00:00</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div id="transport-slider-wrapper">
-                                <div class="spacer"></div>
-                                <input id="transport-slider" type="text"
-                                        data-slider-handle="custom"
-                                        data-slider-min="0.0"
-                                        data-slider-step="0.01"
-                                        data-slider-value="0.0"
-                                        data-slider-tooltip="hide"
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- INSERTED TRACKS GO IN HERE -->
-                    <div id="track-container"></div>
+            <div id='plots-spinner' class='spinner-outer shared-plots-spinner'>
+                <div class="spinner">
+                    <div class="rect1"></div>
+                    <div class="rect2"></div>
+                    <div class="rect3"></div>
+                    <div class="rect4"></div>
+                    <div class="rect5"></div>
                 </div>
             </div>
         </div>
     </main>
     <footer>
-        <p>Ethan Manilow, Nathan Shelly, Bryan Pardo, Darren Gergle</p>
+        <p>Ethan Manilow, Nathan Shelly, Prem Seetharaman, Bryan Pardo</p>
         <p>This work supported in part by NSF Award <a href=
             "https://www.nsf.gov/awardsearch/showAward?AWD_ID=1420971&HistoricalAwards=false"
             >1420971</a></p>
@@ -389,24 +207,20 @@
 
             <div id='audio-upload-modal-separation-radios'>
                 <div class="form-check">
+                    <input class="form-check-input separation-radio" type="radio" name="modelSelection" value="speech" id="speech" checked>
+                    <label class="form-check-label" for="speech">Talker vs Talker</label>
+                </div>
+                <div class="form-check">
                     <input class="form-check-input separation-radio" type="radio" name="modelSelection" value="vocals" id="vocals">
-                    <label class="form-check-label" for="vocals">Vocals</label>
+                    <label class="form-check-label" for="vocals">Vocals vs Instrumental</label>
                 </div>
                 <div class="form-check">
-                    <input class="form-check-input separation-radio" type="radio" name="modelSelection" value="drums" id="drums">
-                    <label class="form-check-label" for="drums">Drums</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input separation-radio" type="radio" name="modelSelection" value="bass" id="bass">
-                    <label class="form-check-label" for="bass">Bass</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input separation-radio" type="radio" name="modelSelection" value="other" id="other">
-                    <label class="form-check-label" for="other">Other</label>
+                    <input class="form-check-input separation-radio" type="radio" name="modelSelection" value="untrained" id="untrained">
+                    <label class="form-check-label" for="untrained">Train your own</label>
                 </div>
             </div>
 
-            <button id="audio-upload-modal-next" type="button" class="modal-bottom-button btn btn-primary disabled" title="Modal Next">
+            <button id="audio-upload-modal-next" type="button" class="modal-bottom-button btn btn-primary" title="Modal Next">
                 Next
             </button>
         </div>
@@ -457,10 +271,8 @@
     <script type="text/javascript" src="{{ url_for('static', filename='js/modal.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/audio_modal.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/waveform.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/index.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/study.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/audio.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/selection.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/track.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/multitrack.js') }}"></script>
 </body>
 </html>
