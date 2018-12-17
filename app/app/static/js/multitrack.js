@@ -26,7 +26,6 @@ function addTrack(id, name, url, color, load_recs=false) {
 function initTrack(id, url, load_recs=false) {
     loader.load(url).then(buffer => {
         trackList[id].changeWaveformBuffer(buffer, 0);
-        if(load_recs) socket.emit('get_recommendations', { 'algorithm': id });
     });
 }
 

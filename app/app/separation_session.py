@@ -15,7 +15,6 @@ import jsonpickle
 import jsonpickle.ext.numpy as jsonpickle_numpy
 
 from . import audio_processing
-from . import recommendations
 from . import config
 from . import actions
 from . import utils
@@ -72,8 +71,6 @@ class SeparationSession(object):
         self.masked_path = None
         self.inverse_path = None
 
-        self.sdr_predictor = None
-
         self.undo_list = []
         self.initialized = False
 
@@ -110,17 +107,12 @@ class SeparationSession(object):
         self.user_signal = nussl.AudioSignal(self.user_original_file_location)
         self.user_general_audio = audio_processing.GeneralAudio(self.user_signal, self.user_original_file_folder)
 
-        self.sdr_predictor = recommendations.SDRPredictor(self.user_general_audio.audio_signal_copy,
-                                                          self.base_audio_path, self.user_goals, {})
-
         self.initialized = True
         self.time_of_init = time.asctime(time.localtime(time.time()))
         return self.user_signal
 
     def receive_survey_response(self, survey_data):
         self.user_goals = survey_data['extraction_goals']
-        self.sdr_predictor = recommendations.SDRPredictor(self.user_general_audio.audio_signal_copy,
-                                                        self.base_audio_path, self.user_goals, {})
 
     @property
     def algorithms_run_yet(self):

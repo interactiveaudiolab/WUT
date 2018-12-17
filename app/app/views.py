@@ -225,19 +225,6 @@ def get_survey_results(message):
     sess.receive_survey_response(message)
     save_session(sess)
 
-@socketio.on('get_recommendations', namespace=WUT_SOCKET_NAMESPACE)
-def send_recommendations(message):
-    sess = awaken_session()
-    reqs = sess.sdr_predictor.dummy_recommendations()
-    algorithm = message['algorithm']
-    save_session(sess)
-
-    logger.info('Sending recommendation data for {}.'.format(algorithm))
-
-    socketio.emit('envelope_data', {'envelopeData': reqs[algorithm], 'algorithm': algorithm},
-                  namespace=WUT_SOCKET_NAMESPACE)
-
-
 @socketio.on('action', namespace=WUT_SOCKET_NAMESPACE)
 def get_action(action_):
     logger.info('receiving action')
