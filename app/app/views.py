@@ -225,19 +225,6 @@ def get_survey_results(message):
     sess.receive_survey_response(message)
     save_session(sess)
 
-@socketio.on('action', namespace=WUT_SOCKET_NAMESPACE)
-def get_action(action_):
-    logger.info('receiving action')
-
-    sess = awaken_session()
-
-    if not sess.initialized or not sess.stft_done:
-        _exception('sess not initialized or STFT not done!')
-
-    action_dict = action_['actionData']
-    sess.push_action(action_dict)
-    save_session(sess)
-
 @socketio.on('retrain', namespace=WUT_SOCKET_NAMESPACE)
 def retrain(mask):
     logger.info('in retrain endpoint')
@@ -336,35 +323,3 @@ def get_inverse_audio():
 
     file_mime_type = 'audio/mp3'
     return make_response(send_file(sess.inverse_path, file_mime_type))
-
-@app_.route('/action', methods=['POST'])
-def action():
-    logger.info('receiving action')
-
-    action_dict = request.json['actionData']
-    sess = awaken_session()
-
-    if not sess.initialized or not sess.stft_done:
-        _exception('sess not initialized or STFT not done!')
-
-    sess.push_action(action_dict)
-    save_session(sess)
-
-    return json.dumps(True)
-
-@app_.route('/process', methods=['GET'])
-def process():
-    logger.info('got process request!')
-
-    sess = awaken_session()
-
-    if not sess.initialized or not sess.stft_done:
-        _exception('sess not initialized or STFT not done!')
-
-    sess.apply_actions_in_queue()
-    save_session(sess)
-
-    file_mime_type = 'audio/wav'
-    file_path = sess.user_general_audio.make_wav_file()
-
-    return make_response(send_file(file_path, file_mime_type))
