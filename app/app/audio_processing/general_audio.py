@@ -1,7 +1,3 @@
-# coding=utf-8
-"""
-General audio tasks in here
-"""
 import json
 import logging
 import os
@@ -18,26 +14,18 @@ import sys
 sys.path.insert(0, '../nussl')
 import nussl
 
-from . import audio_processing_base
+from .audio_processing_base import InteractiveAudioProcessingBase
 
 logger = logging.getLogger()
 
 
-class GeneralAudio(audio_processing_base.InteractiveAudioProcessingBase):
-    PREVIEW = 'preview'
-    MASTER = 'master'
-
+class GeneralAudio(InteractiveAudioProcessingBase):
     def __init__(self, mixture_signal, storage_path):
         super(GeneralAudio, self).__init__(mixture_signal, storage_path)
 
-        self.mode = self.MASTER
         self.max_frequency_displayed = None
         self.spectrogram_image_path = None
         self.mel_spectrogram_image_path = None
-
-        self.master_params = nussl.stft_utils.StftParams(
-            self.audio_signal_copy.sample_rate
-        )
 
     @property
     def stft_done(self):
@@ -51,13 +39,12 @@ class GeneralAudio(audio_processing_base.InteractiveAudioProcessingBase):
         )
 
     def get_spectrogram_json(self):
-        spec = self.do_spectrogram()
-        return json.dumps(spec.tolist())
+        return json.dumps(self.do_spectrogram().tolist())
 
     def send_spectrogram_json(self, socket, namespace):
         spec_json = self.get_spectrogram_json()
         socket.emit('spectrogram', {'spectrogram': spec_json}, namespace=namespace)
-        logger.info('Sent spectrogram for {}'.format(self.user_audio_signal.file_name))
+        logger.info(f'Sent spectrogram for {self.user_audio_signal.file_name}')
 
     def find_peak_freq(self, freq_min=10000, bump=10):
         """
@@ -88,15 +75,13 @@ class GeneralAudio(audio_processing_base.InteractiveAudioProcessingBase):
             idx = freq_i + freq_bin + bump
             idx = len(freqs) - 1 if idx >= len(freqs) else idx
 
-            logger.info('Max freq = {} Hz'.format(freqs[idx]))
+            logger.info(f'Max freq = {freqs[idx]} Hz')
 
             self.max_frequency_displayed = freqs[idx]
             return idx
 
     def spectrogram_image(self, img_width=28, img_height=12, dpi=80, cmap='plasma'):
-        file_name = '{}_spec.png'.format(
-            self.audio_signal_copy.file_name.replace('.', '_')
-        )
+        file_name = f'{self.audio_signal_copy.file_name.replace(".", "_")}_spec.png'
         file_path = os.path.join(self.storage_path, file_name)
         self.spectrogram_image_path = file_path
 
@@ -118,14 +103,8 @@ class GeneralAudio(audio_processing_base.InteractiveAudioProcessingBase):
 
     def make_wav_file(self):
         self.audio_signal_copy.istft(overwrite=True)
-        # self.audio_signal_copy.plot_spectrogram(os.path.join(self.storage_path, 'result.png'))
         file_name_stem = self.audio_signal_copy.file_name.replace('.', '-')
         new_audio_file_name = self._make_new_file_name(file_name_stem, 'wav')
-
-        # write the metadata
-        # new_metadata_path = os.path.join(self.storage_path, '{}_{}.json'.format(file_name_stem, i))
-        # with open(new_metadata_path, 'w') as f:
-        #     pass
 
         new_audio_file_path = os.path.join(self.storage_path, new_audio_file_name)
         self.audio_signal_copy.write_audio_to_file(new_audio_file_path)
@@ -135,54 +114,12 @@ class GeneralAudio(audio_processing_base.InteractiveAudioProcessingBase):
     @staticmethod
     def _make_new_file_name(file_name_stem, extension):
         i = 0
-        new_name = '{}_{}.{}'.format(file_name_stem, i, extension)
+        new_name = f'{file_name_stem}_{i}.{extension}'
         while os.path.isfile(new_name):
             i += 1
-            new_name = '{}_{}.{}'.format(file_name_stem, i, extension)
+            new_name = f'{file_name_stem}_{i}.{extension}'
 
         return new_name
-
-    def make_mp3_file(self):
-        """
-        UNTESTED
-        From: http://zulko.github.io/blog/2013/10/04/read-and-write-audio-files-in-python-using-ffmpeg/
-        :return:
-        """
-        bit_rate = '256k'
-        file_name_stem = self.audio_signal_copy.file_name.replace('.', '-')
-        new_audio_file_name = self._make_new_file_name(file_name_stem, 'mp3')
-
-        LIBAV_BIN = 'libav'
-        pipe = sp.Popen(
-            [
-                LIBAV_BIN,
-                '-y',  # (optional) means overwrite the output file if it already exists.
-                "-f",
-                's16le',  # means 16bit input
-                "-acodec",
-                "pcm_s16le",  # means raw 16bit input
-                '-r',
-                "44100",  # the input will have 44100 Hz
-                '-ac',
-                '2',  # the input will have 2 channels (stereo)
-                '-i',
-                '-',  # means that the input will arrive from the pipe
-                '-vn',  # means "don't expect any video input"
-                '-acodec',
-                'ibfdk_aac' '-b',  # output audio codec
-                bit_rate,  # output bitrate (=quality). Here, 3000kb/second
-                new_audio_file_name,
-            ],
-            stdin=sp.PIPE,
-            stdout=sp.PIPE,
-            stderr=sp.PIPE,
-        )
-
-        audio = (
-            self.audio_signal_copy.audio_data_as_ints()
-        )  # nussl does 16-bit by default
-        audio = audio.T
-        audio.astype('int16').tofile(pipe.stdin)
 
     def make_mask(self, selections):
 
@@ -204,7 +141,3 @@ class GeneralAudio(audio_processing_base.InteractiveAudioProcessingBase):
         final_mask = np.clip(final_mask, a_min=0.0, a_max=1.0)
 
         return self._mask_post_processing(final_mask)
-
-
-class GeneralAudioException(Exception):
-    pass
