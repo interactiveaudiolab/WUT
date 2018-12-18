@@ -25,7 +25,7 @@ from flask_socketio import emit
 from pickle import Unpickler
 
 from .app_obj import app_, socketio, redis_store
-from . import separation_session
+from .separation_session import SeparationSession
 from .config import ALLOWED_EXTENSIONS
 from .constants import FRONTEND_SEPARATION_CATEGORY_TO_BACKEND_MODEL
 
@@ -38,16 +38,12 @@ DEBUG = True
 
 logger = logging.getLogger()
 WUT_SOCKET_NAMESPACE = '/wut'
-CURRENT_SESSION = 'cur_session'
-
-
-HOME = os.path.abspath('../../models')
 
 
 @app_.route('/')
 @app_.route('/index')
 def index():
-    sess = separation_session.SeparationSession()
+    sess = SeparationSession()
     session['session_id'] = sess.url_safe_id
     session.modified = True
     save_session(sess)
@@ -56,7 +52,7 @@ def index():
 
 @app_.errorhandler(404)
 def page_not_found(e):
-    logger.warn('404! {}'.format(request.full_path))
+    logger.warn(f'404! {request.full_path}')
     return render_template('404.html')
 
 
@@ -82,61 +78,56 @@ def initialize(audio_file_data):
         socketio.emit('bad_file', namespace=WUT_SOCKET_NAMESPACE)
         return
 
-    # The file is OKAY
     logger.info('File OKAY!')
     audio_file = audio_file_data['audio_file']
     filename = secure_filename(audio_file['file_name'])
 
-    # Retrieve the session from memory
-    separation_sess = awaken_session()
+    sep_sess = awaken_session()
 
-    path = os.path.join(separation_sess.user_original_file_folder, filename)
-    # Save the file
+    path = os.path.join(sep_sess.user_original_file_folder, filename)
+    # save file
     with open(path, 'wb') as f:
         f.write(audio_file['file_data'])
-    logger.info('{} saved at {}'.format(filename, path))
+    logger.info(f'{filename} saved at {path}')
 
-    # Initialize the session
-    separation_sess.initialize(path)
+    sep_sess.initialize(path)
     logger.info(
-        'Initialization successful for file {}!'.format(
-            separation_sess.user_original_file_location
-        )
+        f'Initialization successful for file {sep_sess.user_original_file_location}!'
     )
-    save_session(separation_sess)
+    save_session(sep_sess)
     socketio.emit('audio_upload_ok', namespace=WUT_SOCKET_NAMESPACE)
 
-    # Compute and send the STFT, Synchronously (STFT data is needed for further calculations)
-    logger.info('Computing spectrogram image for {}'.format(filename))
-    separation_sess.user_general_audio.spectrogram_image()
-    save_session(separation_sess)
+    # compute and send STFT, synchronously (STFT data needed for further calculations)
+    logger.info(f'Computing spectrogram image for {filename}')
+    sep_sess.user_general_audio.spectrogram_image()
+    save_session(sep_sess)
 
     # compute and send Deep Clustering PCA visualization and mel spectrogram
-    separation_sess.model_path = FRONTEND_SEPARATION_CATEGORY_TO_BACKEND_MODEL[
+    sep_sess.model_path = FRONTEND_SEPARATION_CATEGORY_TO_BACKEND_MODEL[
         audio_file_data['radio_selection'].lower()
     ]
 
-    separation_sess.deep_separation_wrapper = audio_processing.DeepSeparationWrapper(
-        separation_sess.user_signal,
-        separation_sess.user_original_file_folder,
-        model_path=separation_sess.model_path,
+    sep_sess.deep_separation_wrapper = audio_processing.DeepSeparationWrapper(
+        sep_sess.user_signal,
+        sep_sess.user_original_file_folder,
+        model_path=sep_sess.model_path,
     )
-    logger.info('Computing and sending clusters for {}'.format(filename))
+    logger.info(f'Computing and sending clusters for {filename}')
 
-    # currently kind of ugly hack for mel spectrogram image
-    underscored_file_name = separation_sess.user_general_audio.audio_signal_copy.file_name.replace(
+    # FIXME: currently kind of ugly hack for mel spectrogram image
+    underscored_file_name = sep_sess.user_general_audio.audio_signal_copy.file_name.replace(
         '.', '_'
     )
     file_name = f'{underscored_file_name}_mel_spec.png'
-    file_path = os.path.join(separation_sess.user_general_audio.storage_path, file_name)
+    file_path = os.path.join(sep_sess.user_general_audio.storage_path, file_name)
 
     logger.info(f'Saved spectrogram image @ {file_path}')
 
-    separation_sess.user_general_audio.mel_spectrogram_image_path = file_path
-    save_session(separation_sess)
+    sep_sess.user_general_audio.mel_spectrogram_image_path = file_path
+    save_session(sep_sess)
 
     socketio.start_background_task(
-        separation_sess.deep_separation_wrapper.send_separation,
+        sep_sess.deep_separation_wrapper.send_separation,
         **{
             'socket': socketio,
             'namespace': WUT_SOCKET_NAMESPACE,
@@ -144,19 +135,16 @@ def initialize(audio_file_data):
         },
     )
 
-    # Save the session
-    save_session(separation_sess)
+    save_session(sep_sess)
 
 
-def save_session(separation_sess):
-    session_id = separation_sess.url_safe_id
-    redis_store.set(session_id, separation_sess.to_json())
+def save_session(sep_sess):
+    session_id = sep_sess.url_safe_id
+    redis_store.set(session_id, sep_sess.to_json())
 
 
 def awaken_session():
-    separation_sess = redis_store.get(session['session_id'])
-    separation_sess = separation_session.SeparationSession.from_json(separation_sess)
-    return separation_sess
+    return SeparationSession.from_json(redis_store.get(session['session_id']))
 
 
 def check_file_upload(audio_file_data):
@@ -186,7 +174,7 @@ def allowed_file(filename):
 
 def _exception(error_msg):
     frm = inspect.stack()[1][3]
-    logger.error('{} -- {}'.format(frm, error_msg))
+    logger.error(f'{frm} -- {error_msg}')
 
     if DEBUG:
         raise Exception(error_msg)
@@ -196,14 +184,11 @@ def _exception(error_msg):
 
 @app_.route('/mel_spec_image', methods=['GET'])
 def mel_spectrogram_image():
-    logger.info('in /mel_spec_image')
-
     sess = awaken_session()
 
     if not sess.initialized:
         _exception('sess not initialized!')
 
-    logger.info(sess.user_general_audio.mel_spectrogram_image_path)
     return send_file(
         sess.user_general_audio.mel_spectrogram_image_path, mimetype='image/png'
     )
@@ -211,32 +196,18 @@ def mel_spectrogram_image():
 
 @app_.route('/spec_image', methods=['GET'])
 def spectrogram_image():
-    logger.info('in /spec_image')
-
     sess = awaken_session()
 
     if not sess.initialized:
         _exception('sess not initialized!')
 
-    logger.info('Sending spectrogram file.')
-    logger.info(sess.user_general_audio.mel_spectrogram_image_path)
     return send_file(
         sess.user_general_audio.mel_spectrogram_image_path, mimetype='image/png'
     )
 
 
-@socketio.on('survey_results', namespace=WUT_SOCKET_NAMESPACE)
-def get_survey_results(message):
-    logger.info('Getting survey results')
-
-    sess = awaken_session()
-    sess.receive_survey_response(message)
-    save_session(sess)
-
-
 @socketio.on('retrain', namespace=WUT_SOCKET_NAMESPACE)
 def retrain(mask):
-    logger.info('in retrain endpoint')
     sess = awaken_session()
     model, _ = sess.deep_separation_wrapper.get_model_and_metadata()
 
@@ -253,19 +224,11 @@ def retrain(mask):
         model,
         options,
     )
-
-    logger.info('retraining')
     retrainer.fit()
-    logger.info('done retraining?')
-    """
-    sess.deep_separation_wrapper.model_path = os.path.expanduser(
-        '~/.nussl/models/retrained.pth'
-    )
-    """
+
     sess.deep_separation_wrapper.model_path = retrainer.save(
         False, os.path.expanduser('~/.tussl/models')
     )
-    logger.info(f'model_path: {sess.deep_separation_wrapper.model_path}')
     sess.deep_separation_wrapper.set_model(sess.deep_separation_wrapper.model_path)
     socketio.start_background_task(
         sess.deep_separation_wrapper.send_separation,
@@ -295,8 +258,6 @@ def generate_mask(mask):
 
 @app_.route('/get_masked_audio', methods=['GET'])
 def get_masked_audio():
-    logger.info('sending masked audio')
-
     sess = awaken_session()
 
     if not sess.initialized or not sess.stft_done:
@@ -310,8 +271,6 @@ def get_masked_audio():
 
 @app_.route('/get_inverse_audio', methods=['GET'])
 def get_inverse_audio():
-    logger.info('sending inverse audio')
-
     sess = awaken_session()
 
     if not sess.initialized or not sess.stft_done:
@@ -319,5 +278,6 @@ def get_inverse_audio():
 
     save_session(sess)
 
+    # TODO: named argument here?
     file_mime_type = 'audio/mp3'
     return make_response(send_file(sess.inverse_path, file_mime_type))
