@@ -3,15 +3,10 @@ import os
 
 def safe_makedirs(path):
     try:
-        path = os.path.abspath(path)
-        os.makedirs(path)
+        os.makedirs(os.path.abspath(path))
 
     except OSError as e:
-        if e.errno == 17:  # File exists
+        if e.errno == 17:  # file exists
             return
         else:
             raise e
-
-
-def trunc(f):
-    return float("{0:.2f}".format(f))
