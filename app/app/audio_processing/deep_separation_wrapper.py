@@ -8,8 +8,8 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-from . import audio_processing_base
-from . import annotation_dataset
+from .audio_processing_base import InteractiveAudioProcessingBase
+from .annotation_dataset import AnnotationDataset
 
 import sys
 
@@ -22,10 +22,8 @@ import os
 logger = logging.getLogger()
 
 
-class DeepSeparationWrapper(audio_processing_base.InteractiveAudioProcessingBase):
-    """
-
-    """
+class DeepSeparationWrapper(InteractiveAudioProcessingBase):
+    """"""
 
     def __init__(self, mixture_signal, storage_path, model_path='speech_wsj8k.pth'):
         super(DeepSeparationWrapper, self).__init__(mixture_signal, storage_path)
@@ -63,7 +61,7 @@ class DeepSeparationWrapper(audio_processing_base.InteractiveAudioProcessingBase
                 [assignments, 1 - assignments], len(assignments.shape)
             ),
         }
-        dataset = annotation_dataset.AnnotationDataset(
+        dataset = AnnotationDataset(
             options=self._deep_separation.metadata, **dataset_input
         )
         return dataset
@@ -151,15 +149,13 @@ class DeepSeparationWrapper(audio_processing_base.InteractiveAudioProcessingBase
     @staticmethod
     def _scale_num(num, _min, _max, scaled_min, scaled_max):
         """Scales given number between given scaled_min and scaled_max. _min and
-        _max of source distribution needed for scaling.
-        """
+        _max of source distribution needed for scaling."""
         return scaled_min + (((scaled_max - scaled_min) * (num - _min)) / (_max - _min))
 
     def _clean_coordinates(self, coord, x_edges, y_edges, new_max=99, new_min=0):
         """`coord` is x, y tuple (technically two item list), edges are tuples
         holding min and max values along respective axes. new_max and new_min
-        specify range to scale points to.
-        """
+        specify range to scale points to."""
         return (
             int(
                 round(
@@ -176,16 +172,14 @@ class DeepSeparationWrapper(audio_processing_base.InteractiveAudioProcessingBase
     @staticmethod
     def _find_pca_min_max(pca):
         """Takes Zx2 numpy array and returns tuples of tuples giving min and max
-        along each dimension
-        """
+        along each dimension"""
         mins = np.amin(pca, 0)
         maxes = np.amax(pca, 0)
         return (mins[0], maxes[0]), (mins[1], maxes[1])
 
     def _scale_pca(self, pca, new_max=99, new_min=0):
         """Takes Zx2 (specifically TFx2 as used) numpy array and scales all
-        coordinates
-        """
+        coordinates"""
         x_edges, y_edges = self._find_pca_min_max(pca)
 
         scale_and_clean = lambda coord: self._clean_coordinates(
