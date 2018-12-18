@@ -1,5 +1,6 @@
 import sys
 import os
+
 sys.path.insert(0, '../app/nussl')
 
 import nussl
@@ -8,6 +9,7 @@ import numpy as np
 import librosa
 
 import matplotlib
+
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import time
@@ -44,12 +46,24 @@ def main():
     n_bins = 100
 
     if RUN_DC:
-        gt_vox_mask, gt_bak_mask, sm = ct.mel_mask(mix, vox, bak, mix.sample_rate,
-                                                   bg_mask_inverse=False,
-                                                   silence_mask_cutoff=cutoff)
+        gt_vox_mask, gt_bak_mask, sm = ct.mel_mask(
+            mix,
+            vox,
+            bak,
+            mix.sample_rate,
+            bg_mask_inverse=False,
+            silence_mask_cutoff=cutoff,
+        )
 
-        dc = nussl.DeepClustering(mix, model_path=model_path, mask_type='binary', do_mono=True,
-                                  return_mel_masks=True, pca_before_clustering=False, cutoff=cutoff)
+        dc = nussl.DeepClustering(
+            mix,
+            model_path=model_path,
+            mask_type='binary',
+            do_mono=True,
+            return_mel_masks=True,
+            pca_before_clustering=False,
+            cutoff=cutoff,
+        )
         dc_vox_mask, dc_bk_mask, binned, mel, scaled = ct.deep_clustering_mask(dc)
         dc_vox_mask, dc_bk_mask = dc_vox_mask.get_channel(0), dc_bk_mask.get_channel(0)
 
@@ -67,7 +81,6 @@ def main():
                 tdc_space[j, t] += 1
 
         plot_tdc(tdc_space, mix.time_vector[-1], output_dir, 'tdc_test3.png')
-
 
 
 def tsne_test():
@@ -88,8 +101,15 @@ def tsne_test():
     bak = nussl.AudioSignal(bk_path)
     bak.to_mono(overwrite=True)
 
-    dc = nussl.DeepClustering(mix, model_path=model_path, mask_type='binary', do_mono=True,
-                              return_mel_masks=True, pca_before_clustering=False, cutoff=cutoff)
+    dc = nussl.DeepClustering(
+        mix,
+        model_path=model_path,
+        mask_type='binary',
+        do_mono=True,
+        return_mel_masks=True,
+        pca_before_clustering=False,
+        cutoff=cutoff,
+    )
     dc.run()
 
     tsne = TSNE(verbose=2, n_jobs=6)
@@ -97,7 +117,9 @@ def tsne_test():
 
     plt.close('all')
 
-    hm = plt.imshow(tsne_space)#, norm=LogNorm(vmin=1, vmax=np.max([np.max(vox_diff), np.max(bg_diff)])))
+    hm = plt.imshow(
+        tsne_space
+    )  # , norm=LogNorm(vmin=1, vmax=np.max([np.max(vox_diff), np.max(bg_diff)])))
     plt.title(r'TSNE Space')
     plt.colorbar(hm)
 
@@ -111,10 +133,12 @@ def get_coordinate_from_TF_index(index, inner_dim):  # inner_dim == 150
 def attempt2(scaled, dc_vox_mask, output_dir, mix):
     scaled_reshape = scaled.reshape(dc_vox_mask.shape[0], dc_vox_mask.shape[1], 2)
     scaled_axis = scaled_reshape[:, :, 0]
-    tdc_space = np.array([scaled_axis[t, :]
-                          for t in range(dc_vox_mask.shape[0])], dtype=float).T
+    tdc_space = np.array(
+        [scaled_axis[t, :] for t in range(dc_vox_mask.shape[0])], dtype=float
+    ).T
 
     plot_tdc(tdc_space, mix.time_vector[-1], output_dir, 'tdc_test2.png')
+
 
 def attempt1(dc, mix, output_dir):
     pca = sklearn.decomposition.PCA(n_components=1)
@@ -127,8 +151,12 @@ def attempt1(dc, mix, output_dir):
 
     pca_embeddings_reshape = pca_embeddings.reshape(dc_vox_mask.shape)
 
-    tdc_space = np.array([np.histogram(pca_embeddings_reshape[t, :], bins=n_bins)[0]
-                          for t in range(dc_vox_mask.shape[0])]).T
+    tdc_space = np.array(
+        [
+            np.histogram(pca_embeddings_reshape[t, :], bins=n_bins)[0]
+            for t in range(dc_vox_mask.shape[0])
+        ]
+    ).T
 
     plot_tdc(tdc_space, mix.time_vector[-1], output_dir, 'tdc_test1.png')
 
@@ -140,19 +168,23 @@ def plot_tdc(tdc, t_max, output_dir, name):
     tdc_heatmap_ax = plt.axes([0.15, 0.1, 0.8, 0.8])
     tdc_sum_ax = plt.axes([0.025, 0.1, 0.1, 0.8])
 
-    tdc_log = librosa.amplitude_to_db(tdc.astype('float') +  1e-7)
+    tdc_log = librosa.amplitude_to_db(tdc.astype('float') + 1e-7)
     time_vect = np.linspace(0.0, t_max, tdc.shape[1])
     mel_vect = np.arange(0.0, tdc.shape[0])
     x, y = np.meshgrid(time_vect, mel_vect)
     hm = tdc_heatmap_ax.contourf(x, y, np.flipud(tdc_log))
 
-    xfmt = matplotlib.ticker.FuncFormatter(lambda sec, x: time.strftime('%M:%S', time.gmtime(sec)))
+    xfmt = matplotlib.ticker.FuncFormatter(
+        lambda sec, x: time.strftime('%M:%S', time.gmtime(sec))
+    )
     tdc_heatmap_ax.xaxis.set_major_formatter(xfmt)
     tdc_heatmap_ax.xaxis.set_ticks(np.linspace(0.0, t_max, 48))
     cb_axes = fig.add_axes([0.97, 0.1, 0.01, 0.8])
     fig.colorbar(hm, cax=cb_axes)
 
-    tdc_sum_ax.fill_between(np.sum(tdc, axis=1)[::-1], np.arange(tdc.shape[0]), step="pre")
+    tdc_sum_ax.fill_between(
+        np.sum(tdc, axis=1)[::-1], np.arange(tdc.shape[0]), step="pre"
+    )
     tdc_sum_ax.set_ylim(0, tdc.shape[0])
     plt.savefig(os.path.join(output_dir, name))
 
@@ -169,8 +201,6 @@ def playground():
     fit = pca.fit_transform(standardized)
 
     i = 0
-
-
 
 
 if __name__ == '__main__':

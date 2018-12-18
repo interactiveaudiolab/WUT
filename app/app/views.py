@@ -5,13 +5,20 @@ import json
 import math
 from . import audio_processing
 import matplotlib
+
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 import numpy as np
 from . import utils
 from flask import (
-    render_template, request, flash, session, abort, send_file, make_response
+    render_template,
+    request,
+    flash,
+    session,
+    abort,
+    send_file,
+    make_response,
 )
 from werkzeug.utils import secure_filename
 from flask_socketio import emit
@@ -22,6 +29,7 @@ from . import separation_session
 from .config import ALLOWED_EXTENSIONS
 
 import sys
+
 sys.path.insert(0, '../experiments/code')
 from trainer import Trainer
 
@@ -34,6 +42,7 @@ CURRENT_SESSION = 'cur_session'
 
 HOME = os.path.abspath('../../models')
 
+
 @app_.route('/')
 @app_.route('/index')
 def index():
@@ -42,6 +51,7 @@ def index():
     session.modified = True
     save_session(sess)
     return render_template('index.html')
+
 
 @app_.errorhandler(404)
 def page_not_found(e):
@@ -52,7 +62,9 @@ def page_not_found(e):
 @socketio.on('connect', namespace=WUT_SOCKET_NAMESPACE)
 def connected():
     logger.info('Socket connection established.')
-    socketio.emit('init response', {'data': 'Connected'}, namespace=WUT_SOCKET_NAMESPACE)
+    socketio.emit(
+        'init response', {'data': 'Connected'}, namespace=WUT_SOCKET_NAMESPACE
+    )
 
 
 @socketio.on('disconnect', namespace=WUT_SOCKET_NAMESPACE)
@@ -85,8 +97,11 @@ def initialize(audio_file_data):
 
     # Initialize the session
     separation_sess.initialize(path)
-    logger.info('Initialization successful for file {}!'
-                .format(separation_sess.user_original_file_location))
+    logger.info(
+        'Initialization successful for file {}!'.format(
+            separation_sess.user_original_file_location
+        )
+    )
     save_session(separation_sess)
     socketio.emit('audio_upload_ok', namespace=WUT_SOCKET_NAMESPACE)
 
@@ -115,18 +130,11 @@ def initialize(audio_file_data):
     logger.info('Computing and sending clusters for {}'.format(filename))
 
     # currently kind of ugly hack for mel spectrogram image
-    underscored_file_name = (
-        separation_sess
-            .user_general_audio
-            .audio_signal_copy
-            .file_name
-            .replace('.', '_')
+    underscored_file_name = separation_sess.user_general_audio.audio_signal_copy.file_name.replace(
+        '.', '_'
     )
     file_name = f'{underscored_file_name}_mel_spec.png'
-    file_path = os.path.join(
-        separation_sess.user_general_audio.storage_path,
-        file_name
-    )
+    file_path = os.path.join(separation_sess.user_general_audio.storage_path, file_name)
 
     logger.info(f'Saved spectrogram image @ {file_path}')
 
@@ -191,6 +199,7 @@ def _exception(error_msg):
     else:
         abort(500)
 
+
 @app_.route('/mel_spec_image', methods=['GET'])
 def mel_spectrogram_image():
     logger.info('in /mel_spec_image')
@@ -201,7 +210,10 @@ def mel_spectrogram_image():
         _exception('sess not initialized!')
 
     logger.info(sess.user_general_audio.mel_spectrogram_image_path)
-    return send_file(sess.user_general_audio.mel_spectrogram_image_path, mimetype='image/png')
+    return send_file(
+        sess.user_general_audio.mel_spectrogram_image_path, mimetype='image/png'
+    )
+
 
 @app_.route('/spec_image', methods=['GET'])
 def spectrogram_image():
@@ -214,7 +226,9 @@ def spectrogram_image():
 
     logger.info('Sending spectrogram file.')
     logger.info(sess.user_general_audio.mel_spectrogram_image_path)
-    return send_file(sess.user_general_audio.mel_spectrogram_image_path, mimetype='image/png')
+    return send_file(
+        sess.user_general_audio.mel_spectrogram_image_path, mimetype='image/png'
+    )
 
 
 @socketio.on('survey_results', namespace=WUT_SOCKET_NAMESPACE)
@@ -225,16 +239,17 @@ def get_survey_results(message):
     sess.receive_survey_response(message)
     save_session(sess)
 
+
 @socketio.on('retrain', namespace=WUT_SOCKET_NAMESPACE)
 def retrain(mask):
     logger.info('in retrain endpoint')
     sess = awaken_session()
     model, _ = sess.deep_separation_wrapper.get_model_and_metadata()
 
-    with open(os.path.expanduser(
-        '../experiments/code/config/defaults/train.json'
-    )) as f:
-        options =  json.load(f)
+    with open(
+        os.path.expanduser('../experiments/code/config/defaults/train.json')
+    ) as f:
+        options = json.load(f)
     options['loss_function'] = [['dpcl', 'embedding', '1.0']]
     options['num_epochs'] = 1
 
@@ -254,40 +269,27 @@ def retrain(mask):
     )
     """
     sess.deep_separation_wrapper.model_path = retrainer.save(
-        False,
-        os.path.expanduser('~/.tussl/models'),
+        False, os.path.expanduser('~/.tussl/models')
     )
     logger.info(f'model_path: {sess.deep_separation_wrapper.model_path}')
-    sess.deep_separation_wrapper.set_model(
-        sess.deep_separation_wrapper.model_path
-    )
+    sess.deep_separation_wrapper.set_model(sess.deep_separation_wrapper.model_path)
     socketio.start_background_task(
         sess.deep_separation_wrapper.send_separation,
-        **{
-            'socket': socketio,
-            'namespace': WUT_SOCKET_NAMESPACE,
-        },
+        **{'socket': socketio, 'namespace': WUT_SOCKET_NAMESPACE},
     )
+
 
 @socketio.on('mask', namespace=WUT_SOCKET_NAMESPACE)
 def generate_mask(mask):
     sess = awaken_session()
 
     sess.deep_separation_wrapper.separate()
-    mask = sess.deep_separation_wrapper.generate_mask_from_assignments(
-        mask['mask']
-    )
+    mask = sess.deep_separation_wrapper.generate_mask_from_assignments(mask['mask'])
     masked = sess.deep_separation_wrapper.apply_mask(mask)
     inverse = sess.deep_separation_wrapper.apply_mask(mask.invert_mask())
 
-    sess.masked_path = os.path.join(
-        sess.user_original_file_folder,
-        'masked.mp3'
-    )
-    sess.inverse_path = os.path.join(
-        sess.user_original_file_folder,
-        'inverse.mp3'
-    )
+    sess.masked_path = os.path.join(sess.user_original_file_folder, 'masked.mp3')
+    sess.inverse_path = os.path.join(sess.user_original_file_folder, 'inverse.mp3')
     save_session(sess)
     masked.write_audio_to_file(sess.masked_path)
     inverse.write_audio_to_file(sess.inverse_path)
@@ -295,6 +297,7 @@ def generate_mask(mask):
     socketio.emit('inverse_audio', {}, namespace=WUT_SOCKET_NAMESPACE)
 
     logger.info('told client to load masked & inverse audio')
+
 
 @app_.route('/get_masked_audio', methods=['GET'])
 def get_masked_audio():
@@ -309,6 +312,7 @@ def get_masked_audio():
 
     file_mime_type = 'audio/mp3'
     return make_response(send_file(sess.masked_path, file_mime_type))
+
 
 @app_.route('/get_inverse_audio', methods=['GET'])
 def get_inverse_audio():

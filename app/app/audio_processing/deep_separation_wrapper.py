@@ -4,6 +4,7 @@ import logging
 import numpy as np
 
 import matplotlib
+
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
@@ -11,6 +12,7 @@ from . import audio_processing_base
 from . import annotation_dataset
 
 import sys
+
 sys.path.insert(0, '../nussl')
 import nussl
 import inspect
@@ -20,23 +22,13 @@ import os
 logger = logging.getLogger()
 
 
-class DeepSeparationWrapper(
-    audio_processing_base.InteractiveAudioProcessingBase
-):
+class DeepSeparationWrapper(audio_processing_base.InteractiveAudioProcessingBase):
     """
 
     """
 
-    def __init__(
-        self,
-        mixture_signal,
-        storage_path,
-        model_path='speech_wsj8k.pth'
-    ):
-        super(DeepSeparationWrapper, self).__init__(
-            mixture_signal,
-            storage_path,
-        )
+    def __init__(self, mixture_signal, storage_path, model_path='speech_wsj8k.pth'):
+        super(DeepSeparationWrapper, self).__init__(mixture_signal, storage_path)
 
         # try to load model through `efz`, if this fails for any reason,
         # default to local `~/.nussl/models` folder
@@ -50,10 +42,7 @@ class DeepSeparationWrapper(
 
         mixture_signal.to_mono()
         self._deep_separation = nussl.DeepSeparation(
-            mixture_signal,
-            num_sources=2,
-            mask_type='soft',
-            model_path=self.model_path,
+            mixture_signal, num_sources=2, mask_type='soft', model_path=self.model_path
         )
         # hardcoding in square PCA
         self.PCA_dimension = 100
@@ -70,11 +59,12 @@ class DeepSeparationWrapper(
         dataset_input = {
             'magnitude_spectrogram': data['magnitude_spectrogram'],
             'log_spectrogram': data['log_spectrogram'],
-            'assignments': np.stack([assignments, 1-assignments], len(assignments.shape))
+            'assignments': np.stack(
+                [assignments, 1 - assignments], len(assignments.shape)
+            ),
         }
         dataset = annotation_dataset.AnnotationDataset(
-            options=self._deep_separation.metadata,
-            **dataset_input,
+            options=self._deep_separation.metadata, **dataset_input
         )
         return dataset
 
@@ -93,7 +83,7 @@ class DeepSeparationWrapper(
             # projected embeddings in TF format where the first F values
             # correspond to the embedding for each frequency point at time 0
             self._deep_separation.project_embeddings(2),
-            self._deep_separation.log_spectrogram
+            self._deep_separation.log_spectrogram,
         )
 
     # TODO: this shouldn't really be here
@@ -108,23 +98,19 @@ class DeepSeparationWrapper(
         return self._deep_separation.apply_mask(mask)
 
     # remove reliance on user_original_file_folder here
-    def send_separation(self, socket, namespace, file_path = ''):
+    def send_separation(self, socket, namespace, file_path=''):
         binned_embeddings, log_spectrogram = self._massage_data(
             *self.get_embeddings_and_spectrogram()
         )
 
         socket.emit(
-            'binned_embeddings',
-            json.dumps(binned_embeddings),
-            namespace=namespace
+            'binned_embeddings', json.dumps(binned_embeddings), namespace=namespace
         )
 
         if file_path:
             self._save_spectrogram_image(log_spectrogram, file_path)
             socket.emit(
-                'spectrogram',
-                json.dumps(log_spectrogram.tolist()),
-                namespace=namespace
+                'spectrogram', json.dumps(log_spectrogram.tolist()), namespace=namespace
             )
 
         logger.info(f'Sent separation for {self.user_audio_signal.file_name}')
@@ -137,16 +123,11 @@ class DeepSeparationWrapper(
         fig = plt.figure(frameon=False)
         fig.set_size_inches(w, h)
 
-        ax = plt.Axes(fig, [0., 0., 1., 1.])
+        ax = plt.Axes(fig, [0.0, 0.0, 1.0, 1.0])
         ax.set_axis_off()
         fig.add_axes(ax)
 
-        img = ax.imshow(
-            data,
-            interpolation='nearest',
-            aspect='auto',
-            cmap='Greys',
-        )
+        img = ax.imshow(data, interpolation='nearest', aspect='auto', cmap='Greys')
         ax.invert_yaxis()
         fig.savefig(file_path, dpi=80)
 
@@ -157,16 +138,13 @@ class DeepSeparationWrapper(
     def _massage_data(self, pca, spectrogram):
         """Scale and bin PCA points"""
         binned = self._bin_matrix(
-            self._scale_pca(
-                pca,
-                self.PCA_dimension - 1,
-            ),
+            self._scale_pca(pca, self.PCA_dimension - 1),
             self._make_square_matrix(self.PCA_dimension),
             spectrogram,
         )
 
         # TODO: handle mutlichannel audio, currently just taking first channel
-        spectrogram = spectrogram[:,:,0]
+        spectrogram = spectrogram[:, :, 0]
 
         return binned, spectrogram
 
@@ -175,9 +153,7 @@ class DeepSeparationWrapper(
         """Scales given number between given scaled_min and scaled_max. _min and
         _max of source distribution needed for scaling.
         """
-        return scaled_min + (
-            ((scaled_max - scaled_min) * (num - _min)) / (_max - _min)
-        )
+        return scaled_min + (((scaled_max - scaled_min) * (num - _min)) / (_max - _min))
 
     def _clean_coordinates(self, coord, x_edges, y_edges, new_max=99, new_min=0):
         """`coord` is x, y tuple (technically two item list), edges are tuples
@@ -185,20 +161,16 @@ class DeepSeparationWrapper(
         specify range to scale points to.
         """
         return (
-            int(round(self._scale_num(
-                coord[0],
-                x_edges[0],
-                x_edges[1],
-                new_min,
-                new_max
-            ))),
-            int(round(self._scale_num(
-                coord[1],
-                y_edges[0],
-                y_edges[1],
-                new_min,
-                new_max
-            )))
+            int(
+                round(
+                    self._scale_num(coord[0], x_edges[0], x_edges[1], new_min, new_max)
+                )
+            ),
+            int(
+                round(
+                    self._scale_num(coord[1], y_edges[0], y_edges[1], new_min, new_max)
+                )
+            ),
         )
 
     @staticmethod
@@ -217,11 +189,7 @@ class DeepSeparationWrapper(
         x_edges, y_edges = self._find_pca_min_max(pca)
 
         scale_and_clean = lambda coord: self._clean_coordinates(
-            coord,
-            x_edges,
-            y_edges,
-            new_max,
-            new_min
+            coord, x_edges, y_edges, new_max, new_min
         )
         return np.apply_along_axis(scale_and_clean, 1, pca)
 

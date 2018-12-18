@@ -3,6 +3,7 @@ import torch
 from torch.utils.data import Dataset
 from typing import Dict, Any, List, Tuple
 
+
 class AnnotationDataset(Dataset):
 
     # TODO: discuss API here
@@ -94,9 +95,7 @@ class AnnotationDataset(Dataset):
         }
 
     def _construct_input_output(
-        self,
-        mix: np.ndarray,
-        sources: np.ndarray
+        self, mix: np.ndarray, sources: np.ndarray
     ) -> Dict[str, Any]:
         """Constructs input from mix & sources
 
@@ -110,7 +109,6 @@ class AnnotationDataset(Dataset):
             original length of the audio signal (used for reconstruction).
         """
 
-
     def format_output(self, output):
         # [num_batch, sequence_length, num_frequencies*num_channels, ...], while
         # 'cnn' produces [num_batch, num_channels, num_frequencies,
@@ -118,7 +116,7 @@ class AnnotationDataset(Dataset):
         for key in self.targets:
             if self.options['format'] == 'rnn':
                 _shape = output[key].shape
-                shape = [_shape[0], _shape[1]*_shape[2]]
+                shape = [_shape[0], _shape[1] * _shape[2]]
                 if len(_shape) > 3:
                     shape += _shape[3:]
                 output[key] = np.reshape(output[key], shape)
@@ -130,9 +128,7 @@ class AnnotationDataset(Dataset):
 
     @staticmethod
     def transform(
-        data: np.ndarray,
-        n_fft: int,
-        hop_length: int
+        data: np.ndarray, n_fft: int, hop_length: int
     ) -> Tuple[np.ndarray, np.ndarray, int]:
         """Transforms multichannel audio signal into a multichannel spectrogram.
 
@@ -152,8 +148,7 @@ class AnnotationDataset(Dataset):
         stft = np.stack(
             [
                 librosa.stft(data[ch], n_fft=n_fft, hop_length=hop_length)
-                for ch
-                in range(data.shape[0])
+                for ch in range(data.shape[0])
             ],
             axis=-1,
         )
@@ -189,7 +184,5 @@ class AnnotationDataset(Dataset):
             indicates relative importance of that point based on magnitude
         """
         weights = magnitude_spectrogram / (np.sum(magnitude_spectrogram))
-        weights *= (
-            magnitude_spectrogram.shape[0] * magnitude_spectrogram.shape[1]
-        )
+        weights *= magnitude_spectrogram.shape[0] * magnitude_spectrogram.shape[1]
         return weights

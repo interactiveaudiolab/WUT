@@ -1,5 +1,6 @@
 import sys
 import os
+
 sys.path.insert(0, '../app/nussl')
 
 import nussl
@@ -8,6 +9,7 @@ import numpy as np
 import librosa
 
 import matplotlib
+
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
@@ -16,13 +18,14 @@ from matplotlib import gridspec
 
 RUN_DC = True
 
+
 def main():
     dsd_folder = '/Users/ethanmanilow/Documents/School/Research/Predicting SDR values/MedleyDB_sample/Audio/LizNelson_Rainfall'
     model_path = '/Users/ethanmanilow/Documents/School/Research/audio_representations/website/backend/models/data/models/deep_clustering_vocals_44k_long.model'
     cutoff = -40
 
     # for song_path in dsd_folder:
-        # Load 'em all into memory
+    # Load 'em all into memory
     song_path = '/Users/ethanmanilow/Documents/School/Research/audio_representations/website/backend/scripts/test_files'
     mix_path = os.path.join(song_path, 'mix.wav')
     vox_path = os.path.join(song_path, 'vox.wav')
@@ -34,8 +37,14 @@ def main():
     bak = nussl.AudioSignal(bk_path)
     bak.to_mono(overwrite=True)
 
-    gt_vox_mask, gt_bak_mask, sm = mel_mask(mix, vox, bak, mix.sample_rate, bg_mask_inverse=False,
-                                       silence_mask_cutoff=cutoff)
+    gt_vox_mask, gt_bak_mask, sm = mel_mask(
+        mix,
+        vox,
+        bak,
+        mix.sample_rate,
+        bg_mask_inverse=False,
+        silence_mask_cutoff=cutoff,
+    )
 
     plot_mask(gt_vox_mask, 'output', 'gt_vox_mask.png')
     plot_mask(gt_bak_mask, 'output', 'gt_bak_mask.png')
@@ -44,8 +53,15 @@ def main():
     plot_mask(psd_mask(mix, bak), 'output', 'gt_bak_psd_mask.png')
 
     if RUN_DC:
-        dc = nussl.DeepClustering(mix, model_path=model_path, mask_type='binary', do_mono=True,
-                                  return_mel_masks=True, pca_before_clustering=False, cutoff=cutoff)
+        dc = nussl.DeepClustering(
+            mix,
+            model_path=model_path,
+            mask_type='binary',
+            do_mono=True,
+            return_mel_masks=True,
+            pca_before_clustering=False,
+            cutoff=cutoff,
+        )
         dc_vox_mask, dc_bk_mask, binned, mel, scaled = deep_clustering_mask(dc)
         dc_vox_mask, dc_bk_mask = dc_vox_mask.get_channel(0), dc_bk_mask.get_channel(0)
 
@@ -78,11 +94,11 @@ def main():
     reshaped_dc_bk = dc_bk_mask.flatten()
 
     binned_incorrect_vox = np.zeros((100, 100))
-    binned_incorrect_bg  = np.zeros((100, 100))
-    binned_dc_vox  = np.zeros((100, 100))
-    binned_dc_bg  = np.zeros((100, 100))
-    binned_vox  = np.zeros((100, 100))
-    binned_bg  = np.zeros((100, 100))
+    binned_incorrect_bg = np.zeros((100, 100))
+    binned_dc_vox = np.zeros((100, 100))
+    binned_dc_bg = np.zeros((100, 100))
+    binned_vox = np.zeros((100, 100))
+    binned_bg = np.zeros((100, 100))
     for idx, (x, y) in enumerate(scaled):
         if inc_reshaped_vox[idx]:
             binned_incorrect_vox[y, x] += 1
@@ -102,17 +118,26 @@ def main():
         for j, list2 in enumerate(list1):
             full_bins[i, j] = len(list2)
 
-    make_plots(full_bins, binned_vox, binned_bg, binned_dc_vox, binned_dc_bg,
-               'LizNelson_Rainfall', 'output')
+    make_plots(
+        full_bins,
+        binned_vox,
+        binned_bg,
+        binned_dc_vox,
+        binned_dc_bg,
+        'LizNelson_Rainfall',
+        'output',
+    )
 
 
 def psd_mask(mix, src):
     mix.stft()
     src.stft()
 
-    return librosa.util.softmask(src.get_power_spectrogram_channel(0),
-                                 mix.get_power_spectrogram_channel(0),
-                                 power=np.inf).T
+    return librosa.util.softmask(
+        src.get_power_spectrogram_channel(0),
+        mix.get_power_spectrogram_channel(0),
+        power=np.inf,
+    ).T
 
 
 def plot_mask(mask, output_dir, file_name):
@@ -134,30 +159,43 @@ def make_plots(full_bins, gt_vox, gt_bak, dc_vox, dc_bak, song_title, output_dir
         plt.suptitle('Automatic Deep Clustering on {}'.format(song_title))
 
         ax1.step(np.arange(100), np.sum(gt_vox, axis=0), label='Ideal Binary Mask')
-        ax1.step(np.arange(100), np.sum(dc_vox, axis=0), linestyle='--', label='Deep Clustering Mask')
+        ax1.step(
+            np.arange(100),
+            np.sum(dc_vox, axis=0),
+            linestyle='--',
+            label='Deep Clustering Mask',
+        )
         ax1.legend(loc='upper right', shadow=False, fontsize='medium')
-        if log: ax1.set_yscale('log')
+        if log:
+            ax1.set_yscale('log')
         ax1.set_title(r'Vocals: Sum along y-axis')
 
         ax2.step(np.arange(100), np.sum(gt_bak, axis=0))
         ax2.step(np.arange(100), np.sum(dc_bak, axis=0), linestyle='--')
-        if log: ax2.set_yscale('log')
+        if log:
+            ax2.set_yscale('log')
         ax2.set_title(r'Background: Sum along y-axis')
 
         ax3.step(np.arange(100), np.sum(gt_vox, axis=1))
         ax3.step(np.arange(100), np.sum(dc_vox, axis=1), linestyle='--')
-        if log: ax3.set_yscale('log')
+        if log:
+            ax3.set_yscale('log')
         ax3.set_title(r'Vocals: Sum along x-axis')
 
         ax4.step(np.arange(100), np.sum(gt_bak, axis=1))
         ax4.step(np.arange(100), np.sum(dc_bak, axis=1), linestyle='--')
-        if log: ax4.set_yscale('log')
+        if log:
+            ax4.set_yscale('log')
         ax4.set_title(r'Background: Sum along x-axis')
 
         if log:
-            plt.savefig(os.path.join(output_dir, '{}_axes_sums_log.png'.format(song_filename)))
+            plt.savefig(
+                os.path.join(output_dir, '{}_axes_sums_log.png'.format(song_filename))
+            )
         else:
-            plt.savefig(os.path.join(output_dir, '{}_axes_sums.png'.format(song_filename)))
+            plt.savefig(
+                os.path.join(output_dir, '{}_axes_sums.png'.format(song_filename))
+            )
 
         # Heat map sums with full embedding space
         plt.close('all')
@@ -167,36 +205,58 @@ def make_plots(full_bins, gt_vox, gt_bak, dc_vox, dc_bak, song_title, output_dir
         ax1.step(np.arange(100), np.sum(gt_vox, axis=0))
         ax1.step(np.arange(100), np.sum(dc_vox, axis=0), linestyle='--')
         ax1.step(np.arange(100), np.sum(full_bins, axis=0), linestyle='-.')
-        if log: ax1.set_yscale('log')
+        if log:
+            ax1.set_yscale('log')
         ax1.set_title(r'Vocals: Sum along y-axis')
 
         ax2.step(np.arange(100), np.sum(gt_bak, axis=0))
         ax2.step(np.arange(100), np.sum(dc_bak, axis=0), linestyle='--')
         ax2.step(np.arange(100), np.sum(full_bins, axis=0), linestyle='-.')
-        if log: ax2.set_yscale('log')
+        if log:
+            ax2.set_yscale('log')
         ax2.set_title(r'Background: Sum along y-axis')
 
         ax3.step(np.arange(100), np.sum(gt_vox, axis=1), label='Ideal Binary Mask')
-        ax3.step(np.arange(100), np.sum(dc_vox, axis=1), linestyle='--', label='Deep Clustering Mask')
-        ax3.step(np.arange(100), np.sum(full_bins, axis=1), linestyle='-.', label='Full Embedding Space')
+        ax3.step(
+            np.arange(100),
+            np.sum(dc_vox, axis=1),
+            linestyle='--',
+            label='Deep Clustering Mask',
+        )
+        ax3.step(
+            np.arange(100),
+            np.sum(full_bins, axis=1),
+            linestyle='-.',
+            label='Full Embedding Space',
+        )
         ax3.legend(loc='upper right', shadow=False, fontsize='medium')
-        if log: ax3.set_yscale('log')
+        if log:
+            ax3.set_yscale('log')
         ax3.set_title(r'Vocals: Sum along x-axis')
 
         ax4.step(np.arange(100), np.sum(gt_bak, axis=1))
         ax4.step(np.arange(100), np.sum(dc_bak, axis=1), linestyle='--')
         ax4.step(np.arange(100), np.sum(full_bins, axis=1), linestyle='-.')
-        if log: ax4.set_yscale('log')
+        if log:
+            ax4.set_yscale('log')
         ax4.set_title(r'Background: Sum along x-axis')
 
         if log:
-            plt.savefig(os.path.join(output_dir, '{}_axes_sums_embedding_log.png'.format(song_filename)))
+            plt.savefig(
+                os.path.join(
+                    output_dir, '{}_axes_sums_embedding_log.png'.format(song_filename)
+                )
+            )
         else:
-            plt.savefig(os.path.join(output_dir, '{}_axes_sums_embedding.png'.format(song_filename)))
+            plt.savefig(
+                os.path.join(
+                    output_dir, '{}_axes_sums_embedding.png'.format(song_filename)
+                )
+            )
 
     # Heat maps
     plt.close('all')
-    fig = plt.figure(figsize=(12, 9)) #, tight_layout=True)
+    fig = plt.figure(figsize=(12, 9))  # , tight_layout=True)
     gs = gridspec.GridSpec(2, 3)
     gt_vox += 1e-1
     gt_bak += 1e-1
@@ -240,11 +300,14 @@ def make_plots(full_bins, gt_vox, gt_bak, dc_vox, dc_bak, song_title, output_dir
     vox_diff = np.maximum(gt_vox - dc_vox, 1e-7)
     bg_diff = np.maximum(gt_bak - dc_bak, 1e-7)
 
-    ax1.imshow(vox_diff, norm=LogNorm(vmin=1, vmax=np.max([np.max(vox_diff), np.max(bg_diff)])))
+    ax1.imshow(
+        vox_diff, norm=LogNorm(vmin=1, vmax=np.max([np.max(vox_diff), np.max(bg_diff)]))
+    )
     ax1.set_title(r'Vocals: IBM Mask $-$ DC Mask')
 
-    hm = ax2.imshow(bg_diff, norm=LogNorm(vmin=1, vmax=np.max([np.max(vox_diff),
-                                                               np.max(bg_diff)])))
+    hm = ax2.imshow(
+        bg_diff, norm=LogNorm(vmin=1, vmax=np.max([np.max(vox_diff), np.max(bg_diff)]))
+    )
     ax2.set_title(r'Background: IBM Mask $-$ DC Mask')
     fig.colorbar(hm, ax=(ax1, ax2), orientation='horizontal')
 
@@ -253,7 +316,6 @@ def make_plots(full_bins, gt_vox, gt_bak, dc_vox, dc_bak, song_title, output_dir
     #     ax.get_yaxis().set_ticks([])
 
     plt.savefig(os.path.join(output_dir, '{}_diff_heat_maps.png'.format(song_filename)))
-
 
 
 def get_coordinate_from_TF_index(index, inner_dim):  # inner_dim == 150
@@ -277,7 +339,9 @@ def remove_vals(bins, vals_to_remove):
 
 def deep_clustering_mask(dc):
     dc_vox_mask, dc_bk_mask = dc.run()
-    binned, mel, scaled = _massage_data((dc.project_arbitrary_embeddings(), dc.mel_spectrogram))
+    binned, mel, scaled = _massage_data(
+        (dc.project_arbitrary_embeddings(), dc.mel_spectrogram)
+    )
     return dc_vox_mask, dc_bk_mask, binned, mel, scaled
 
 
@@ -312,7 +376,9 @@ def _scale_pca(pca, new_max=99, new_min=0):
     """
     x_edges, y_edges = _find_pca_min_max(pca)
 
-    scale_and_clean = lambda coord: _clean_coordinates(coord, x_edges, y_edges, new_max, new_min)
+    scale_and_clean = lambda coord: _clean_coordinates(
+        coord, x_edges, y_edges, new_max, new_min
+    )
     return np.apply_along_axis(scale_and_clean, 1, pca)
 
 
@@ -330,9 +396,10 @@ def _clean_coordinates(coord, x_edges, y_edges, new_max=99, new_min=0):
         holding min and max values along respective axes. new_max and
         new_min specify range to scale points to.
     """
-    return (int(round(_scale_num(coord[0], x_edges[0], x_edges[1], new_min, new_max))),
-            int(round(_scale_num(coord[1], y_edges[0], y_edges[1], new_min, new_max))))
-
+    return (
+        int(round(_scale_num(coord[0], x_edges[0], x_edges[1], new_min, new_max))),
+        int(round(_scale_num(coord[1], y_edges[0], y_edges[1], new_min, new_max))),
+    )
 
 
 def _make_square_matrix(dim=100):
@@ -357,13 +424,18 @@ def _bin_matrix(scaled_tf, matrix):
 def mel_mask(mix, vox, bg, sr, bg_mask_inverse=False, silence_mask_cutoff=-40):
     num_mels = 150
     mel_filter_bank = librosa.filters.mel(sr, mix.stft_params.n_fft_bins, num_mels).T
-    mix_mel, silence_mask = to_mel(mix, mel_filter_bank, silence_mask_cutoff=silence_mask_cutoff)
+    mix_mel, silence_mask = to_mel(
+        mix, mel_filter_bank, silence_mask_cutoff=silence_mask_cutoff
+    )
     vox_mel = to_mel(vox, mel_filter_bank)
     bg_mel = to_mel(bg, mel_filter_bank)
 
     vox_mask = librosa.util.softmask(vox_mel, mix_mel, power=np.inf)
-    bg_mask = np.logical_not(vox_mask) if bg_mask_inverse \
+    bg_mask = (
+        np.logical_not(vox_mask)
+        if bg_mask_inverse
         else librosa.util.softmask(bg_mel, mix_mel, power=np.inf)
+    )
 
     vox_mask *= silence_mask
     bg_mask *= silence_mask
@@ -383,7 +455,6 @@ def to_mel(sig, mel_filter_bank, silence_mask_cutoff=0):
         return mel_spectrogram, silence_mask
 
     return mel_spectrogram
-
 
 
 if __name__ == '__main__':

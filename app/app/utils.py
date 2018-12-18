@@ -1,5 +1,6 @@
 import os
 
+
 def safe_makedirs(path):
     try:
         path = os.path.abspath(path)

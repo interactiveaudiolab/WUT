@@ -9,6 +9,7 @@ import librosa
 import numpy as np
 
 import sys
+
 sys.path.insert(0, '../nussl')
 import nussl
 
@@ -16,7 +17,6 @@ logger = logging.getLogger()
 
 
 class InteractiveAudioProcessingBase(object):
-
     def __init__(self, mixture_signal, storage_path):
         self.storage_path = None
         self.user_audio_signal = None
@@ -24,10 +24,14 @@ class InteractiveAudioProcessingBase(object):
 
         if mixture_signal is not None:
             if not isinstance(mixture_signal, nussl.AudioSignal):
-                raise AudioProcessingBaseException('audio_signal_object is not nussl.AudioSignal object!')
+                raise AudioProcessingBaseException(
+                    'audio_signal_object is not nussl.AudioSignal object!'
+                )
 
             if not mixture_signal.has_audio_data:
-                raise AudioProcessingBaseException('audio_signal_object is expected to have audio_data already!')
+                raise AudioProcessingBaseException(
+                    'audio_signal_object is expected to have audio_data already!'
+                )
 
             self.user_audio_signal = mixture_signal
             self.storage_path = storage_path
@@ -71,6 +75,7 @@ class InteractiveAudioProcessingBase(object):
     @staticmethod
     def _log_space_prepare(array):
         return np.add(librosa.amplitude_to_db(array, ref=np.max).astype('int8'), 80)
+
 
 class AudioProcessingBaseException(Exception):
     pass

@@ -22,9 +22,9 @@ logging.getLogger('werkzeug').disabled = True
 logger = logging.getLogger()
 handler = logging.StreamHandler()
 formatter = logging.Formatter(
-  "[%(asctime)s] [%(levelname)8s] --- %(message)s (%(filename)s:%(lineno)s)", "%Y-%m-%d %H:%M:%S"
+    "[%(asctime)s] [%(levelname)8s] --- %(message)s (%(filename)s:%(lineno)s)",
+    "%Y-%m-%d %H:%M:%S",
 )
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.setLevel(logging.INFO)
-

@@ -22,6 +22,7 @@ from pickle import Unpickler
 
 
 import sys
+
 sys.path.insert(0, '../nussl')
 
 import nussl
@@ -36,6 +37,7 @@ class SeparationSession(object):
     """
     Object for a single session, handles everything
     """
+
     _file_ext_that_need_converting = ['mp3', 'flac']
 
     def __init__(self, from_json=False):
@@ -57,8 +59,11 @@ class SeparationSession(object):
 
             # Set up folders
             self.base_audio_path = config.USER_AUDIO_FOLDER
-            self.user_original_file_folder = os.path.join(self.base_audio_path, self.url_safe_id,
-                                                          config.USER_AUDIO_ORIGINAL_FOLDER_NAME)
+            self.user_original_file_folder = os.path.join(
+                self.base_audio_path,
+                self.url_safe_id,
+                config.USER_AUDIO_ORIGINAL_FOLDER_NAME,
+            )
             utils.safe_makedirs(self.user_original_file_folder)
 
             logger.info('New session ready! - {}'.format(self.url_safe_id))
@@ -91,7 +96,9 @@ class SeparationSession(object):
         self.user_original_file_location = path_to_file
 
         self.user_signal = nussl.AudioSignal(self.user_original_file_location)
-        self.user_general_audio = audio_processing.GeneralAudio(self.user_signal, self.user_original_file_folder)
+        self.user_general_audio = audio_processing.GeneralAudio(
+            self.user_signal, self.user_original_file_folder
+        )
 
         self.initialized = True
         self.time_of_init = time.asctime(time.localtime(time.time()))
