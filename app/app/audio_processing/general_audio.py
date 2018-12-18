@@ -1,20 +1,19 @@
 import json
 import logging
 import os
-import subprocess as sp
-
 import matplotlib
 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 
+from .interactive_audio_processing_base import InteractiveAudioProcessingBase
+
 import sys
 
+# FIXME: remove hack
 sys.path.insert(0, '../nussl')
 import nussl
-
-from .interactive_audio_processing_base import InteractiveAudioProcessingBase
 
 logger = logging.getLogger()
 

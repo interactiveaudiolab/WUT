@@ -2,15 +2,6 @@ import os
 import logging
 import inspect
 import json
-import math
-from . import audio_processing
-import matplotlib
-
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-
-import numpy as np
-from . import utils
 from flask import (
     render_template,
     request,
@@ -21,9 +12,8 @@ from flask import (
     make_response,
 )
 from werkzeug.utils import secure_filename
-from flask_socketio import emit
-from pickle import Unpickler
 
+from .audio_processing import DeepSeparationWrapper
 from .app_obj import app_, socketio, redis_store
 from .separation_session import SeparationSession
 from .config import ALLOWED_EXTENSIONS
@@ -31,6 +21,7 @@ from .constants import FRONTEND_SEPARATION_CATEGORY_TO_BACKEND_MODEL
 
 import sys
 
+# FIXME: remove hack
 sys.path.insert(0, '../experiments/code')
 from trainer import Trainer
 
@@ -107,7 +98,7 @@ def initialize(audio_file_data):
         audio_file_data['radio_selection'].lower()
     ]
 
-    sep_sess.deep_separation_wrapper = audio_processing.DeepSeparationWrapper(
+    sep_sess.deep_separation_wrapper = DeepSeparationWrapper(
         sep_sess.user_signal,
         sep_sess.user_original_file_folder,
         model_path=sep_sess.model_path,

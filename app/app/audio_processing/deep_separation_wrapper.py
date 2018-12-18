@@ -1,8 +1,7 @@
 import json
 import logging
-
+import os
 import numpy as np
-
 import matplotlib
 
 matplotlib.use('Agg')
@@ -13,11 +12,9 @@ from .annotation_dataset import AnnotationDataset
 
 import sys
 
+# FIXME: remove hack
 sys.path.insert(0, '../nussl')
 import nussl
-import inspect
-
-import os
 
 logger = logging.getLogger()
 
@@ -181,11 +178,13 @@ class DeepSeparationWrapper(InteractiveAudioProcessingBase):
         """Takes Zx2 (specifically TFx2 as used) numpy array and scales all
         coordinates"""
         x_edges, y_edges = self._find_pca_min_max(pca)
-
-        scale_and_clean = lambda coord: self._clean_coordinates(
-            coord, x_edges, y_edges, new_max, new_min
+        return np.apply_along_axis(
+            lambda coord: self._clean_coordinates(
+                coord, x_edges, y_edges, new_max, new_min
+            ),
+            1,
+            pca,
         )
-        return np.apply_along_axis(scale_and_clean, 1, pca)
 
     @staticmethod
     def _make_square_matrix(dim=100):

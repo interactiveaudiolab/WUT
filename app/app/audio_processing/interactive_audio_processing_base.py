@@ -28,12 +28,12 @@ class InteractiveAudioProcessingBase(object):
             return
 
         if not isinstance(mixture_signal, nussl.AudioSignal):
-            raise AudioProcessingBaseException(
+            raise self.AudioProcessingBaseException(
                 'audio_signal_object is not nussl.AudioSignal object!'
             )
 
         if not mixture_signal.has_audio_data:
-            raise AudioProcessingBaseException(
+            raise self.AudioProcessingBaseException(
                 'audio_signal_object is expected to have audio_data already!'
             )
 
