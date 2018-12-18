@@ -27,6 +27,7 @@ from pickle import Unpickler
 from .app_obj import app_, socketio, redis_store
 from . import separation_session
 from .config import ALLOWED_EXTENSIONS
+from .constants import FRONTEND_SEPARATION_CATEGORY_TO_BACKEND_MODEL
 
 import sys
 
@@ -110,15 +111,8 @@ def initialize(audio_file_data):
     separation_sess.user_general_audio.spectrogram_image()
     save_session(separation_sess)
 
-    # TODO: put this somewhere else, `constants.py`?
-    model_type_to_model_name = {
-        'speech': 'speech_wsj8k.pth',
-        'untrained': 'untrained.pth',
-        'vocals': 'vocals_44k.pth',
-    }
-
     # compute and send Deep Clustering PCA visualization and mel spectrogram
-    separation_sess.model_path = model_type_to_model_name[
+    separation_sess.model_path = FRONTEND_SEPARATION_CATEGORY_TO_BACKEND_MODEL[
         audio_file_data['radio_selection'].lower()
     ]
 
