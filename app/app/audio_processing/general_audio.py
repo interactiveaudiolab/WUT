@@ -14,7 +14,7 @@ import sys
 sys.path.insert(0, '../nussl')
 import nussl
 
-from .audio_processing_base import InteractiveAudioProcessingBase
+from .interactive_audio_processing_base import InteractiveAudioProcessingBase
 
 logger = logging.getLogger()
 

@@ -8,7 +8,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-from .audio_processing_base import InteractiveAudioProcessingBase
+from .interactive_audio_processing_base import InteractiveAudioProcessingBase
 from .annotation_dataset import AnnotationDataset
 
 import sys
