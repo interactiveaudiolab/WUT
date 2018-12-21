@@ -90,9 +90,9 @@ class AnnotationDataset(Dataset):
             one example)
         """
         return {
-            'log_spectrogram': self.log_spectrogram,
-            'weights': self.weights,
-            'assignments': self.assignments,
+            "log_spectrogram": self.log_spectrogram,
+            "weights": self.weights,
+            "assignments": self.assignments,
         }
 
     def _construct_input_output(
@@ -115,13 +115,13 @@ class AnnotationDataset(Dataset):
         # 'cnn' produces [num_batch, num_channels, num_frequencies,
         # sequence_length, ...]
         for key in self.targets:
-            if self.options['format'] == 'rnn':
+            if self.options["format"] == "rnn":
                 _shape = output[key].shape
                 shape = [_shape[0], _shape[1] * _shape[2]]
                 if len(_shape) > 3:
                     shape += _shape[3:]
                 output[key] = np.reshape(output[key], shape)
-            elif self.options['format'] == 'cnn':
+            elif self.options["format"] == "cnn":
                 axes_loc = [0, 3, 2, 1]
                 output[key] = np.moveaxis(output[key], [0, 1, 2, 3], axes_loc)
 

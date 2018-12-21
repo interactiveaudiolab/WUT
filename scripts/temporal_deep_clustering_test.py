@@ -1,7 +1,7 @@
 import sys
 import os
 
-sys.path.insert(0, '../app/nussl')
+sys.path.insert(0, "../app/nussl")
 
 import nussl
 import sklearn
@@ -10,7 +10,7 @@ import librosa
 
 import matplotlib
 
-matplotlib.use('Agg')
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import time
 import matplotlib.dates as md
@@ -26,16 +26,16 @@ RUN_DC = False
 
 
 def main():
-    model_path = '/Users/ethanmanilow/Documents/School/Research/audio_representations/website/backend/models/data/models/deep_clustering_vocals_44k_long.model'
+    model_path = "/Users/ethanmanilow/Documents/School/Research/audio_representations/website/backend/models/data/models/deep_clustering_vocals_44k_long.model"
     cutoff = -40
-    output_dir = os.path.join('output', 'tdc_test')
+    output_dir = os.path.join("output", "tdc_test")
 
     # for song_path in dsd_folder:
     # Load 'em all into memory
-    song_path = '/Users/ethanmanilow/Documents/School/Research/audio_representations/website/backend/scripts/test_files'
-    mix_path = os.path.join(song_path, 'mix.wav')
-    vox_path = os.path.join(song_path, 'vox.wav')
-    bk_path = os.path.join(song_path, 'gtr.wav')
+    song_path = "/Users/ethanmanilow/Documents/School/Research/audio_representations/website/backend/scripts/test_files"
+    mix_path = os.path.join(song_path, "mix.wav")
+    vox_path = os.path.join(song_path, "vox.wav")
+    bk_path = os.path.join(song_path, "gtr.wav")
     mix = nussl.AudioSignal(mix_path)
     mix.to_mono(overwrite=True)
     vox = nussl.AudioSignal(vox_path)
@@ -58,7 +58,7 @@ def main():
         dc = nussl.DeepClustering(
             mix,
             model_path=model_path,
-            mask_type='binary',
+            mask_type="binary",
             do_mono=True,
             return_mel_masks=True,
             pca_before_clustering=False,
@@ -68,10 +68,10 @@ def main():
         dc_vox_mask, dc_bk_mask = dc_vox_mask.get_channel(0), dc_bk_mask.get_channel(0)
 
     else:
-        dc_vox_mask = np.load(os.path.join('pickles', 'dc_vox_mask.npy'))
-        dc_bk_mask = np.load(os.path.join('pickles', 'dc_bk_mask.npy'))
-        binned = np.load(os.path.join('pickles', 'binned.npy'))
-        scaled = np.load(os.path.join('pickles', 'scaled.npy'))
+        dc_vox_mask = np.load(os.path.join("pickles", "dc_vox_mask.npy"))
+        dc_bk_mask = np.load(os.path.join("pickles", "dc_bk_mask.npy"))
+        binned = np.load(os.path.join("pickles", "binned.npy"))
+        scaled = np.load(os.path.join("pickles", "scaled.npy"))
 
         tdc_space = np.zeros((n_bins, dc_vox_mask.shape[0]))
 
@@ -80,20 +80,20 @@ def main():
                 t, f = get_coordinate_from_TF_index(item, dc_vox_mask.shape[1])
                 tdc_space[j, t] += 1
 
-        plot_tdc(tdc_space, mix.time_vector[-1], output_dir, 'tdc_test3.png')
+        plot_tdc(tdc_space, mix.time_vector[-1], output_dir, "tdc_test3.png")
 
 
 def tsne_test():
-    model_path = '/Users/ethanmanilow/Documents/School/Research/audio_representations/website/backend/models/data/models/deep_clustering_vocals_44k_long.model'
+    model_path = "/Users/ethanmanilow/Documents/School/Research/audio_representations/website/backend/models/data/models/deep_clustering_vocals_44k_long.model"
     cutoff = -40
-    output_dir = os.path.join('output', 'tsne_test')
+    output_dir = os.path.join("output", "tsne_test")
 
     # for song_path in dsd_folder:
     # Load 'em all into memory
-    song_path = '/Users/ethanmanilow/Documents/School/Research/audio_representations/website/backend/scripts/test_files'
-    mix_path = os.path.join(song_path, 'mix.wav')
-    vox_path = os.path.join(song_path, 'vox.wav')
-    bk_path = os.path.join(song_path, 'gtr.wav')
+    song_path = "/Users/ethanmanilow/Documents/School/Research/audio_representations/website/backend/scripts/test_files"
+    mix_path = os.path.join(song_path, "mix.wav")
+    vox_path = os.path.join(song_path, "vox.wav")
+    bk_path = os.path.join(song_path, "gtr.wav")
     mix = nussl.AudioSignal(mix_path)
     mix.to_mono(overwrite=True)
     vox = nussl.AudioSignal(vox_path)
@@ -104,7 +104,7 @@ def tsne_test():
     dc = nussl.DeepClustering(
         mix,
         model_path=model_path,
-        mask_type='binary',
+        mask_type="binary",
         do_mono=True,
         return_mel_masks=True,
         pca_before_clustering=False,
@@ -115,15 +115,15 @@ def tsne_test():
     tsne = TSNE(verbose=2, n_jobs=6)
     tsne_space = tsne.fit_transform(dc.embeddings)
 
-    plt.close('all')
+    plt.close("all")
 
     hm = plt.imshow(
         tsne_space
     )  # , norm=LogNorm(vmin=1, vmax=np.max([np.max(vox_diff), np.max(bg_diff)])))
-    plt.title(r'TSNE Space')
+    plt.title(r"TSNE Space")
     plt.colorbar(hm)
 
-    plt.savefig(os.path.join(output_dir, '{}_tsne.png'.format('test')))
+    plt.savefig(os.path.join(output_dir, "{}_tsne.png".format("test")))
 
 
 def get_coordinate_from_TF_index(index, inner_dim):  # inner_dim == 150
@@ -137,7 +137,7 @@ def attempt2(scaled, dc_vox_mask, output_dir, mix):
         [scaled_axis[t, :] for t in range(dc_vox_mask.shape[0])], dtype=float
     ).T
 
-    plot_tdc(tdc_space, mix.time_vector[-1], output_dir, 'tdc_test2.png')
+    plot_tdc(tdc_space, mix.time_vector[-1], output_dir, "tdc_test2.png")
 
 
 def attempt1(dc, mix, output_dir):
@@ -158,24 +158,24 @@ def attempt1(dc, mix, output_dir):
         ]
     ).T
 
-    plot_tdc(tdc_space, mix.time_vector[-1], output_dir, 'tdc_test1.png')
+    plot_tdc(tdc_space, mix.time_vector[-1], output_dir, "tdc_test1.png")
 
 
 def plot_tdc(tdc, t_max, output_dir, name):
-    plt.close('all')
+    plt.close("all")
     fig = plt.figure(1, figsize=(64, 9))
-    plt.suptitle('Temporal Deep Clustering', fontsize=40)
+    plt.suptitle("Temporal Deep Clustering", fontsize=40)
     tdc_heatmap_ax = plt.axes([0.15, 0.1, 0.8, 0.8])
     tdc_sum_ax = plt.axes([0.025, 0.1, 0.1, 0.8])
 
-    tdc_log = librosa.amplitude_to_db(tdc.astype('float') + 1e-7)
+    tdc_log = librosa.amplitude_to_db(tdc.astype("float") + 1e-7)
     time_vect = np.linspace(0.0, t_max, tdc.shape[1])
     mel_vect = np.arange(0.0, tdc.shape[0])
     x, y = np.meshgrid(time_vect, mel_vect)
     hm = tdc_heatmap_ax.contourf(x, y, np.flipud(tdc_log))
 
     xfmt = matplotlib.ticker.FuncFormatter(
-        lambda sec, x: time.strftime('%M:%S', time.gmtime(sec))
+        lambda sec, x: time.strftime("%M:%S", time.gmtime(sec))
     )
     tdc_heatmap_ax.xaxis.set_major_formatter(xfmt)
     tdc_heatmap_ax.xaxis.set_ticks(np.linspace(0.0, t_max, 48))
@@ -203,5 +203,5 @@ def playground():
     i = 0
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     tsne_test()

@@ -1,7 +1,7 @@
 import sys
 import os
 
-sys.path.insert(0, '../app/nussl')
+sys.path.insert(0, "../app/nussl")
 
 import nussl
 import sklearn
@@ -10,7 +10,7 @@ import librosa
 
 import matplotlib
 
-matplotlib.use('Agg')
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 from matplotlib import ticker
@@ -20,16 +20,16 @@ RUN_DC = True
 
 
 def main():
-    dsd_folder = '/Users/ethanmanilow/Documents/School/Research/Predicting SDR values/MedleyDB_sample/Audio/LizNelson_Rainfall'
-    model_path = '/Users/ethanmanilow/Documents/School/Research/audio_representations/website/backend/models/data/models/deep_clustering_vocals_44k_long.model'
+    dsd_folder = "/Users/ethanmanilow/Documents/School/Research/Predicting SDR values/MedleyDB_sample/Audio/LizNelson_Rainfall"
+    model_path = "/Users/ethanmanilow/Documents/School/Research/audio_representations/website/backend/models/data/models/deep_clustering_vocals_44k_long.model"
     cutoff = -40
 
     # for song_path in dsd_folder:
     # Load 'em all into memory
-    song_path = '/Users/ethanmanilow/Documents/School/Research/audio_representations/website/backend/scripts/test_files'
-    mix_path = os.path.join(song_path, 'mix.wav')
-    vox_path = os.path.join(song_path, 'vox.wav')
-    bk_path = os.path.join(song_path, 'gtr.wav')
+    song_path = "/Users/ethanmanilow/Documents/School/Research/audio_representations/website/backend/scripts/test_files"
+    mix_path = os.path.join(song_path, "mix.wav")
+    vox_path = os.path.join(song_path, "vox.wav")
+    bk_path = os.path.join(song_path, "gtr.wav")
     mix = nussl.AudioSignal(mix_path)
     mix.to_mono(overwrite=True)
     vox = nussl.AudioSignal(vox_path)
@@ -46,17 +46,17 @@ def main():
         silence_mask_cutoff=cutoff,
     )
 
-    plot_mask(gt_vox_mask, 'output', 'gt_vox_mask.png')
-    plot_mask(gt_bak_mask, 'output', 'gt_bak_mask.png')
-    plot_mask(sm, 'output', 'silence_mask.png')
-    plot_mask(psd_mask(mix, vox), 'output', 'gt_vox_psd_mask.png')
-    plot_mask(psd_mask(mix, bak), 'output', 'gt_bak_psd_mask.png')
+    plot_mask(gt_vox_mask, "output", "gt_vox_mask.png")
+    plot_mask(gt_bak_mask, "output", "gt_bak_mask.png")
+    plot_mask(sm, "output", "silence_mask.png")
+    plot_mask(psd_mask(mix, vox), "output", "gt_vox_psd_mask.png")
+    plot_mask(psd_mask(mix, bak), "output", "gt_bak_psd_mask.png")
 
     if RUN_DC:
         dc = nussl.DeepClustering(
             mix,
             model_path=model_path,
-            mask_type='binary',
+            mask_type="binary",
             do_mono=True,
             return_mel_masks=True,
             pca_before_clustering=False,
@@ -65,21 +65,21 @@ def main():
         dc_vox_mask, dc_bk_mask, binned, mel, scaled = deep_clustering_mask(dc)
         dc_vox_mask, dc_bk_mask = dc_vox_mask.get_channel(0), dc_bk_mask.get_channel(0)
 
-        np.save(os.path.join('pickles', 'gt_vox_mask.npy'), gt_vox_mask)
-        np.save(os.path.join('pickles', 'gt_bak_mask.npy'), gt_bak_mask)
-        np.save(os.path.join('pickles', 'dc_vox_mask.npy'), dc_vox_mask)
-        np.save(os.path.join('pickles', 'dc_bak_mask.npy'), dc_bk_mask)
-        np.save(os.path.join('pickles', 'binned.npy'), binned)
-        np.save(os.path.join('pickles', 'scaled.npy'), scaled)
+        np.save(os.path.join("pickles", "gt_vox_mask.npy"), gt_vox_mask)
+        np.save(os.path.join("pickles", "gt_bak_mask.npy"), gt_bak_mask)
+        np.save(os.path.join("pickles", "dc_vox_mask.npy"), dc_vox_mask)
+        np.save(os.path.join("pickles", "dc_bak_mask.npy"), dc_bk_mask)
+        np.save(os.path.join("pickles", "binned.npy"), binned)
+        np.save(os.path.join("pickles", "scaled.npy"), scaled)
     #
     else:
 
-        gt_vox_mask = np.load(os.path.join('pickles', 'gt_vox_mask.npy'))
-        gt_bak_mask = np.load(os.path.join('pickles', 'gt_bk_mask.npy'))
-        dc_vox_mask = np.load(os.path.join('pickles', 'dc_vox_mask.npy'))
-        dc_bk_mask = np.load(os.path.join('pickles', 'dc_bk_mask.npy'))
-        binned = np.load(os.path.join('pickles', 'binned.npy'))
-        scaled = np.load(os.path.join('pickles', 'scaled.npy'))
+        gt_vox_mask = np.load(os.path.join("pickles", "gt_vox_mask.npy"))
+        gt_bak_mask = np.load(os.path.join("pickles", "gt_bk_mask.npy"))
+        dc_vox_mask = np.load(os.path.join("pickles", "dc_vox_mask.npy"))
+        dc_bk_mask = np.load(os.path.join("pickles", "dc_bk_mask.npy"))
+        binned = np.load(os.path.join("pickles", "binned.npy"))
+        scaled = np.load(os.path.join("pickles", "scaled.npy"))
 
     # incorrect_vox = np.logical_xor(gt_vox_mask, dc_vox_mask.get_channel(0))
     incorrect_vox = np.logical_and(gt_vox_mask, np.logical_not(dc_vox_mask))
@@ -124,8 +124,8 @@ def main():
         binned_bg,
         binned_dc_vox,
         binned_dc_bg,
-        'LizNelson_Rainfall',
-        'output',
+        "LizNelson_Rainfall",
+        "output",
     )
 
 
@@ -141,121 +141,121 @@ def psd_mask(mix, src):
 
 
 def plot_mask(mask, output_dir, file_name):
-    plt.close('all')
-    plt.imshow(mask.T, aspect='auto')
+    plt.close("all")
+    plt.imshow(mask.T, aspect="auto")
     plt.gca().invert_yaxis()
     plt.savefig(os.path.join(output_dir, file_name))
 
 
 def make_plots(full_bins, gt_vox, gt_bak, dc_vox, dc_bak, song_title, output_dir):
 
-    song_filename = song_title.replace(' ', '')
+    song_filename = song_title.replace(" ", "")
 
     for log in [True, False]:
 
         # Make slice plots
-        plt.close('all')
+        plt.close("all")
         fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(figsize=(12, 9), ncols=2, nrows=2)
-        plt.suptitle('Automatic Deep Clustering on {}'.format(song_title))
+        plt.suptitle("Automatic Deep Clustering on {}".format(song_title))
 
-        ax1.step(np.arange(100), np.sum(gt_vox, axis=0), label='Ideal Binary Mask')
+        ax1.step(np.arange(100), np.sum(gt_vox, axis=0), label="Ideal Binary Mask")
         ax1.step(
             np.arange(100),
             np.sum(dc_vox, axis=0),
-            linestyle='--',
-            label='Deep Clustering Mask',
+            linestyle="--",
+            label="Deep Clustering Mask",
         )
-        ax1.legend(loc='upper right', shadow=False, fontsize='medium')
+        ax1.legend(loc="upper right", shadow=False, fontsize="medium")
         if log:
-            ax1.set_yscale('log')
-        ax1.set_title(r'Vocals: Sum along y-axis')
+            ax1.set_yscale("log")
+        ax1.set_title(r"Vocals: Sum along y-axis")
 
         ax2.step(np.arange(100), np.sum(gt_bak, axis=0))
-        ax2.step(np.arange(100), np.sum(dc_bak, axis=0), linestyle='--')
+        ax2.step(np.arange(100), np.sum(dc_bak, axis=0), linestyle="--")
         if log:
-            ax2.set_yscale('log')
-        ax2.set_title(r'Background: Sum along y-axis')
+            ax2.set_yscale("log")
+        ax2.set_title(r"Background: Sum along y-axis")
 
         ax3.step(np.arange(100), np.sum(gt_vox, axis=1))
-        ax3.step(np.arange(100), np.sum(dc_vox, axis=1), linestyle='--')
+        ax3.step(np.arange(100), np.sum(dc_vox, axis=1), linestyle="--")
         if log:
-            ax3.set_yscale('log')
-        ax3.set_title(r'Vocals: Sum along x-axis')
+            ax3.set_yscale("log")
+        ax3.set_title(r"Vocals: Sum along x-axis")
 
         ax4.step(np.arange(100), np.sum(gt_bak, axis=1))
-        ax4.step(np.arange(100), np.sum(dc_bak, axis=1), linestyle='--')
+        ax4.step(np.arange(100), np.sum(dc_bak, axis=1), linestyle="--")
         if log:
-            ax4.set_yscale('log')
-        ax4.set_title(r'Background: Sum along x-axis')
+            ax4.set_yscale("log")
+        ax4.set_title(r"Background: Sum along x-axis")
 
         if log:
             plt.savefig(
-                os.path.join(output_dir, '{}_axes_sums_log.png'.format(song_filename))
+                os.path.join(output_dir, "{}_axes_sums_log.png".format(song_filename))
             )
         else:
             plt.savefig(
-                os.path.join(output_dir, '{}_axes_sums.png'.format(song_filename))
+                os.path.join(output_dir, "{}_axes_sums.png".format(song_filename))
             )
 
         # Heat map sums with full embedding space
-        plt.close('all')
+        plt.close("all")
         fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(figsize=(12, 9), ncols=2, nrows=2)
-        plt.suptitle('Automatic Deep Clustering on {}'.format(song_title))
+        plt.suptitle("Automatic Deep Clustering on {}".format(song_title))
 
         ax1.step(np.arange(100), np.sum(gt_vox, axis=0))
-        ax1.step(np.arange(100), np.sum(dc_vox, axis=0), linestyle='--')
-        ax1.step(np.arange(100), np.sum(full_bins, axis=0), linestyle='-.')
+        ax1.step(np.arange(100), np.sum(dc_vox, axis=0), linestyle="--")
+        ax1.step(np.arange(100), np.sum(full_bins, axis=0), linestyle="-.")
         if log:
-            ax1.set_yscale('log')
-        ax1.set_title(r'Vocals: Sum along y-axis')
+            ax1.set_yscale("log")
+        ax1.set_title(r"Vocals: Sum along y-axis")
 
         ax2.step(np.arange(100), np.sum(gt_bak, axis=0))
-        ax2.step(np.arange(100), np.sum(dc_bak, axis=0), linestyle='--')
-        ax2.step(np.arange(100), np.sum(full_bins, axis=0), linestyle='-.')
+        ax2.step(np.arange(100), np.sum(dc_bak, axis=0), linestyle="--")
+        ax2.step(np.arange(100), np.sum(full_bins, axis=0), linestyle="-.")
         if log:
-            ax2.set_yscale('log')
-        ax2.set_title(r'Background: Sum along y-axis')
+            ax2.set_yscale("log")
+        ax2.set_title(r"Background: Sum along y-axis")
 
-        ax3.step(np.arange(100), np.sum(gt_vox, axis=1), label='Ideal Binary Mask')
+        ax3.step(np.arange(100), np.sum(gt_vox, axis=1), label="Ideal Binary Mask")
         ax3.step(
             np.arange(100),
             np.sum(dc_vox, axis=1),
-            linestyle='--',
-            label='Deep Clustering Mask',
+            linestyle="--",
+            label="Deep Clustering Mask",
         )
         ax3.step(
             np.arange(100),
             np.sum(full_bins, axis=1),
-            linestyle='-.',
-            label='Full Embedding Space',
+            linestyle="-.",
+            label="Full Embedding Space",
         )
-        ax3.legend(loc='upper right', shadow=False, fontsize='medium')
+        ax3.legend(loc="upper right", shadow=False, fontsize="medium")
         if log:
-            ax3.set_yscale('log')
-        ax3.set_title(r'Vocals: Sum along x-axis')
+            ax3.set_yscale("log")
+        ax3.set_title(r"Vocals: Sum along x-axis")
 
         ax4.step(np.arange(100), np.sum(gt_bak, axis=1))
-        ax4.step(np.arange(100), np.sum(dc_bak, axis=1), linestyle='--')
-        ax4.step(np.arange(100), np.sum(full_bins, axis=1), linestyle='-.')
+        ax4.step(np.arange(100), np.sum(dc_bak, axis=1), linestyle="--")
+        ax4.step(np.arange(100), np.sum(full_bins, axis=1), linestyle="-.")
         if log:
-            ax4.set_yscale('log')
-        ax4.set_title(r'Background: Sum along x-axis')
+            ax4.set_yscale("log")
+        ax4.set_title(r"Background: Sum along x-axis")
 
         if log:
             plt.savefig(
                 os.path.join(
-                    output_dir, '{}_axes_sums_embedding_log.png'.format(song_filename)
+                    output_dir, "{}_axes_sums_embedding_log.png".format(song_filename)
                 )
             )
         else:
             plt.savefig(
                 os.path.join(
-                    output_dir, '{}_axes_sums_embedding.png'.format(song_filename)
+                    output_dir, "{}_axes_sums_embedding.png".format(song_filename)
                 )
             )
 
     # Heat maps
-    plt.close('all')
+    plt.close("all")
     fig = plt.figure(figsize=(12, 9))  # , tight_layout=True)
     gs = gridspec.GridSpec(2, 3)
     gt_vox += 1e-1
@@ -263,59 +263,59 @@ def make_plots(full_bins, gt_vox, gt_bak, dc_vox, dc_bak, song_title, output_dir
     dc_vox += 1e-1
     dc_bak += 1e-1
     full_bins += 1e-1
-    plt.suptitle('Automatic Deep Clustering on {}'.format(song_title))
+    plt.suptitle("Automatic Deep Clustering on {}".format(song_title))
 
     ax1 = fig.add_subplot(gs[0, 0])
     ax1.imshow(gt_vox, norm=LogNorm(vmin=1, vmax=np.max(full_bins)))
-    ax1.set_title(r'Vocals: Ideal Binary Mask')
+    ax1.set_title(r"Vocals: Ideal Binary Mask")
 
     ax2 = fig.add_subplot(gs[0, 1])
     ax2.imshow(gt_bak, norm=LogNorm(vmin=1, vmax=np.max(full_bins)))
-    ax2.set_title(r'Background: Ideal Binary Mask')
+    ax2.set_title(r"Background: Ideal Binary Mask")
 
     ax3 = fig.add_subplot(gs[1, 0])
     ax3.imshow(dc_vox, norm=LogNorm(vmin=1, vmax=np.max(full_bins)))
-    ax3.set_title(r'Vocals: Deep Clustering Mask')
+    ax3.set_title(r"Vocals: Deep Clustering Mask")
 
     ax4 = fig.add_subplot(gs[1, 1])
     ax4.imshow(dc_bak, norm=LogNorm(vmin=1, vmax=np.max(full_bins)))
-    ax4.set_title(r'Background: Deep Clustering Mask')
+    ax4.set_title(r"Background: Deep Clustering Mask")
 
     ax5 = fig.add_subplot(gs[:, 2])
     hm = ax5.imshow(full_bins, norm=LogNorm(vmin=1, vmax=np.max(full_bins)))
-    ax5.set_title('Full embedding space')
+    ax5.set_title("Full embedding space")
 
-    fig.colorbar(hm, ax=ax5, orientation='horizontal')
+    fig.colorbar(hm, ax=ax5, orientation="horizontal")
 
     # for ax in fig.axes:
     #     ax.get_xaxis().set_ticks([])
     #     ax.get_yaxis().set_ticks([])
 
-    plt.savefig(os.path.join(output_dir, '{}_heat_maps.png'.format(song_filename)))
+    plt.savefig(os.path.join(output_dir, "{}_heat_maps.png".format(song_filename)))
 
     # Diff plots
-    plt.close('all')
+    plt.close("all")
     fig, (ax1, ax2) = plt.subplots(figsize=(12, 9), ncols=2)
-    plt.suptitle('Automatic Deep Clustering on {}'.format(song_title))
+    plt.suptitle("Automatic Deep Clustering on {}".format(song_title))
     vox_diff = np.maximum(gt_vox - dc_vox, 1e-7)
     bg_diff = np.maximum(gt_bak - dc_bak, 1e-7)
 
     ax1.imshow(
         vox_diff, norm=LogNorm(vmin=1, vmax=np.max([np.max(vox_diff), np.max(bg_diff)]))
     )
-    ax1.set_title(r'Vocals: IBM Mask $-$ DC Mask')
+    ax1.set_title(r"Vocals: IBM Mask $-$ DC Mask")
 
     hm = ax2.imshow(
         bg_diff, norm=LogNorm(vmin=1, vmax=np.max([np.max(vox_diff), np.max(bg_diff)]))
     )
-    ax2.set_title(r'Background: IBM Mask $-$ DC Mask')
-    fig.colorbar(hm, ax=(ax1, ax2), orientation='horizontal')
+    ax2.set_title(r"Background: IBM Mask $-$ DC Mask")
+    fig.colorbar(hm, ax=(ax1, ax2), orientation="horizontal")
 
     # for ax in fig.axes:
     #     ax.get_xaxis().set_ticks([])
     #     ax.get_yaxis().set_ticks([])
 
-    plt.savefig(os.path.join(output_dir, '{}_diff_heat_maps.png'.format(song_filename)))
+    plt.savefig(os.path.join(output_dir, "{}_diff_heat_maps.png".format(song_filename)))
 
 
 def get_coordinate_from_TF_index(index, inner_dim):  # inner_dim == 150
@@ -457,5 +457,5 @@ def to_mel(sig, mel_filter_bank, silence_mask_cutoff=0):
     return mel_spectrogram
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

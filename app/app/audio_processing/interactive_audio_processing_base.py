@@ -6,7 +6,7 @@ import numpy as np
 
 import sys
 
-sys.path.insert(0, '../nussl')
+sys.path.insert(0, "../nussl")
 import nussl
 
 logger = logging.getLogger()
@@ -29,12 +29,12 @@ class InteractiveAudioProcessingBase(object):
 
         if not isinstance(mixture_signal, nussl.AudioSignal):
             raise self.AudioProcessingBaseException(
-                'audio_signal_object is not nussl.AudioSignal object!'
+                "audio_signal_object is not nussl.AudioSignal object!"
             )
 
         if not mixture_signal.has_audio_data:
             raise self.AudioProcessingBaseException(
-                'audio_signal_object is expected to have audio_data already!'
+                "audio_signal_object is expected to have audio_data already!"
             )
 
         self.storage_path = storage_path
@@ -43,10 +43,10 @@ class InteractiveAudioProcessingBase(object):
 
     def _mask_sanity_check(self, selections):
         if not self.audio_signal_copy.has_stft_data:
-            raise Exception('Audio Signal has no STFT data!')
+            raise Exception("Audio Signal has no STFT data!")
 
         if len(selections) <= 0:
-            logger.warn('No Selections!')
+            logger.warn("No Selections!")
             return False
 
         return True
@@ -78,4 +78,4 @@ class InteractiveAudioProcessingBase(object):
 
     @staticmethod
     def _log_space_prepare(array):
-        return np.add(librosa.amplitude_to_db(array, ref=np.max).astype('int8'), 80)
+        return np.add(librosa.amplitude_to_db(array, ref=np.max).astype("int8"), 80)

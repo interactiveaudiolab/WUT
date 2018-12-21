@@ -4,7 +4,7 @@ import os
 import numpy as np
 import matplotlib
 
-matplotlib.use('Agg')
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 from .interactive_audio_processing_base import InteractiveAudioProcessingBase
@@ -13,7 +13,7 @@ from .annotation_dataset import AnnotationDataset
 import sys
 
 # FIXME: remove hack
-sys.path.insert(0, '../nussl')
+sys.path.insert(0, "../nussl")
 import nussl
 
 logger = logging.getLogger()
@@ -22,7 +22,7 @@ logger = logging.getLogger()
 class DeepSeparationWrapper(InteractiveAudioProcessingBase):
     """"""
 
-    def __init__(self, mixture_signal, storage_path, model_path='speech_wsj8k.pth'):
+    def __init__(self, mixture_signal, storage_path, model_path="speech_wsj8k.pth"):
         super(DeepSeparationWrapper, self).__init__(mixture_signal, storage_path)
 
         # try to load model through `efz`, if this fails for any reason,
@@ -31,13 +31,13 @@ class DeepSeparationWrapper(InteractiveAudioProcessingBase):
             self.model_path = nussl.efz_utils.download_trained_model(model_path)
         except:
             self.model_path = os.path.expanduser(
-                os.path.join('~', '.nussl', 'models', model_path)
+                os.path.join("~", ".nussl", "models", model_path)
             )
         self.original_path = self.model_path
 
         mixture_signal.to_mono()
         self._deep_separation = nussl.DeepSeparation(
-            mixture_signal, num_sources=2, mask_type='soft', model_path=self.model_path
+            mixture_signal, num_sources=2, mask_type="soft", model_path=self.model_path
         )
         # hardcoding in square PCA
         self.PCA_dimension = 100
@@ -47,14 +47,14 @@ class DeepSeparationWrapper(InteractiveAudioProcessingBase):
 
     def build_annotation_dataset(self, assignments):
         data = self._deep_separation._preprocess()
-        data['magnitude_spectrogram'] = data['magnitude_spectrogram'].cpu().numpy()[0]
-        data['log_spectrogram'] = data['log_spectrogram'].cpu().numpy()[0]
+        data["magnitude_spectrogram"] = data["magnitude_spectrogram"].cpu().numpy()[0]
+        data["log_spectrogram"] = data["log_spectrogram"].cpu().numpy()[0]
 
         assignments = np.asarray(assignments)
         dataset_input = {
-            'magnitude_spectrogram': data['magnitude_spectrogram'],
-            'log_spectrogram': data['log_spectrogram'],
-            'assignments': np.stack(
+            "magnitude_spectrogram": data["magnitude_spectrogram"],
+            "log_spectrogram": data["log_spectrogram"],
+            "assignments": np.stack(
                 [assignments, 1 - assignments], len(assignments.shape)
             ),
         }
@@ -93,22 +93,22 @@ class DeepSeparationWrapper(InteractiveAudioProcessingBase):
         return self._deep_separation.apply_mask(mask)
 
     # remove reliance on user_original_file_folder here
-    def send_separation(self, socket, namespace, file_path=''):
+    def send_separation(self, socket, namespace, file_path=""):
         binned_embeddings, log_spectrogram = self._massage_data(
             *self.get_embeddings_and_spectrogram()
         )
 
         socket.emit(
-            'binned_embeddings', json.dumps(binned_embeddings), namespace=namespace
+            "binned_embeddings", json.dumps(binned_embeddings), namespace=namespace
         )
 
         if file_path:
             self._save_spectrogram_image(log_spectrogram, file_path)
             socket.emit(
-                'spectrogram', json.dumps(log_spectrogram.tolist()), namespace=namespace
+                "spectrogram", json.dumps(log_spectrogram.tolist()), namespace=namespace
             )
 
-        logger.info(f'Sent separation for {self.user_audio_signal.file_name}')
+        logger.info(f"Sent separation for {self.user_audio_signal.file_name}")
 
     @staticmethod
     def _save_spectrogram_image(data, file_path):
@@ -122,7 +122,7 @@ class DeepSeparationWrapper(InteractiveAudioProcessingBase):
         ax.set_axis_off()
         fig.add_axes(ax)
 
-        img = ax.imshow(data, interpolation='nearest', aspect='auto', cmap='Greys')
+        img = ax.imshow(data, interpolation="nearest", aspect="auto", cmap="Greys")
         ax.invert_yaxis()
         fig.savefig(file_path, dpi=80)
 

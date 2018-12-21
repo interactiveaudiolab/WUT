@@ -3,7 +3,7 @@ import logging
 import os
 import matplotlib
 
-matplotlib.use('Agg')
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -12,7 +12,7 @@ from .interactive_audio_processing_base import InteractiveAudioProcessingBase
 import sys
 
 # FIXME: remove hack
-sys.path.insert(0, '../nussl')
+sys.path.insert(0, "../nussl")
 import nussl
 
 logger = logging.getLogger()
@@ -42,8 +42,8 @@ class GeneralAudio(InteractiveAudioProcessingBase):
 
     def send_spectrogram_json(self, socket, namespace):
         spec_json = self.get_spectrogram_json()
-        socket.emit('spectrogram', {'spectrogram': spec_json}, namespace=namespace)
-        logger.info(f'Sent spectrogram for {self.user_audio_signal.file_name}')
+        socket.emit("spectrogram", {"spectrogram": spec_json}, namespace=namespace)
+        logger.info(f"Sent spectrogram for {self.user_audio_signal.file_name}")
 
     def find_peak_freq(self, freq_min=10000, bump=10):
         """
@@ -56,7 +56,7 @@ class GeneralAudio(InteractiveAudioProcessingBase):
             self.max_frequency_displayed = 20000
             return -1
 
-        elif self.audio_signal_copy.file_name.endswith('wav'):
+        elif self.audio_signal_copy.file_name.endswith("wav"):
             self.max_frequency_displayed = self.audio_signal_copy.sample_rate // 2
             return -1
 
@@ -74,12 +74,12 @@ class GeneralAudio(InteractiveAudioProcessingBase):
             idx = freq_i + freq_bin + bump
             idx = len(freqs) - 1 if idx >= len(freqs) else idx
 
-            logger.info(f'Max freq = {freqs[idx]} Hz')
+            logger.info(f"Max freq = {freqs[idx]} Hz")
 
             self.max_frequency_displayed = freqs[idx]
             return idx
 
-    def spectrogram_image(self, img_width=28, img_height=12, dpi=80, cmap='plasma'):
+    def spectrogram_image(self, img_width=28, img_height=12, dpi=80, cmap="plasma"):
         file_name = f'{self.audio_signal_copy.file_name.replace(".", "_")}_spec.png'
         file_path = os.path.join(self.storage_path, file_name)
         self.spectrogram_image_path = file_path
@@ -95,15 +95,15 @@ class GeneralAudio(InteractiveAudioProcessingBase):
         ax.set_axis_off()
         fig.add_axes(ax)
 
-        img = ax.imshow(spec, interpolation='nearest', aspect='auto')
+        img = ax.imshow(spec, interpolation="nearest", aspect="auto")
         img.set_cmap(cmap)
         ax.invert_yaxis()
         fig.savefig(file_path, dpi=dpi)
 
     def make_wav_file(self):
         self.audio_signal_copy.istft(overwrite=True)
-        file_name_stem = self.audio_signal_copy.file_name.replace('.', '-')
-        new_audio_file_name = self._make_new_file_name(file_name_stem, 'wav')
+        file_name_stem = self.audio_signal_copy.file_name.replace(".", "-")
+        new_audio_file_name = self._make_new_file_name(file_name_stem, "wav")
 
         new_audio_file_path = os.path.join(self.storage_path, new_audio_file_name)
         self.audio_signal_copy.write_audio_to_file(new_audio_file_path)
@@ -113,10 +113,10 @@ class GeneralAudio(InteractiveAudioProcessingBase):
     @staticmethod
     def _make_new_file_name(file_name_stem, extension):
         i = 0
-        new_name = f'{file_name_stem}_{i}.{extension}'
+        new_name = f"{file_name_stem}_{i}.{extension}"
         while os.path.isfile(new_name):
             i += 1
-            new_name = f'{file_name_stem}_{i}.{extension}'
+            new_name = f"{file_name_stem}_{i}.{extension}"
 
         return new_name
 

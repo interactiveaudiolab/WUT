@@ -16,7 +16,7 @@ for folder in INIT_FOLDERS:
 
 # temporarily disable 'werkzeug` logging, redirect to file in the future
 # TODO: shouldn't use `werkzeug` in production, use something like `gunicorcn`
-logging.getLogger('werkzeug').disabled = True
+logging.getLogger("werkzeug").disabled = True
 
 # set up a logger
 logger = logging.getLogger()

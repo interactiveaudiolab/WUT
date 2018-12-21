@@ -4,6 +4,7 @@ import logging
 import os
 import uuid
 import jsonpickle
+
 # for serializing numpy values - https://jsonpickle.github.io/extensions.html
 import jsonpickle.ext.numpy as jsonpickle_numpy
 
@@ -14,7 +15,7 @@ from . import utils
 # FIXME: remove hack
 import sys
 
-sys.path.insert(0, '../nussl')
+sys.path.insert(0, "../nussl")
 
 import nussl
 
@@ -46,7 +47,7 @@ class SeparationSession(object):
             )
             utils.safe_makedirs(self.user_original_file_folder)
 
-            logger.info(f'New session ready! - {self.url_safe_id}')
+            logger.info(f"New session ready! - {self.url_safe_id}")
 
         self.user_original_file_location = None
         self.user_general_audio = None
@@ -67,7 +68,7 @@ class SeparationSession(object):
 
     def initialize(self, path_to_file):
         if not os.path.isfile(path_to_file):
-            raise Exception(f'File path not a file! - {path_to_file}')
+            raise Exception(f"File path not a file! - {path_to_file}")
 
         self.user_original_file_location = path_to_file
 
