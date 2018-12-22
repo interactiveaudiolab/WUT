@@ -120,7 +120,7 @@ $(window).resize(_.debounce(function(){
     inverse_waveform.resizeWaveform();
 }, 500));
 
-//  ~~~~~~~~~~~~~ Hear Results button ~~~~~~~~~~~~~
+//  ~~~~~~~~~~~~~ Hear Sources button ~~~~~~~~~~~~~
 
 $('#apply-selections').click(function(){
     // probably a better way to check this in the future

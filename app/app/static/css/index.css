@@ -717,7 +717,7 @@ body.modal-ready,
 	transition: 0.75s all cubic-bezier(0.250, 0.460, 0.450, 0.940);
 }
 
-/* overwrite button color on apply-selections button ("Hear Results") button */
+/* overwrite button color on apply-selections button ("Hear Sources") button */
 #apply-selections, #retrain {
   background: blueviolet;
   border: blueviolet;
