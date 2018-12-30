@@ -1,10 +1,11 @@
 # WUT - Web Unmixing Tool
 
-The Interactive Audio Laboratory's browser-based interactive source separation app. This application allows one to perform interactive audio source separation using deep clustering.
+WUT is the [Interactive Audio Laboratory's] (http://music.cs.northwestern.edu) browser-based interactive source separation app. This end-user application makes it easy for musicians, producers and podcasters to apply audio source separation to unmix a recording into individual tracks. For example, if you have a recording with two overlapping voices, or a recording with a voice and backing track and want to remove a voice, WUT makes it easy. WUT also learns from user interaction and correction, improving its performance for next time.
 
 **This work is currently in pre-alpha stage and is under active development.**
 
 ## Installation
+WUT is a client-server application that uses a Javascript front-end to connect to a Python back-end server.  
 
 WUT requires Python 3.6 or later and [redis-server](https://redis.io/).
 
