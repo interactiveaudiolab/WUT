@@ -1,6 +1,6 @@
 # WUT - Web Unmixing Tool
 
-WUT is the [Interactive Audio Laboratory's] (http://music.cs.northwestern.edu) browser-based interactive source separation app. This end-user application makes it easy for musicians, producers and podcasters to apply audio source separation to unmix a recording into individual tracks. For example, if you have a recording with two overlapping voices, or a recording with a voice and backing track and want to remove a voice, WUT makes it easy. WUT also learns from user interaction and correction, improving its performance for next time.
+WUT is the [Interactive Audio Laboratory's](http://music.cs.northwestern.edu) browser-based interactive source separation app. This end-user application makes it easy for musicians, producers and podcasters to apply audio source separation to unmix a recording into individual tracks. For example, if you have a recording with two overlapping voices, or a recording with a voice and backing track and want to remove a voice, WUT makes it easy. WUT also learns from user interaction and correction, improving its performance for next time.
 
 **This work is currently in pre-alpha stage and is under active development.**
 
