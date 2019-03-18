@@ -87,7 +87,7 @@ class PlotlyHeatmap {
         // let colors = PlotlyHeatmap.getColor();
         let colors = colorDict.white;
 
-        let sel = getLastItemInArray(this.selections);
+        let sel = this.selections.slice(-1)[0];
         let rect = {
             'type': 'rect',
             'x0': sel.xStart,
