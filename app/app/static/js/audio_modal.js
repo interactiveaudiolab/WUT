@@ -118,7 +118,7 @@ function upload_to_server(file, selection) {
 
 document.getElementById('audio-upload-modal-upload').addEventListener('click',
   () => {
-      for(let waveform of audio.waveforms) {
+      for(let waveform of all_waveforms) {
           if(waveform && waveform.surfer.backend.buffer && waveform.surfer.isPlaying()) {
               waveform.pause();
           }
