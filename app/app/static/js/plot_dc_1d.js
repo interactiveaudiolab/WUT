@@ -23,8 +23,6 @@ class DC1DBar {
             .click(() => this.flipEmbedding());
         $(makeSelector(this.controlsIDs.logYCheck))
             .click(() => this.toggleLogY());
-        $(makeSelector(this.controlsIDs.applyID))
-            .click(() => this.processResults());
 
         this._rawData = null;
 
@@ -168,15 +166,6 @@ class DC1DBar {
      */
     addTFIndices(indices) {
         this.TFIndices = indices.map(_.flatten);
-    }
-
-    processResults() {
-        if(!$(addPoundToId(this.controlsIDs.applyID)).hasClass('disabled')) {
-            selectionCounter++;
-            socket.emit('mask', {
-                mask: this.linkedSpec.exportSelectionMask()
-            });
-        }
     }
 
     _drawMarkers(color) {
