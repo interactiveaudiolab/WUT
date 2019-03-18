@@ -95,7 +95,7 @@ class DC1DBar {
     emptyBars() {
         let n = 100;
         this.unselectedTrace.x = arange(0, n, 1);
-        this.unselectedTrace.y = zeros(n, 1);
+        this.unselectedTrace.y = Array(n).fill().map(()=>Array(1).fill(0));
 
         this.dcBarPlot = Plotly.newPlot(
             this.barID,
