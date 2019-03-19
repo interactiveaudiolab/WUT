@@ -72,8 +72,7 @@ class ScatterSpectrogram extends PlotlyHeatmap {
         Plotly.addTraces(this.divID, data);
     }
 
-    // returns TxF matrix with 1s in all TF bins
-    // currently selected
+    // returns TxF matrix with 1s in all TF bins currently selected
     exportSelectionMask() {
         let matrix = [...new Array(this.dims[1])].map(() =>
             [...new Array(this.dims[0])].map(() => 0)
